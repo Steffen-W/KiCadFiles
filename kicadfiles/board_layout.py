@@ -10,6 +10,7 @@ from .base_types import (
     Diameter,
     End,
     Layer,
+    Layers,
     Locked,
     Property,
     Start,
@@ -18,7 +19,7 @@ from .base_types import (
 )
 from .footprint_library import Footprint
 from .pad_and_drill import Net
-from .text_and_documents import Generator, Page, Version
+from .text_and_documents import Generator, GeneratorVersion, Page, Version
 from .zone_system import Zone
 
 
@@ -57,36 +58,6 @@ class General(KiCadObject):
 
     thickness: float = field(
         default=1.6, metadata={"description": "Overall board thickness"}
-    )
-
-
-@dataclass
-class Layers(KiCadObject):
-    """Board layers definition token.
-
-    The 'layers' token defines all layers used by the board in the format::
-
-        (layers
-            (
-                ORDINAL
-                "CANONICAL_NAME"
-                TYPE
-                ["USER_NAME"]
-            )
-            ;; remaining layers...
-        )
-
-    Args:
-        layer_definitions: List of layer definitions (ordinal, canonical_name, type, user_name)
-    """
-
-    __token_name__ = "layers"
-
-    layer_definitions: list[tuple[Any, ...]] = field(
-        default_factory=list,
-        metadata={
-            "description": "List of layer definitions (ordinal, canonical_name, type, user_name)"
-        },
     )
 
 
@@ -336,8 +307,9 @@ class Via(KiCadObject):
         default_factory=lambda: Diameter(),
         metadata={"description": "Drill diameter of the via"},
     )
-    layers: list[str] = field(
-        default_factory=list, metadata={"description": "Layer set the via connects"}
+    layers: Layers = field(
+        default_factory=lambda: Layers(),
+        metadata={"description": "Layer set the via connects"},
     )
     remove_unused_layers: Optional[bool] = field(
         default=None,
@@ -487,14 +459,17 @@ class KicadPcb(KiCadObject):
         default_factory=lambda: Generator(),
         metadata={"description": "Generator application"},
     )
-
-    # Required sections
-    general: General = field(
-        default_factory=lambda: General(),
-        metadata={"description": "General board settings"},
+    generator_version: Optional[GeneratorVersion] = field(
+        default=None,
+        metadata={"description": "Generator version", "required": False},
     )
 
     # Optional sections
+    general: Optional[General] = field(
+        default=None,
+        metadata={"description": "General board settings", "required": False},
+    )
+
     page: Optional[Page] = field(
         default=None, metadata={"description": "Page settings", "required": False}
     )

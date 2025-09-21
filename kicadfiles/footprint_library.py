@@ -3,10 +3,12 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .advanced_graphics import FpCircle, FpRect, FpText
 from .base_element import KiCadObject, ParseStrictness
 from .base_types import At, Clearance, Layer, Locked, Property, Rotate, Uuid, Width, Xyz
 from .pad_and_drill import Pad
-from .text_and_documents import Scale, Tedit
+from .schematic_system import EmbeddedFonts
+from .text_and_documents import Generator, GeneratorVersion, Scale, Tedit, Version
 
 
 @dataclass
@@ -281,6 +283,16 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Link to footprint library", "required": False},
     )
+    version: Optional[Version] = field(
+        default=None, metadata={"description": "File format version", "required": False}
+    )
+    generator: Optional[Generator] = field(
+        default=None,
+        metadata={"description": "Generator application", "required": False},
+    )
+    generator_version: Optional[GeneratorVersion] = field(
+        default=None, metadata={"description": "Generator version", "required": False}
+    )
     locked: Optional[Locked] = field(
         default=None,
         metadata={
@@ -299,8 +311,8 @@ class Footprint(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the footprint is placed on"},
     )
-    tedit: Tedit = field(
-        default_factory=lambda: Tedit(), metadata={"description": "Last edit timestamp"}
+    tedit: Optional[Tedit] = field(
+        default=None, metadata={"description": "Last edit timestamp", "required": False}
     )
     uuid: Optional[Uuid] = field(
         default=None,
@@ -328,9 +340,12 @@ class Footprint(KiCadObject):
         default_factory=list,
         metadata={"description": "List of footprint properties", "required": False},
     )
-    path: str = field(
-        default="",
-        metadata={"description": "Hierarchical path of linked schematic symbol"},
+    path: Optional[str] = field(
+        default=None,
+        metadata={
+            "description": "Hierarchical path of linked schematic symbol",
+            "required": False,
+        },
     )
     attr: Optional[Attr] = field(
         default=None,
@@ -401,6 +416,22 @@ class Footprint(KiCadObject):
     models: Optional[list[Model]] = field(
         default_factory=list,
         metadata={"description": "List of 3D models", "required": False},
+    )
+    fp_rects: Optional[list[FpRect]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint rectangles", "required": False},
+    )
+    fp_circles: Optional[list[FpCircle]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint circles", "required": False},
+    )
+    fp_texts: Optional[list[FpText]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint texts", "required": False},
+    )
+    embedded_fonts: Optional[EmbeddedFonts] = field(
+        default=None,
+        metadata={"description": "Embedded fonts settings", "required": False},
     )
 
     @classmethod

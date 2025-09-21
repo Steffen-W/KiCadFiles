@@ -6,7 +6,7 @@ from typing import Any, Optional
 from .base_element import KiCadObject, ParseStrictness
 from .base_types import At, Color, Effects, Fill, Property, Pts, Size, Stroke, Uuid
 from .symbol_library import LibSymbols, Pin
-from .text_and_documents import Generator, Version
+from .text_and_documents import Generator, GeneratorVersion, Page, Paper, Version
 
 
 @dataclass
@@ -401,6 +401,74 @@ class Repeat(KiCadObject):
 
 
 @dataclass
+class SheetInstance(KiCadObject):
+    """Sheet instance definition token.
+
+    The 'path' token defines a sheet instance in the format::
+
+        (path "PATH_STRING"
+            (page "PAGE_NUMBER")
+        )
+
+    Args:
+        path: Hierarchical path string
+        page: Page object
+    """
+
+    __token_name__ = "path"
+
+    path: str = field(default="", metadata={"description": "Hierarchical path string"})
+    page: Page = field(
+        default_factory=lambda: Page(),
+        metadata={"description": "Page object"},
+    )
+
+
+@dataclass
+class SheetInstances(KiCadObject):
+    """Sheet instances container definition token.
+
+    The 'sheet_instances' token defines sheet instances in the format::
+
+        (sheet_instances
+            (path "PATH1" (page "PAGE1"))
+            (path "PATH2" (page "PAGE2"))
+            ...
+        )
+
+    Args:
+        sheet_instances: List of sheet instances
+    """
+
+    __token_name__ = "sheet_instances"
+
+    sheet_instances: list[SheetInstance] = field(
+        default_factory=list,
+        metadata={"description": "List of sheet instances"},
+    )
+
+
+@dataclass
+class EmbeddedFonts(KiCadObject):
+    """Embedded fonts definition token.
+
+    The 'embedded_fonts' token defines whether fonts are embedded in the format::
+
+        (embedded_fonts yes)
+        (embedded_fonts no)
+
+    Args:
+        enabled: Whether embedded fonts are enabled
+    """
+
+    __token_name__ = "embedded_fonts"
+
+    enabled: bool = field(
+        default=False, metadata={"description": "Whether embedded fonts are enabled"}
+    )
+
+
+@dataclass
 class KicadSch(KiCadObject):
     """KiCad schematic file definition.
 
@@ -440,9 +508,25 @@ class KicadSch(KiCadObject):
         default_factory=lambda: Generator(),
         metadata={"description": "Generator application name"},
     )
+    generator_version: Optional[GeneratorVersion] = field(
+        default=None,
+        metadata={"description": "Generator version", "required": False},
+    )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(),
         metadata={"description": "Universally unique identifier for the schematic"},
+    )
+    paper: Optional[Paper] = field(
+        default=None,
+        metadata={"description": "Paper settings", "required": False},
+    )
+    sheet_instances: Optional[SheetInstances] = field(
+        default=None,
+        metadata={"description": "Sheet instances", "required": False},
+    )
+    embedded_fonts: Optional[EmbeddedFonts] = field(
+        default=None,
+        metadata={"description": "Embedded fonts setting", "required": False},
     )
     lib_symbols: Optional[LibSymbols] = field(
         default=None,

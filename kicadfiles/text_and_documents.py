@@ -123,6 +123,23 @@ class Generator(KiCadObject):
 
 
 @dataclass
+class GeneratorVersion(KiCadObject):
+    """Generator version definition token.
+
+    The 'generator_version' token defines the software generator version in the format::
+
+        (generator_version VERSION)
+
+    Args:
+        version: Generator version string
+    """
+
+    __token_name__ = "generator_version"
+
+    version: str = field(default="", metadata={"description": "Generator version"})
+
+
+@dataclass
 class Page(KiCadObject):
     """Page settings definition token.
 
@@ -552,6 +569,141 @@ class Group(KiCadObject):
 
 
 @dataclass
+class WksTextsize(KiCadObject):
+    """Worksheet text size definition token."""
+
+    __token_name__ = "textsize"
+
+    width: float = field(
+        default=1.0,
+        metadata={"description": "Text width"},
+    )
+    height: float = field(
+        default=1.0,
+        metadata={"description": "Text height"},
+    )
+
+
+@dataclass
+class WksLinewidth(KiCadObject):
+    """Worksheet line width definition token."""
+
+    __token_name__ = "linewidth"
+
+    value: float = field(
+        default=0.15,
+        metadata={"description": "Line width value"},
+    )
+
+
+@dataclass
+class WksTextlinewidth(KiCadObject):
+    """Worksheet text line width definition token."""
+
+    __token_name__ = "textlinewidth"
+
+    value: float = field(
+        default=0.15,
+        metadata={"description": "Text line width value"},
+    )
+
+
+@dataclass
+class WksMargin(KiCadObject):
+    """Worksheet margin definition token."""
+
+    value: float = field(
+        default=10.0,
+        metadata={"description": "Margin value"},
+    )
+
+
+@dataclass
+class WksLeftMargin(WksMargin):
+    """Worksheet left margin definition token."""
+
+    __token_name__ = "left_margin"
+
+
+@dataclass
+class WksRightMargin(WksMargin):
+    """Worksheet right margin definition token."""
+
+    __token_name__ = "right_margin"
+
+
+@dataclass
+class WksTopMargin(WksMargin):
+    """Worksheet top margin definition token."""
+
+    __token_name__ = "top_margin"
+
+
+@dataclass
+class WksBottomMargin(WksMargin):
+    """Worksheet bottom margin definition token."""
+
+    __token_name__ = "bottom_margin"
+
+
+@dataclass
+class WksSetup(KiCadObject):
+    """Worksheet setup definition token."""
+
+    __token_name__ = "setup"
+
+    textsize: Optional[WksTextsize] = field(
+        default=None,
+        metadata={"description": "Text size", "required": False},
+    )
+    linewidth: Optional[WksLinewidth] = field(
+        default=None,
+        metadata={"description": "Line width", "required": False},
+    )
+    textlinewidth: Optional[WksTextlinewidth] = field(
+        default=None,
+        metadata={"description": "Text line width", "required": False},
+    )
+    left_margin: Optional[WksLeftMargin] = field(
+        default=None,
+        metadata={"description": "Left margin", "required": False},
+    )
+    right_margin: Optional[WksRightMargin] = field(
+        default=None,
+        metadata={"description": "Right margin", "required": False},
+    )
+    top_margin: Optional[WksTopMargin] = field(
+        default=None,
+        metadata={"description": "Top margin", "required": False},
+    )
+    bottom_margin: Optional[WksBottomMargin] = field(
+        default=None,
+        metadata={"description": "Bottom margin", "required": False},
+    )
+
+
+@dataclass
+class WksRect(KiCadObject):
+    """Worksheet rectangle definition token."""
+
+    __token_name__ = "rect"
+
+
+@dataclass
+class WksLine(KiCadObject):
+    """Worksheet line definition token."""
+
+    __token_name__ = "line"
+
+
+@dataclass
+class WksTbText(KiCadObject):
+    """Worksheet text block definition token."""
+
+    __token_name__ = "tbtext"
+
+
+@dataclass
 class KicadWks(KiCadObject):
     """KiCad worksheet definition token.
 
@@ -579,11 +731,30 @@ class KicadWks(KiCadObject):
     generator: Generator = field(
         default_factory=lambda: Generator(), metadata={"description": "Generator name"}
     )
+    generator_version: Optional[GeneratorVersion] = field(
+        default=None,
+        metadata={"description": "Generator version", "required": False},
+    )
     page: Optional[Page] = field(
         default=None, metadata={"description": "Page settings", "required": False}
     )
     title_block: Optional[TitleBlock] = field(
         default=None, metadata={"description": "Title block", "required": False}
+    )
+    setup: Optional[WksSetup] = field(
+        default=None, metadata={"description": "Worksheet setup", "required": False}
+    )
+    rect: Optional[list[WksRect]] = field(
+        default_factory=list,
+        metadata={"description": "List of rectangles", "required": False},
+    )
+    line: Optional[list[WksLine]] = field(
+        default_factory=list,
+        metadata={"description": "List of lines", "required": False},
+    )
+    tbtext: Optional[list[WksTbText]] = field(
+        default_factory=list,
+        metadata={"description": "List of text blocks", "required": False},
     )
     elements: Optional[list[Any]] = field(
         default_factory=list,

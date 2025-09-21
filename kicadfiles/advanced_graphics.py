@@ -23,6 +23,7 @@ from .base_types import (
     Tstamp,
     Type,
     Units,
+    Unlocked,
     Uuid,
     Width,
 )
@@ -644,16 +645,22 @@ class FpCircle(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: Optional[Width] = field(
+        default=None, metadata={"description": "Line width", "required": False}
     )
     tstamp: Optional[Tstamp] = field(
         default=None, metadata={"description": "Timestamp UUID", "required": False}
     )
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier", "required": False}
+    )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    fill: Optional[Fill] = field(
+    # fill: Optional[Fill] = field(
+    #     default=None, metadata={"description": "Fill definition", "required": False}
+    # )
+    fill: Optional[bool] = field(
         default=None, metadata={"description": "Fill definition", "required": False}
     )
     locked: Optional[Locked] = field(
@@ -847,15 +854,22 @@ class FpRect(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(),
-        metadata={"description": "Line width (prior to version 7)"},
+    width: Optional[Width] = field(
+        default=None,
+        metadata={"description": "Line width (prior to version 7)", "required": False},
     )
-    stroke: Stroke = field(
-        default_factory=lambda: Stroke(),
-        metadata={"description": "Stroke definition (from version 7)"},
+    stroke: Optional[Stroke] = field(
+        default=None,
+        metadata={
+            "description": "Stroke definition (from version 7)",
+            "required": False,
+        },
     )
-    fill: Optional[Fill] = field(
+    # fill: Optional[Fill] = field(
+    #     default=None,
+    #     metadata={"description": "Whether the rectangle is filled", "required": False},
+    # )
+    fill: Optional[bool] = field(
         default=None,
         metadata={"description": "Whether the rectangle is filled", "required": False},
     )
@@ -901,8 +915,8 @@ class FpText(KiCadObject):
 
     __token_name__ = "fp_text"
 
-    type: Type = field(
-        default_factory=lambda: Type(),
+    type: str = field(
+        default="",
         metadata={"description": "Text type (reference | value | user)"},
     )
     text: str = field(default="", metadata={"description": "Text content"})
@@ -910,8 +924,8 @@ class FpText(KiCadObject):
         default_factory=lambda: At(),
         metadata={"description": "Position and rotation coordinates"},
     )
-    unlocked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("unlocked"),
+    unlocked: Optional[Unlocked] = field(
+        default=None,
         metadata={
             "description": "Whether text orientation can be other than upright",
             "required": False,

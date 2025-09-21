@@ -197,6 +197,7 @@ class DesignRule(KiCadObject):
             [(condition EXPRESSION)]
             [(priority PRIORITY_NUMBER)]
             (constraint CONSTRAINT_TYPE [CONSTRAINT_ARGUMENTS])
+            [(constraint CONSTRAINT_TYPE [CONSTRAINT_ARGUMENTS])]...
         )
 
     Args:
@@ -205,7 +206,7 @@ class DesignRule(KiCadObject):
         layer: Layer specification (optional)
         condition: Conditional expression (optional)
         priority: Rule priority (optional)
-        constraint: The constraint definition
+        constraints: List of constraint definitions
     """
 
     __token_name__ = "rule"
@@ -224,9 +225,9 @@ class DesignRule(KiCadObject):
     priority: Optional[DesignRulePriority] = field(
         default=None, metadata={"description": "Rule priority", "required": False}
     )
-    constraint: DesignRuleConstraint = field(
-        default_factory=lambda: DesignRuleConstraint(),
-        metadata={"description": "The constraint definition"},
+    constraints: list[DesignRuleConstraint] = field(
+        default_factory=list,
+        metadata={"description": "List of constraint definitions"},
     )
 
 
@@ -345,8 +346,8 @@ class KiCadDesignRules(KiCadObject):
 
         return "\n".join(lines)
 
-    def to_dru_file(self, file_path: str, encoding: str = "utf-8") -> None:
-        """Write to .kicad_dru file format.
+    def save_to_file(self, file_path: str, encoding: str = "utf-8") -> None:
+        """Save to .kicad_dru file format.
 
         Args:
             file_path: Path to write the .kicad_dru file

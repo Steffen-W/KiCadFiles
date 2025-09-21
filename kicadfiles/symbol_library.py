@@ -6,7 +6,48 @@ from typing import Any, Optional
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import At, Effects, Property
 from .enums import PinElectricalType, PinGraphicStyle
-from .text_and_documents import Generator, Version
+from .text_and_documents import Generator, GeneratorVersion, Version
+
+
+@dataclass
+class ExcludeFromSim(KiCadObject):
+    """Exclude from simulation flag definition token.
+
+    The 'exclude_from_sim' token defines whether a symbol is excluded from simulation in the format::
+
+        (exclude_from_sim yes)
+        (exclude_from_sim no)
+
+    Args:
+        excluded: Whether the symbol is excluded from simulation (default: False)
+    """
+
+    __token_name__ = "exclude_from_sim"
+
+    excluded: bool = field(
+        default=False,
+        metadata={"description": "Whether symbol is excluded from simulation"},
+    )
+
+
+@dataclass
+class EmbeddedFonts(KiCadObject):
+    """Embedded fonts flag definition token.
+
+    The 'embedded_fonts' token defines whether embedded fonts are used in the format::
+
+        (embedded_fonts yes)
+        (embedded_fonts no)
+
+    Args:
+        enabled: Whether embedded fonts are enabled (default: False)
+    """
+
+    __token_name__ = "embedded_fonts"
+
+    enabled: bool = field(
+        default=False, metadata={"description": "Whether embedded fonts are enabled"}
+    )
 
 
 @dataclass
@@ -343,11 +384,30 @@ class Symbol(KiCadObject):
         default=None,
         metadata={"description": "Pin names attributes", "required": False},
     )
-    in_bom: bool = field(
-        default=True, metadata={"description": "Whether symbol appears in BOM"}
+    in_bom: Optional[bool] = field(
+        default=None,
+        metadata={"description": "Whether symbol appears in BOM", "required": False},
     )
-    on_board: bool = field(
-        default=True, metadata={"description": "Whether symbol is exported to PCB"}
+    on_board: Optional[bool] = field(
+        default=None,
+        metadata={
+            "description": "Whether symbol is exported to PCB",
+            "required": False,
+        },
+    )
+    exclude_from_sim: Optional[ExcludeFromSim] = field(
+        default=None,
+        metadata={
+            "description": "Whether symbol is excluded from simulation",
+            "required": False,
+        },
+    )
+    embedded_fonts: Optional[EmbeddedFonts] = field(
+        default=None,
+        metadata={
+            "description": "Whether embedded fonts are used",
+            "required": False,
+        },
     )
     properties: Optional[list[Property]] = field(
         default_factory=list,
@@ -419,6 +479,10 @@ class KicadSymbolLib(KiCadObject):
     generator: Generator = field(
         default_factory=lambda: Generator(),
         metadata={"description": "Generator application name"},
+    )
+    generator_version: Optional[GeneratorVersion] = field(
+        default=None,
+        metadata={"description": "Generator version", "required": False},
     )
     symbols: Optional[list[Symbol]] = field(
         default_factory=list,

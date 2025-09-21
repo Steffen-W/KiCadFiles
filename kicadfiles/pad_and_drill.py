@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from .base_element import KiCadObject
-from .base_types import Anchor, At, Clearance, Locked, Offset, Size, Width
+from .base_types import Anchor, At, Clearance, Layers, Locked, Offset, Size, Width
 from .enums import PadShape, PadType, ZoneConnection
 
 
@@ -426,8 +426,9 @@ class Pad(KiCadObject):
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Pad dimensions"}
     )
-    layers: list[str] = field(
-        default_factory=list, metadata={"description": "Layer list"}
+    layers: Layers = field(
+        default_factory=lambda: Layers(),
+        metadata={"description": "Layer list"},
     )
     drill: Optional[Drill] = field(
         default=None, metadata={"description": "Drill definition", "required": False}

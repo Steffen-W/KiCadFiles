@@ -8,6 +8,26 @@ from .enums import FillType, PadShape, StrokeType
 
 
 @dataclass
+class Hide(KiCadObject):
+    """Hide flag definition token.
+
+    The 'hide' token defines whether an element is hidden in the format::
+
+        (hide yes)
+        (hide no)
+
+    Args:
+        hidden: Whether the element is hidden (default: True)
+    """
+
+    __token_name__ = "hide"
+
+    hidden: bool = field(
+        default=True, metadata={"description": "Whether element is hidden"}
+    )
+
+
+@dataclass
 class Anchor(KiCadObject):
     """Anchor pad shape definition for custom pads.
 
@@ -429,6 +449,23 @@ class Locked(KiCadObject):
     __token_name__ = "locked"
 
     value: bool = field(default=True, metadata={"description": "Locked state flag"})
+
+
+@dataclass
+class Unlocked(KiCadObject):
+    """Unlocked state definition token.
+
+    The 'unlocked' token defines whether an object is unlocked in the format::
+
+        (unlocked yes)
+
+    Args:
+        value: Unlocked state (bool, default True)
+    """
+
+    __token_name__ = "unlocked"
+
+    value: bool = field(default=True, metadata={"description": "Unlocked state"})
 
 
 @dataclass
@@ -896,8 +933,8 @@ class Effects(KiCadObject):
         default=None,
         metadata={"description": "Text justification", "required": False},
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: Optional[Hide] = field(
+        default=None,
         metadata={"description": "Whether text is hidden", "required": False},
     )
 
@@ -926,6 +963,10 @@ class Property(KiCadObject):
         id: Property ID (optional, for symbol properties)
         at: Position and rotation (optional, for symbol properties)
         effects: Text effects (optional, for symbol properties)
+        unlocked: Whether property is unlocked (optional)
+        layer: Layer assignment (optional)
+        uuid: Unique identifier (optional)
+        hide: Hide property flag (optional)
     """
 
     __token_name__ = "property"
@@ -942,3 +983,70 @@ class Property(KiCadObject):
     effects: Optional[Effects] = field(
         default=None, metadata={"description": "Text effects", "required": False}
     )
+    unlocked: Optional[Unlocked] = field(
+        default=None,
+        metadata={"description": "Whether property is unlocked", "required": False},
+    )
+    layer: Optional[Layer] = field(
+        default=None, metadata={"description": "Layer assignment", "required": False}
+    )
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier", "required": False}
+    )
+    hide: Optional[Hide] = field(
+        default=None,
+        metadata={"description": "Hide property flag", "required": False},
+    )
+
+
+@dataclass
+class Layers(KiCadObject):
+    """Layer list definition token.
+
+    The 'layers' token defines a list of layer names in the format::
+
+        (layers "F.Cu" "F.Paste" "F.Mask")
+        (layers "*.Cu" "*.Mask" "F.SilkS")
+
+    Used for pad layers, via layers, and other layer specifications.
+
+    TODO: Implement proper list parsing for direct parameters format.
+    Currently using individual fields as workaround.
+
+    Args:
+        layer1-5: Individual layer names (positional parameters)
+    """
+
+    __token_name__ = "layers"
+
+    # TODO: Replace with proper list parsing - temporary workaround with individual fields
+    layer1: Optional[str] = field(
+        default=None, metadata={"description": "First layer name", "required": False}
+    )
+    layer2: Optional[str] = field(
+        default=None, metadata={"description": "Second layer name", "required": False}
+    )
+    layer3: Optional[str] = field(
+        default=None, metadata={"description": "Third layer name", "required": False}
+    )
+    layer4: Optional[str] = field(
+        default=None, metadata={"description": "Fourth layer name", "required": False}
+    )
+    layer5: Optional[str] = field(
+        default=None, metadata={"description": "Fifth layer name", "required": False}
+    )
+
+    @property
+    def layers(self) -> list[str]:
+        """Get all non-None layer names as a list."""
+        return [
+            layer
+            for layer in [
+                self.layer1,
+                self.layer2,
+                self.layer3,
+                self.layer4,
+                self.layer5,
+            ]
+            if layer is not None
+        ]

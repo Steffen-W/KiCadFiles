@@ -88,9 +88,11 @@ from .base_types import (
     Fill,
     Font,
     Height,
+    Hide,
     Id,
     Justify,
     Layer,
+    Layers,
     Linewidth,
     Locked,
     Name,
@@ -110,6 +112,7 @@ from .base_types import (
     Tstamp,
     Type,
     Units,
+    Unlocked,
     Uuid,
     Visible,
     Width,
@@ -120,7 +123,6 @@ from .base_types import (
 # Board layout (15 classes) - dependencies: base_types
 from .board_layout import (
     General,
-    Layers,
     NetName,
     Nets,
     Orientation,
@@ -205,10 +207,11 @@ from .primitive_graphics import (
     Rectangle,
 )
 
-# Schematic system (13 classes) - dependencies: base_types, symbol_library
+# Schematic system (16 classes) - dependencies: base_types, symbol_library
 from .schematic_system import (
     Bus,
     BusEntry,
+    EmbeddedFonts,
     GlobalLabel,
     Incrx,
     Incry,
@@ -219,6 +222,8 @@ from .schematic_system import (
     Project,
     Repeat,
     Sheet,
+    SheetInstance,
+    SheetInstances,
     Wire,
 )
 
@@ -232,8 +237,9 @@ from .sexpr_parser import (
     str_to_sexpr,
 )
 
-# Symbol library (15 classes) - dependencies: base_types
+# Symbol library (17 classes) - dependencies: base_types
 from .symbol_library import (
+    ExcludeFromSim,
     Extends,
     FieldsAutoplaced,
     InBom,
@@ -260,6 +266,7 @@ from .text_and_documents import (
     Date,
     Descr,
     Generator,
+    GeneratorVersion,
     Group,
     Image,
     KicadWks,
@@ -357,9 +364,11 @@ __all__ = [
     "Fill",
     "Font",
     "Height",
+    "Hide",
     "Id",
     "Justify",
     "Layer",
+    "Layers",
     "Linewidth",
     "Locked",
     "Name",
@@ -378,6 +387,7 @@ __all__ = [
     "Title",
     "Tstamp",
     "Type",
+    "Unlocked",
     "Units",
     "Uuid",
     "Visible",
@@ -393,6 +403,7 @@ __all__ = [
     "Date",
     "Descr",
     "Generator",
+    "GeneratorVersion",
     "Group",
     "Image",
     "KicadWks",
@@ -461,7 +472,9 @@ __all__ = [
     "RenderCache",
     "SuppressZeros",
     "UnitsFormat",
-    # Symbol library (15)
+    # Symbol library (17)
+    "EmbeddedFonts",
+    "ExcludeFromSim",
     "Extends",
     "FieldsAutoplaced",
     "InBom",
@@ -534,9 +547,10 @@ __all__ = [
     "Via",
     "ViaSize",
     "Vias",
-    # Schematic system (13)
+    # Schematic system (16)
     "Bus",
     "BusEntry",
+    "EmbeddedFonts",
     "GlobalLabel",
     "Incrx",
     "Incry",
@@ -547,5 +561,7 @@ __all__ = [
     "Project",
     "Repeat",
     "Sheet",
+    "SheetInstance",
+    "SheetInstances",
     "Wire",
 ]

@@ -37,9 +37,11 @@ class ParseCursor:
 
     def enter(self, sexpr: SExpr, name: str) -> "ParseCursor":
         """Create new cursor for nested object."""
+        # Create new parser for nested object to track usage independently
+        nested_parser = SExprParser(sexpr, track_usage=self.parser.track_usage)
         return ParseCursor(
             sexpr=sexpr,
-            parser=self.parser,  # Same parser passed through
+            parser=nested_parser,  # New parser for nested object
             path=self.path + [name],
             strictness=self.strictness,  # Pass through strictness
         )
@@ -115,7 +117,7 @@ class KiCadObject(ABC):
             parser = SExprParser.from_string(sexpr)
             sexpr = parser.sexpr
         else:
-            parser = SExprParser(sexpr, track_usage=False)
+            parser = SExprParser(sexpr, track_usage=True)
 
         # Create cursor with parser and parse directly
         cursor = ParseCursor(
@@ -154,9 +156,47 @@ class KiCadObject(ABC):
             elif field_info.name in field_defaults:
                 parsed_values[field_info.name] = field_defaults[field_info.name]
 
-        # Usage check removed - COMPLETE mode no longer supported
+        # Check for unused parameters and warn
+        if cursor.parser.track_usage:
+            unused = cursor.parser.get_unused_parameters()
+            if unused and cursor.strictness != ParseStrictness.SILENT:
+                unused_summary = cls._format_unused_parameters(unused)
+                cls._log_parse_issue(
+                    cursor,
+                    f"{cursor.get_path_str()}: Unused parameters in {cls.__name__}: {unused_summary}",
+                )
 
         return cls(**parsed_values)
+
+    @classmethod
+    def _format_unused_parameters(cls, unused: List[Any]) -> str:
+        """Format unused parameters for concise logging.
+
+        Args:
+            unused: List of unused S-expression parameters
+
+        Returns:
+            Concise string representation of unused parameters
+        """
+        if not unused:
+            return "[]"
+
+        # Create short representations of each unused parameter
+        short_params = []
+        for param in unused:
+            if isinstance(param, list) and len(param) > 0:
+                # For lists, show first element (token name) and count
+                token_name = param[0] if param else "unknown"
+                short_params.append(f"{token_name}[{len(param) - 1} params]")
+            else:
+                # For simple values, show them directly but truncate if too long
+                param_str = str(param)
+                if len(param_str) > 30:
+                    short_params.append(f"{param_str[:27]}...")
+                else:
+                    short_params.append(param_str)
+
+        return f"[{', '.join(short_params)}] ({len(unused)} total)"
 
     @classmethod
     def _classify_fields(cls) -> List[FieldInfo]:
