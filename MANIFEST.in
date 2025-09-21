@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include kicadfiles *.py
+recursive-include docs *.md *.rst *.txt
+recursive-include examples *.py *.kicad_pcb *.kicad_sch
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude *.egg-info
