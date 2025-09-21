@@ -31,7 +31,7 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/Steffen-W/KiCadFiles"
-Documentation = "https://kicadfiles.readthedocs.io"
+Documentation = "https://steffen-w.github.io/KiCadFiles/"
 Repository = "https://github.com/Steffen-W/KiCadFiles.git"
 "Bug Tracker" = "https://github.com/Steffen-W/KiCadFiles/issues"
 

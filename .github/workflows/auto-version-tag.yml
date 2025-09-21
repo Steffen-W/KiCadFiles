@@ -47,6 +47,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pages: write
+      id-token: write
 
     steps:
     - name: Checkout code
@@ -59,7 +61,7 @@ jobs:
       run: |
         # Get the latest tag, default to v1.0.0 if no tags exist
         LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-        echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
         echo "Latest tag: $LATEST_TAG"
 
     - name: Generate new version
@@ -76,8 +78,8 @@ jobs:
         NEW_VERSION="$major.$minor.$NEW_PATCH"
         NEW_TAG="v$NEW_VERSION"
 
-        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-        echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+        echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+        echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "New version: $NEW_TAG"
 
     - name: Check if tag already exists
@@ -85,10 +87,10 @@ jobs:
       run: |
         NEW_TAG="${{ steps.new_version.outputs.new_tag }}"
         if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
-          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "exists=true" >> "$GITHUB_OUTPUT"
           echo "Tag $NEW_TAG already exists"
         else
-          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "exists=false" >> "$GITHUB_OUTPUT"
           echo "Tag $NEW_TAG does not exist"
         fi
 
@@ -105,6 +107,35 @@ jobs:
         git push origin "$NEW_TAG"
 
         echo "✅ Created and pushed tag: $NEW_TAG"
+
+    - name: Build Sphinx Documentation
+      if: steps.tag_exists.outputs.exists == 'false'
+      run: |
+        echo "📚 Building documentation with Sphinx..."
+        pip install sphinx sphinx-rtd-theme
+
+        # Check if docs directory exists, create if not
+        if [ ! -d "docs" ]; then
+          mkdir docs
+          cd docs
+          sphinx-quickstart -q --sep --project="KiCadFiles" --author="GitHub Actions" --release="${{ steps.new_version.outputs.new_version }}" --language="en" --makefile --batchfile .
+          cd ..
+        fi
+
+        # Build documentation
+        cd docs
+        make html
+        cd ..
+
+        echo "✅ Documentation built successfully"
+
+    - name: Deploy Documentation to GitHub Pages
+      if: steps.tag_exists.outputs.exists == 'false'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+        destination_dir: ${{ steps.new_version.outputs.new_version }}
 
     - name: Create GitHub Release
       if: steps.tag_exists.outputs.exists == 'false'

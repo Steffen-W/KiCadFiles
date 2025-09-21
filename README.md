@@ -12,7 +12,7 @@ A comprehensive Python library for parsing and manipulating KiCad file formats.
 - **Type-safe parsing**: Full Python type hints for all classes and methods
 - **Flexible error handling**: Three strictness modes (STRICT, FAILSAFE, SILENT)
 - **Round-trip parsing**: Parse KiCad files and convert back to S-expressions
-- **Minimal dependencies**: Uses only `sexpdata` from https://github.com/jd-boyd/sexpdata for S-expression parsing
+- **Minimal dependencies**: Uses only `sexpdata` from <https://github.com/jd-boyd/sexpdata> for S-expression parsing
 - **Extensive testing**: Comprehensive test suite ensuring reliability
 
 ## Installation
@@ -179,15 +179,20 @@ mypy kicadfiles/
 pyright kicadfiles/
 ```
 
-## Contributing
+### Documentation
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+```bash
+pip install -e ".[docs]"
+cd docs
+make html
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Coverage
+
+```bash
+pytest --cov=kicadfiles --cov-report=html tests/
+# Open htmlcov/index.html in browser
+```
 
 ## License
 
