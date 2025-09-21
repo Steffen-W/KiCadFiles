@@ -42,7 +42,7 @@ Usage:
 """
 
 # Version information
-from .__version__ import __version__, __version_info__
+from .__version__ import __version__, __version_info__  # noqa: F401
 
 # Advanced graphics (20 classes) - complex graphics with dependencies: base_types, text_and_documents
 from .advanced_graphics import (
