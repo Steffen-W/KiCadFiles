@@ -10,6 +10,7 @@ from kicadfiles.base_element import ParseStrictness
 from kicadfiles.board_layout import KicadPcb
 from kicadfiles.design_rules import KiCadDesignRules
 from kicadfiles.footprint_library import Footprint
+from kicadfiles.library_tables import FpLibTable, SymLibTable
 from kicadfiles.project_settings import KicadProject
 from kicadfiles.schematic_system import KicadSch
 from kicadfiles.symbol_library import KicadSymbolLib
@@ -45,8 +46,18 @@ def test_all_s_expression_fixtures():
         print(f"\nTesting files in {subdir.name}/")
 
         for fixture_file in subdir.iterdir():
+            cls = None
+
+            # Check for extension-based files
             if fixture_file.suffix in file_class_map:
                 cls = file_class_map[fixture_file.suffix]
+            # Check for special library table files (no extension)
+            elif fixture_file.name == "fp-lib-table":
+                cls = FpLibTable
+            elif fixture_file.name == "sym-lib-table":
+                cls = SymLibTable
+
+            if cls is not None:
                 tested_files += 1
 
                 try:
@@ -58,8 +69,14 @@ def test_all_s_expression_fixtures():
                     assert original == regenerated
 
                     # Test save_to_file functionality for better coverage
+                    # For library table files, use the original filename
+                    if fixture_file.name in ["fp-lib-table", "sym-lib-table"]:
+                        suffix = fixture_file.name
+                    else:
+                        suffix = fixture_file.suffix
+
                     with tempfile.NamedTemporaryFile(
-                        mode="w", suffix=fixture_file.suffix, delete=False
+                        mode="w", suffix=suffix, delete=False
                     ) as tmp:
                         tmp_path = pathlib.Path(tmp.name)
 

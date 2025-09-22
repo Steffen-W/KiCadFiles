@@ -188,6 +188,13 @@ from .footprint_library import (
     Tags,
 )
 
+# Library tables
+from .library_tables import (
+    FpLibTable,
+    LibraryEntry,
+    SymLibTable,
+)
+
 # Pad and drill elements
 from .pad_and_drill import (
     Chamfer,
@@ -542,6 +549,10 @@ __all__ = [
     "SolderPasteMargin",
     "SolderPasteMarginRatio",
     "Tags",
+    # Library tables
+    "FpLibTable",
+    "LibraryEntry",
+    "SymLibTable",
     # Project settings
     "BoardDefaults",
     "BoardSettings",

@@ -2,7 +2,8 @@ name: Build & Deploy Sphinx Docs to GitHub Pages
 
 on:
   push:
-    tags: ['v*']
+    branches: ['main', 'master']
+    paths: ['kicadfiles/**', 'docs/**', 'README.md']
   workflow_dispatch:
 
 jobs:
