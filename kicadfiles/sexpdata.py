@@ -761,7 +761,7 @@ class Parser(object):
 
     def parse_str(self, i: int) -> Tuple[int, str]:
         string = self.string
-        chars: list[str] = []
+        chars: List[str] = []
         append = chars.append
         search = self.quote_or_escape_re.search
 
@@ -788,7 +788,7 @@ class Parser(object):
 
     def parse_atom(self, i: int) -> Tuple[int, Any]:
         string = self.string
-        chars: list[str] = []
+        chars: List[str] = []
         append = chars.append
         search = self.atom_end_or_escape_re.search
         atom_end = self.atom_end
@@ -844,7 +844,7 @@ class Parser(object):
     def parse_sexp(self, i: int) -> Tuple[int, List[Any]]:
         string = self.string
         len_string = len(self.string)
-        sexp: list[Any] = []
+        sexp: List[Any] = []
         append = sexp.append
         bracket_stack = []  # Track opening brackets for better error reporting
 

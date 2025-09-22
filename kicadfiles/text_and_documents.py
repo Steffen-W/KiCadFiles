@@ -1,10 +1,10 @@
 """Text and document related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
-from .base_element import KiCadObject, ParseStrictness
-from .base_types import At, Font, Id, Locked, Name, Pos, Size, Uuid, Xyz
+from .base_element import KiCadObject, OptionalFlag, ParseStrictness
+from .base_types import At, End, Font, Id, Name, Pos, Size, Start, Uuid, Xyz
 
 
 @dataclass
@@ -61,7 +61,7 @@ class Data(KiCadObject):
 
     __token_name__ = "data"
 
-    hex_bytes: list[str] = field(
+    hex_bytes: List[str] = field(
         default_factory=list,
         metadata={"description": "Hexadecimal byte values (up to 32 bytes)"},
     )
@@ -281,7 +281,7 @@ class TitleBlock(KiCadObject):
     company: Optional[Company] = field(
         default=None, metadata={"description": "Company name", "required": False}
     )
-    comments: Optional[list[Comment]] = field(
+    comments: Optional[List[Comment]] = field(
         default_factory=list,
         metadata={"description": "List of comments", "required": False},
     )
@@ -532,7 +532,7 @@ class Members(KiCadObject):
 
     __token_name__ = "members"
 
-    uuids: list[Uuid] = field(
+    uuids: List[Uuid] = field(
         default_factory=list, metadata={"description": "List of member UUIDs"}
     )
 
@@ -612,6 +612,8 @@ class WksTextlinewidth(KiCadObject):
 class WksMargin(KiCadObject):
     """Worksheet margin definition token."""
 
+    __token_name__ = "margin"
+
     value: float = field(
         default=10.0,
         metadata={"description": "Margin value"},
@@ -688,6 +690,26 @@ class WksRect(KiCadObject):
 
     __token_name__ = "rect"
 
+    name: str = field(default="", metadata={"description": "Rectangle name"})
+    start: Start = field(
+        default_factory=lambda: Start(), metadata={"description": "Start position"}
+    )
+    end: End = field(
+        default_factory=lambda: End(), metadata={"description": "End position"}
+    )
+    comment: Optional[str] = field(
+        default=None, metadata={"description": "Comment", "required": False}
+    )
+    repeat: Optional[int] = field(
+        default=None, metadata={"description": "Repeat count", "required": False}
+    )
+    incrx: Optional[float] = field(
+        default=None, metadata={"description": "X increment", "required": False}
+    )
+    incry: Optional[float] = field(
+        default=None, metadata={"description": "Y increment", "required": False}
+    )
+
 
 @dataclass
 class WksLine(KiCadObject):
@@ -695,12 +717,53 @@ class WksLine(KiCadObject):
 
     __token_name__ = "line"
 
+    name: str = field(default="", metadata={"description": "Line name"})
+    start: Start = field(
+        default_factory=lambda: Start(), metadata={"description": "Start position"}
+    )
+    end: End = field(
+        default_factory=lambda: End(), metadata={"description": "End position"}
+    )
+    repeat: Optional[int] = field(
+        default=None, metadata={"description": "Repeat count", "required": False}
+    )
+    incrx: Optional[float] = field(
+        default=None, metadata={"description": "X increment", "required": False}
+    )
+    incry: Optional[float] = field(
+        default=None, metadata={"description": "Y increment", "required": False}
+    )
+
 
 @dataclass
 class WksTbText(KiCadObject):
     """Worksheet text block definition token."""
 
     __token_name__ = "tbtext"
+
+    text: str = field(default="", metadata={"description": "Text content"})
+    name: str = field(default="", metadata={"description": "Text name"})
+    pos: Pos = field(
+        default_factory=lambda: Pos(), metadata={"description": "Text position"}
+    )
+    font: Optional[Font] = field(
+        default=None, metadata={"description": "Font settings", "required": False}
+    )
+    justify: Optional[str] = field(
+        default=None, metadata={"description": "Text justification", "required": False}
+    )
+    repeat: Optional[int] = field(
+        default=None, metadata={"description": "Repeat count", "required": False}
+    )
+    incrx: Optional[float] = field(
+        default=None, metadata={"description": "X increment", "required": False}
+    )
+    incry: Optional[float] = field(
+        default=None, metadata={"description": "Y increment", "required": False}
+    )
+    comment: Optional[str] = field(
+        default=None, metadata={"description": "Comment", "required": False}
+    )
 
 
 @dataclass
@@ -744,19 +807,19 @@ class KicadWks(KiCadObject):
     setup: Optional[WksSetup] = field(
         default=None, metadata={"description": "Worksheet setup", "required": False}
     )
-    rect: Optional[list[WksRect]] = field(
+    rect: Optional[List[WksRect]] = field(
         default_factory=list,
         metadata={"description": "List of rectangles", "required": False},
     )
-    line: Optional[list[WksLine]] = field(
+    line: Optional[List[WksLine]] = field(
         default_factory=list,
         metadata={"description": "List of lines", "required": False},
     )
-    tbtext: Optional[list[WksTbText]] = field(
+    tbtext: Optional[List[WksTbText]] = field(
         default_factory=list,
         metadata={"description": "List of text blocks", "required": False},
     )
-    elements: Optional[list[Any]] = field(
+    elements: Optional[List[Any]] = field(
         default_factory=list,
         metadata={"description": "List of worksheet elements", "required": False},
     )
@@ -876,8 +939,8 @@ class Image(KiCadObject):
     data: Optional[Data] = field(
         default=None, metadata={"description": "Image data", "required": False}
     )
-    locked: Optional[Locked] = field(
-        default=None,
+    locked: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether image is locked", "required": False},
     )
 
@@ -902,7 +965,7 @@ class Pngdata(KiCadObject):
 
     __token_name__ = "pngdata"
 
-    data_lines: list[Data] = field(
+    data_lines: List[Data] = field(
         default_factory=list,
         metadata={
             "description": "List of data token objects containing hexadecimal bytes"

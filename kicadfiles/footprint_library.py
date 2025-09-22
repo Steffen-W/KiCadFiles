@@ -1,11 +1,11 @@
 """Footprint library elements for KiCad S-expressions - footprint management and properties."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import List, Optional
 
 from .advanced_graphics import FpCircle, FpRect, FpText
-from .base_element import KiCadObject, ParseStrictness
-from .base_types import At, Clearance, Layer, Locked, Property, Rotate, Uuid, Width, Xyz
+from .base_element import KiCadObject, OptionalFlag, ParseStrictness
+from .base_types import At, Clearance, Layer, Property, Rotate, Uuid, Width, Xyz
 from .pad_and_drill import Pad
 from .schematic_system import EmbeddedFonts
 from .text_and_documents import Generator, GeneratorVersion, Scale, Tedit, Version
@@ -73,7 +73,7 @@ class NetTiePadGroups(KiCadObject):
 
     __token_name__ = "net_tie_pad_groups"
 
-    groups: list[str] = field(
+    groups: List[str] = field(
         default_factory=list, metadata={"description": "List of pad group strings"}
     )
 
@@ -293,8 +293,8 @@ class Footprint(KiCadObject):
     generator_version: Optional[GeneratorVersion] = field(
         default=None, metadata={"description": "Generator version", "required": False}
     )
-    locked: Optional[Locked] = field(
-        default=None,
+    locked: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the footprint cannot be edited",
             "required": False,
@@ -336,7 +336,7 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Search tags for the footprint", "required": False},
     )
-    properties: Optional[list[Property]] = field(
+    properties: Optional[List[Property]] = field(
         default_factory=list,
         metadata={"description": "List of footprint properties", "required": False},
     )
@@ -402,30 +402,30 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    private_layers: Optional[list[str]] = field(
+    private_layers: Optional[List[str]] = field(
         default_factory=list,
         metadata={"description": "List of private layers", "required": False},
     )
     net_tie_pad_groups: Optional[NetTiePadGroups] = field(
         default=None, metadata={"description": "Net tie pad groups", "required": False}
     )
-    pads: Optional[list[Pad]] = field(
+    pads: Optional[List[Pad]] = field(
         default_factory=list,
         metadata={"description": "List of pads", "required": False},
     )
-    models: Optional[list[Model]] = field(
+    models: Optional[List[Model]] = field(
         default_factory=list,
         metadata={"description": "List of 3D models", "required": False},
     )
-    fp_rects: Optional[list[FpRect]] = field(
+    fp_rects: Optional[List[FpRect]] = field(
         default_factory=list,
         metadata={"description": "List of footprint rectangles", "required": False},
     )
-    fp_circles: Optional[list[FpCircle]] = field(
+    fp_circles: Optional[List[FpCircle]] = field(
         default_factory=list,
         metadata={"description": "List of footprint circles", "required": False},
     )
-    fp_texts: Optional[list[FpText]] = field(
+    fp_texts: Optional[List[FpText]] = field(
         default_factory=list,
         metadata={"description": "List of footprint texts", "required": False},
     )
@@ -479,7 +479,7 @@ class Footprints(KiCadObject):
 
     __token_name__ = "footprints"
 
-    footprints: list[Footprint] = field(
+    footprints: List[Footprint] = field(
         default_factory=list, metadata={"description": "List of footprints"}
     )
 

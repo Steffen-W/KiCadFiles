@@ -30,8 +30,7 @@ def test_all_s_expression_fixtures():
         ".kicad_sch": KicadSch,
         ".kicad_sym": KicadSymbolLib,
         ".kicad_mod": Footprint,
-        # TODO: Fix worksheet parsing - WksRect/WksLine/WksTbText need complete field implementations
-        # ".kicad_wks": KicadWks,
+        ".kicad_wks": KicadWks,
         ".kicad_dru": KiCadDesignRules,
     }
 

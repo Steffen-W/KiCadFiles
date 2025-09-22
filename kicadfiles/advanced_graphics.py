@@ -14,7 +14,6 @@ from .base_types import (
     Fill,
     Height,
     Layer,
-    Locked,
     Pos,
     Pts,
     Start,
@@ -23,7 +22,6 @@ from .base_types import (
     Tstamp,
     Type,
     Units,
-    Unlocked,
     Uuid,
     Width,
 )
@@ -324,7 +322,7 @@ class GrTextBox(KiCadObject):
 
     __token_name__ = "gr_text_box"
 
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={
             "description": "Whether the text box can be moved",
@@ -498,7 +496,7 @@ class Dimension(KiCadObject):
 
     __token_name__ = "dimension"
 
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether dimension is locked", "required": False},
     )
@@ -600,7 +598,7 @@ class FpArc(KiCadObject):
         default_factory=lambda: Stroke(),
         metadata={"description": "Stroke definition (from version 7)"},
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether the arc is locked", "required": False},
     )
@@ -663,7 +661,7 @@ class FpCircle(KiCadObject):
     fill: Optional[bool] = field(
         default=None, metadata={"description": "Fill definition", "required": False}
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether the circle is locked", "required": False},
     )
@@ -708,7 +706,7 @@ class FpCurve(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether the curve is locked", "required": False},
     )
@@ -758,7 +756,7 @@ class FpLine(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether the line is locked", "required": False},
     )
@@ -807,7 +805,7 @@ class FpPoly(KiCadObject):
     fill: Optional[Fill] = field(
         default=None, metadata={"description": "Fill definition", "required": False}
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={"description": "Whether thepolygon is locked", "required": False},
     )
@@ -873,7 +871,7 @@ class FpRect(KiCadObject):
         default=None,
         metadata={"description": "Whether the rectangle is filled", "required": False},
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={
             "description": "Whether the rectangle cannot be edited",
@@ -924,8 +922,8 @@ class FpText(KiCadObject):
         default_factory=lambda: At(),
         metadata={"description": "Position and rotation coordinates"},
     )
-    unlocked: Optional[Unlocked] = field(
-        default=None,
+    unlocked: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("unlocked"),
         metadata={
             "description": "Whether text orientation can be other than upright",
             "required": False,
@@ -935,7 +933,7 @@ class FpText(KiCadObject):
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
     hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("hide"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
     effects: Effects = field(
@@ -982,7 +980,7 @@ class FpTextBox(KiCadObject):
 
     __token_name__ = "fp_text_box"
 
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={
             "description": "Whether the text box can be moved",

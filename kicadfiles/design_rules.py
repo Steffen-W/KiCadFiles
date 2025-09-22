@@ -1,7 +1,7 @@
 """Design rules elements for KiCad S-expressions - design rule constraint system."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import List, Optional
 
 from .base_element import KiCadObject, ParseStrictness
 from .enums import ConstraintType, SeverityLevel
@@ -225,7 +225,7 @@ class DesignRule(KiCadObject):
     priority: Optional[DesignRulePriority] = field(
         default=None, metadata={"description": "Rule priority", "required": False}
     )
-    constraints: list[DesignRuleConstraint] = field(
+    constraints: List[DesignRuleConstraint] = field(
         default_factory=list,
         metadata={"description": "List of constraint definitions"},
     )
@@ -256,7 +256,7 @@ class KiCadDesignRules(KiCadObject):
         default_factory=lambda: Version(),
         metadata={"description": "File format version"},
     )
-    rules: Optional[list[DesignRule]] = field(
+    rules: Optional[List[DesignRule]] = field(
         default_factory=list,
         metadata={"description": "List of design rules", "required": False},
     )

@@ -8,17 +8,19 @@ The classes are organized into logical modules based on dependencies:
 - base_element: Base KiCadObject class with simplified strictness modes
 - enums: Common enumeration types for type safety
 - base_types: Fundamental types with no dependencies (37 classes)
-- text_and_documents: Text and document elements (27 classes)
+- text_and_documents: Text and document elements (35 classes)
 - pad_and_drill: Pad and drill elements (17 classes)
 - primitive_graphics: Basic graphics primitives (8 classes)
 - advanced_graphics: Complex graphics objects (20 classes)
 - symbol_library: Symbol management (15 classes)
 - footprint_library: Footprint management (12 classes)
 - zone_system: Zone and copper filling (28 classes)
-- board_layout: PCB board design (14 classes)
-- schematic_system: Schematic drawing (13 classes)
+- board_layout: PCB board design (15 classes)
+- schematic_system: Schematic drawing (17 classes)
+- design_rules: Design rule check definitions (10 classes)
+- project_settings: JSON project settings (14 classes)
 
-Total: 207 classes representing all KiCad S-expression tokens.
+Total: 241 classes representing all KiCad S-expression and JSON tokens.
 
 Key Features:
 - Simplified parser strictness modes: STRICT, FAILSAFE, SILENT
@@ -44,7 +46,7 @@ Usage:
 # Version information
 from .__version__ import __version__, __version_info__  # noqa: F401
 
-# Advanced graphics (20 classes) - complex graphics with dependencies: base_types, text_and_documents
+# Advanced graphics
 from .advanced_graphics import (
     Dimension,
     Format,
@@ -70,11 +72,12 @@ from .advanced_graphics import (
 )
 
 # Base element
-from .base_element import KiCadObject
+from .base_element import KiCadObject, OptionalFlag
 from .base_element import ParseStrictness
 from .base_element import ParseStrictness as ParseMode
+from .base_element import TokenPreference
 
-# Base types (36 classes) - fundamental types with no cross-dependencies
+# Base types
 from .base_types import (
     Anchor,
     Angle,
@@ -88,13 +91,11 @@ from .base_types import (
     Fill,
     Font,
     Height,
-    Hide,
     Id,
     Justify,
     Layer,
     Layers,
     Linewidth,
-    Locked,
     Name,
     Offset,
     Pos,
@@ -112,17 +113,16 @@ from .base_types import (
     Tstamp,
     Type,
     Units,
-    Unlocked,
     Uuid,
-    Visible,
     Width,
     Xy,
     Xyz,
 )
 
-# Board layout (15 classes) - dependencies: base_types
+# Board layout
 from .board_layout import (
     General,
+    KicadPcb,
     NetName,
     Nets,
     Orientation,
@@ -136,7 +136,21 @@ from .board_layout import (
     ViaSize,
 )
 
-# Enums - common enumeration types for type safety
+# Design rules
+from .design_rules import (
+    ConstraintMax,
+    ConstraintMin,
+    ConstraintOpt,
+    DesignRule,
+    DesignRuleCondition,
+    DesignRuleConstraint,
+    DesignRuleLayer,
+    DesignRulePriority,
+    DesignRuleSeverity,
+    KiCadDesignRules,
+)
+
+# Enums
 from .enums import (
     ClearanceType,
     FillType,
@@ -158,7 +172,7 @@ from .enums import (
     ZoneKeepoutSetting,
 )
 
-# Footprint library (12 classes) - dependencies: base_types, symbol_library, pad_and_drill
+# Footprint library
 from .footprint_library import (
     Attr,
     AutoplaceCost90,
@@ -174,7 +188,7 @@ from .footprint_library import (
     Tags,
 )
 
-# Pad and drill elements (18 classes) - dependencies: base_types
+# Pad and drill elements
 from .pad_and_drill import (
     Chamfer,
     ChamferRatio,
@@ -195,7 +209,7 @@ from .pad_and_drill import (
     ZoneConnect,
 )
 
-# Primitive graphics (8 classes) - basic geometric primitives - dependencies: base_types
+# Primitive graphics
 from .primitive_graphics import (
     Arc,
     Bezier,
@@ -207,7 +221,25 @@ from .primitive_graphics import (
     Rectangle,
 )
 
-# Schematic system (16 classes) - dependencies: base_types, symbol_library
+# Project settings
+from .project_settings import (
+    BoardDefaults,
+    BoardSettings,
+    CvpcbSettings,
+    DesignSettings,
+    ERCSettings,
+    IPC2581Settings,
+    KicadProject,
+    LibrarySettings,
+    NetClass,
+    NetSettings,
+    PcbnewSettings,
+    ProjectMeta,
+    SchematicBOMSettings,
+    SchematicSettings,
+)
+
+# Schematic system
 from .schematic_system import (
     Bus,
     BusEntry,
@@ -216,6 +248,7 @@ from .schematic_system import (
     Incrx,
     Incry,
     Junction,
+    KicadSch,
     Label,
     Length,
     NoConnect,
@@ -227,17 +260,7 @@ from .schematic_system import (
     Wire,
 )
 
-# S-Expression Parser
-from .sexpr_parser import (
-    SExpr,
-    SExprParser,
-    SExprValue,
-    parse_sexpr,
-    sexpr_to_str,
-    str_to_sexpr,
-)
-
-# Symbol library (17 classes) - dependencies: base_types
+# Symbol library
 from .symbol_library import (
     ExcludeFromSim,
     Extends,
@@ -256,7 +279,7 @@ from .symbol_library import (
     UnitName,
 )
 
-# Text and document elements (27 classes) - dependencies: base_types
+# Text and document elements
 from .text_and_documents import (
     Bitmap,
     BottomMargin,
@@ -286,9 +309,17 @@ from .text_and_documents import (
     TitleBlock,
     TopMargin,
     Version,
+    WksLine,
+    WksLinewidth,
+    WksMargin,
+    WksRect,
+    WksSetup,
+    WksTbText,
+    WksTextlinewidth,
+    WksTextsize,
 )
 
-# Zone system (28 classes) - zone definition and filling - dependencies: base_types, primitive_graphics
+# Zone system
 from .zone_system import (
     ConnectPads,
     Copperpour,
@@ -325,13 +356,8 @@ __all__ = [
     "KiCadObject",
     "ParseMode",
     "ParseStrictness",
-    # S-Expression Parser
-    "SExprParser",
-    "SExpr",
-    "SExprValue",
-    "parse_sexpr",
-    "str_to_sexpr",
-    "sexpr_to_str",
+    "OptionalFlag",
+    "TokenPreference",
     # Enums
     "ClearanceType",
     "FillType",
@@ -351,7 +377,7 @@ __all__ = [
     "ZoneConnection",
     "ZoneFillMode",
     "ZoneKeepoutSetting",
-    # Base types (37)
+    # Base types
     "Anchor",
     "Angle",
     "At",
@@ -364,13 +390,11 @@ __all__ = [
     "Fill",
     "Font",
     "Height",
-    "Hide",
     "Id",
     "Justify",
     "Layer",
     "Layers",
     "Linewidth",
-    "Locked",
     "Name",
     "Offset",
     "Pos",
@@ -387,14 +411,23 @@ __all__ = [
     "Title",
     "Tstamp",
     "Type",
-    "Unlocked",
     "Units",
     "Uuid",
-    "Visible",
     "Width",
     "Xy",
     "Xyz",
-    # Text and documents (27)
+    # Design rules
+    "ConstraintMax",
+    "ConstraintMin",
+    "ConstraintOpt",
+    "DesignRule",
+    "DesignRuleCondition",
+    "DesignRuleConstraint",
+    "DesignRuleLayer",
+    "DesignRulePriority",
+    "DesignRuleSeverity",
+    "KiCadDesignRules",
+    # Text and documents
     "Bitmap",
     "BottomMargin",
     "Comment",
@@ -423,7 +456,15 @@ __all__ = [
     "TitleBlock",
     "TopMargin",
     "Version",
-    # Pad and drill (18)
+    "WksLine",
+    "WksLinewidth",
+    "WksMargin",
+    "WksRect",
+    "WksSetup",
+    "WksTbText",
+    "WksTextlinewidth",
+    "WksTextsize",
+    # Pad and drill
     "Chamfer",
     "ChamferRatio",
     "DieLength",
@@ -431,7 +472,6 @@ __all__ = [
     "Free",
     "Net",
     "Options",
-    "Clearance",
     "Pad",
     "Pads",
     "Primitives",
@@ -442,7 +482,7 @@ __all__ = [
     "ThermalGap",
     "ThermalWidth",
     "ZoneConnect",
-    # Primitive graphics (8)
+    # Primitive graphics
     "Arc",
     "Bezier",
     "Circle",
@@ -451,7 +491,7 @@ __all__ = [
     "Polyline",
     "Rect",
     "Rectangle",
-    # Advanced graphics (20)
+    # Advanced graphics
     "Dimension",
     "Format",
     "FpArc",
@@ -468,12 +508,12 @@ __all__ = [
     "GrText",
     "GrTextBox",
     "LeaderLength",
+    "OverrideValue",
     "Precision",
     "RenderCache",
     "SuppressZeros",
     "UnitsFormat",
-    # Symbol library (17)
-    "EmbeddedFonts",
+    # Symbol library
     "ExcludeFromSim",
     "Extends",
     "FieldsAutoplaced",
@@ -489,7 +529,7 @@ __all__ = [
     "Prefix",
     "Symbol",
     "UnitName",
-    # Footprint library (12)
+    # Footprint library
     "Attr",
     "AutoplaceCost180",
     "AutoplaceCost90",
@@ -502,7 +542,22 @@ __all__ = [
     "SolderPasteMargin",
     "SolderPasteMarginRatio",
     "Tags",
-    # Zone system (28)
+    # Project settings
+    "BoardDefaults",
+    "BoardSettings",
+    "CvpcbSettings",
+    "DesignSettings",
+    "ERCSettings",
+    "IPC2581Settings",
+    "KicadProject",
+    "LibrarySettings",
+    "NetClass",
+    "NetSettings",
+    "PcbnewSettings",
+    "ProjectMeta",
+    "SchematicBOMSettings",
+    "SchematicSettings",
+    # Zone system
     "ConnectPads",
     "Copperpour",
     "EpsilonR",
@@ -531,23 +586,21 @@ __all__ = [
     "RemoveUnusedLayers",
     "Smoothing",
     "Zone",
-    # Board layout (14)
+    # Board layout
     "General",
-    "Layers",
+    "KicadPcb",
     "NetName",
     "Nets",
     "Orientation",
-    "OverrideValue",
     "Path",
     "PrivateLayers",
-    "Rotate",
     "Segment",
     "Setup",
     "Tracks",
     "Via",
     "ViaSize",
     "Vias",
-    # Schematic system (16)
+    # Schematic system
     "Bus",
     "BusEntry",
     "EmbeddedFonts",
@@ -555,6 +608,7 @@ __all__ = [
     "Incrx",
     "Incry",
     "Junction",
+    "KicadSch",
     "Label",
     "Length",
     "NoConnect",

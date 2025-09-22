@@ -1,269 +1,329 @@
-# KiCad Parser v2 - Class Structure
+# KiCadFiles - Python Library for KiCad File Formats
 
-This document outlines the complete class structure for the KiCad Parser v2, with one class per S-expression token.
+A comprehensive Python library for parsing and manipulating KiCad file formats with complete S-expression and JSON token support.
 
 ## File Organization
 
-### base_types.py - Fundamental Types (39 tokens)
-
-**No dependencies - foundation layer**
+### enums.py - Common Enumeration Types
 
 ```python
-anchor                 -> base_types.Anchor  # custom_pad_options.txt
-angle                  -> base_types.Angle  # graphical_polygon.txt
-at                     -> base_types.At  # position_identifier.txt, footprint_3d_model.txt
-center                 -> base_types.Center  # track_via.txt
-clearance              -> base_types.Clearance  # setup_section.txt
-color                  -> base_types.Color  # fill_definition.txt
-diameter               -> base_types.Diameter  # track_via.txt
-effects                -> base_types.Effects  # symbol_text.txt
-end                    -> base_types.End  # graphical_line.txt
-fill                   -> base_types.Fill  # fill_definition.txt
-font                   -> base_types.Font  # symbol_text.txt
-height                 -> base_types.Height  # dimension.txt
-id                     -> base_types.Id  # group.txt
-justify                -> base_types.Justify  # symbol_text.txt
-layer                  -> base_types.Layer  # stack_up_layer_settings.txt
-linewidth              -> base_types.Linewidth  # graphical_polygon.txt
-locked                 -> base_types.Locked  # track_segment.txt
-name                   -> base_types.Name  # graphical_line.txt
-offset                 -> base_types.Offset  # symbols.txt
-pos                    -> base_types.Pos  # graphical_polygon.txt
-property               -> base_types.Property  # properties.txt, symbol_properties.txt
-radius                 -> base_types.Radius  # track_arc.txt
-rotate                 -> base_types.Rotate  # graphical_polygon.txt, footprint_3d_model.txt
-size                   -> base_types.Size  # title_block_text.txt
-start                  -> base_types.Start  # graphical_line.txt
-stroke                 -> base_types.Stroke  # stroke_definition.txt
-style                  -> base_types.Style  # symbol_pin.txt
-text                   -> base_types.Text  # symbol_text.txt
-thickness              -> base_types.Thickness  # general_section.txt
-title                  -> base_types.Title  # graphical_line.txt
-tstamp                 -> base_types.Tstamp  # track_arc.txt
-type                   -> base_types.Type  # hierarchical_sheet_pin_definition.txt
-units                  -> base_types.Units  # dimension_format.txt
-uuid                   -> base_types.Uuid  # universally_unique_identifier.txt
-visible                -> base_types.Visible  # conventions.txt
-width                  -> base_types.Width  # setup_section.txt
-xy                     -> base_types.Xy  # coordinate_point_list.txt
-xyz                    -> base_types.Xyz  # footprint_3d_model.txt
-pts                    -> base_types.Pts  # coordinate_point_list.txt
+clearance_type         -> enums.ClearanceType
+fill_type              -> enums.FillType
+footprint_text_type    -> enums.FootprintTextType
+hatch_style            -> enums.HatchStyle
+justify_horizontal     -> enums.JustifyHorizontal
+justify_vertical       -> enums.JustifyVertical
+label_shape            -> enums.LabelShape
+layer_type             -> enums.LayerType
+pad_shape              -> enums.PadShape
+pad_type               -> enums.PadType
+pin_electrical_type    -> enums.PinElectricalType
+pin_graphic_style      -> enums.PinGraphicStyle
+smoothing_style        -> enums.SmoothingStyle
+stroke_type            -> enums.StrokeType
+via_type               -> enums.ViaType
+zone_connection        -> enums.ZoneConnection
+zone_fill_mode         -> enums.ZoneFillMode
+zone_keepout_setting   -> enums.ZoneKeepoutSetting
 ```
 
-### text_and_documents.py - Text and Document Elements (27 tokens)
-
-**Dependencies: base_types**
+### base_element.py - Base Classes
 
 ```python
-comment                -> text_and_documents.Comment  # title_block.txt
-company                -> text_and_documents.Company  # title_block.txt
-data                   -> text_and_documents.Data  # image_data.txt
-date                   -> text_and_documents.Date  # header_section.txt
-descr                  -> text_and_documents.Descr  # footprint.txt
-generator              -> text_and_documents.Generator  # header_section.txt
-page                   -> text_and_documents.Page  # page_settings.txt
-paper                  -> text_and_documents.Paper  # page_settings.txt
-rev                    -> text_and_documents.Rev  # title_block.txt
-tedit                  -> text_and_documents.Tedit  # footprint.txt
-title_block            -> text_and_documents.TitleBlock  # title_block.txt
-version                -> text_and_documents.Version  # header_section.txt
-bottom_margin          -> text_and_documents.BottomMargin  # set_up_section.txt
-left_margin            -> text_and_documents.LeftMargin  # set_up_section.txt
-right_margin           -> text_and_documents.RightMargin  # set_up_section.txt
-tbtext                 -> text_and_documents.Tbtext  # title_block_text.txt
-textlinewidth          -> text_and_documents.Textlinewidth  # set_up_section.txt
-textsize               -> text_and_documents.Textsize  # set_up_section.txt
-top_margin             -> text_and_documents.TopMargin  # set_up_section.txt
-suffix                 -> text_and_documents.Suffix  # dimension_format.txt
-scale                  -> text_and_documents.Scale  # image.txt, footprint_3d_model.txt
-group                  -> text_and_documents.Group  # group.txt
-members                -> text_and_documents.Members  # group.txt
-kicad_wks              -> text_and_documents.KicadWks  # header_section.txt
-bitmap                 -> text_and_documents.Bitmap  # image.txt
-image                  -> text_and_documents.Image  # image.txt
-pngdata                -> text_and_documents.Pngdata  # image.txt
+kicad_object           -> base_element.KiCadObject
+optional_flag          -> base_element.OptionalFlag
+parse_mode             -> base_element.ParseMode
+parse_strictness       -> base_element.ParseStrictness
+token_preference       -> base_element.TokenPreference
 ```
 
-### pad_and_drill.py - Pad and Drill Elements (18 tokens)
-
-**Dependencies: base_types**
+### advanced_graphics.py - Complex Graphics Objects
 
 ```python
-chamfer                -> pad_and_drill.Chamfer  # footprint_pad.txt
-chamfer_ratio          -> pad_and_drill.ChamferRatio  # footprint_pad.txt
-free                   -> pad_and_drill.Free  # track_via.txt
-options                -> pad_and_drill.Options  # custom_pad_options.txt
-roundrect_rratio       -> pad_and_drill.RoundrectRratio  # footprint_pad.txt
-shape                  -> pad_and_drill.Shape  # custom_pad_options.txt
-solder_paste_ratio     -> pad_and_drill.SolderPasteRatio  # footprint_pad.txt
-thermal_bridge_widh    -> pad_and_drill.ThermalBridgeWidth  # footprint.txt
-thermal_gap            -> pad_and_drill.ThermalGap  # footprint.txt
-thermal_width          -> pad_and_drill.ThermalWidth  # footprint.txt
-zone_connect           -> pad_and_drill.ZoneConnect  # footprint_pad.txt
-net                    -> pad_and_drill.Net  # nets_section.txt
-options_clearance      -> pad_and_drill.OptionsClearance  # custom_pad_options.txt
-drill                  -> pad_and_drill.Drill  # pad_drill_definition.txt
-pad                    -> pad_and_drill.Pad  # footprint_pad.txt
-pads                   -> pad_and_drill.Pads  # footprint.txt
-primitives             -> pad_and_drill.Primitives  # custom_pad_primitives.txt
-die_length             -> pad_and_drill.DieLength  # footprint_pad.txt
+dimension              -> advanced_graphics.Dimension
+format                 -> advanced_graphics.Format
+fp_arc                 -> advanced_graphics.FpArc
+fp_circle              -> advanced_graphics.FpCircle
+fp_curve               -> advanced_graphics.FpCurve
+fp_line                -> advanced_graphics.FpLine
+fp_poly                -> advanced_graphics.FpPoly
+fp_rect                -> advanced_graphics.FpRect
+fp_text                -> advanced_graphics.FpText
+fp_text_box            -> advanced_graphics.FpTextBox
+gr_arc                 -> advanced_graphics.GrArc
+gr_bbox                -> advanced_graphics.GrBbox
+gr_circle              -> advanced_graphics.GrCircle
+gr_text                -> advanced_graphics.GrText
+gr_text_box            -> advanced_graphics.GrTextBox
+leader_length          -> advanced_graphics.LeaderLength
+override_value         -> advanced_graphics.OverrideValue
+precision              -> advanced_graphics.Precision
+render_cache           -> advanced_graphics.RenderCache
+suppress_zeros         -> advanced_graphics.SuppressZeros
+units_format           -> advanced_graphics.UnitsFormat
 ```
 
-### primitive_graphics.py - Basic Graphics Primitives (8 tokens)
-
-**Dependencies: base_types**
+### base_types.py - Fundamental Types
 
 ```python
-arc                    -> primitive_graphics.Arc  # symbol_arc.txt
-bezier                 -> primitive_graphics.Bezier  # graphical_curve.txt
-circle                 -> primitive_graphics.Circle  # symbol_circle.txt
-line                   -> primitive_graphics.Line  # graphical_line.txt
-polygon                -> primitive_graphics.Polygon  # graphical_polygon.txt
-polyline               -> primitive_graphics.Polyline  # graphical_line_section.txt
-rect                   -> primitive_graphics.Rect  # graphical_rectangle.txt
-rectangle              -> primitive_graphics.Rectangle  # symbol_rectangle.txt
+anchor                 -> base_types.Anchor
+angle                  -> base_types.Angle
+at                     -> base_types.At
+center                 -> base_types.Center
+clearance              -> base_types.Clearance
+color                  -> base_types.Color
+diameter               -> base_types.Diameter
+effects                -> base_types.Effects
+end                    -> base_types.End
+fill                   -> base_types.Fill
+font                   -> base_types.Font
+height                 -> base_types.Height
+id                     -> base_types.Id
+justify                -> base_types.Justify
+layer                  -> base_types.Layer
+layers                 -> base_types.Layers
+linewidth              -> base_types.Linewidth
+name                   -> base_types.Name
+offset                 -> base_types.Offset
+pos                    -> base_types.Pos
+property               -> base_types.Property
+pts                    -> base_types.Pts
+radius                 -> base_types.Radius
+rotate                 -> base_types.Rotate
+size                   -> base_types.Size
+start                  -> base_types.Start
+stroke                 -> base_types.Stroke
+style                  -> base_types.Style
+text                   -> base_types.Text
+thickness              -> base_types.Thickness
+title                  -> base_types.Title
+tstamp                 -> base_types.Tstamp
+type                   -> base_types.Type
+units                  -> base_types.Units
+uuid                   -> base_types.Uuid
+width                  -> base_types.Width
+xy                     -> base_types.Xy
+xyz                    -> base_types.Xyz
 ```
 
-### advanced_graphics.py - Complex Graphics Objects (20 tokens)
-
-**Dependencies: base_types, text_and_documents**
+### board_layout.py - PCB Board Design
 
 ```python
-gr_arc                 -> advanced_graphics.GrArc  # graphical_arc.txt
-gr_bbox                -> advanced_graphics.GrBbox  # annotation_bounding_box.txt
-gr_circle              -> advanced_graphics.GrCircle  # graphical_circle.txt
-gr_text                -> advanced_graphics.GrText  # graphical_text.txt
-gr_text_box            -> advanced_graphics.GrTextBox  # graphical_text_box.txt
-dimension              -> advanced_graphics.Dimension  # dimension.txt
-format                 -> advanced_graphics.Format  # dimension_format.txt
-leader_length          -> advanced_graphics.LeaderLength  # dimension.txt
-precision              -> advanced_graphics.Precision  # dimension_format.txt
-suppress_zeros         -> advanced_graphics.SuppressZeros  # dimension_format.txt
-units_format           -> advanced_graphics.UnitsFormat  # dimension_format.txt
-fp_arc                 -> advanced_graphics.FpArc  # footprint_arc.txt
-fp_circle              -> advanced_graphics.FpCircle  # footprint_circle.txt
-fp_curve               -> advanced_graphics.FpCurve  # footprint_curve.txt
-fp_line                -> advanced_graphics.FpLine  # footprint_line.txt
-fp_poly                -> advanced_graphics.FpPoly  # footprint_polygon.txt
-fp_rect                -> advanced_graphics.FpRect  # footprint_rectangle.txt
-fp_text                -> advanced_graphics.FpText  # footprint_text.txt
-fp_text_box            -> advanced_graphics.FpTextBox  # footprint_text_box.txt
-render_cache           -> advanced_graphics.RenderCache  # graphical_text_box.txt
+general                -> board_layout.General
+kicad_pcb              -> board_layout.KicadPcb
+net_name               -> board_layout.NetName
+nets                   -> board_layout.Nets
+orientation            -> board_layout.Orientation
+path                   -> board_layout.Path
+private_layers         -> board_layout.PrivateLayers
+segment                -> board_layout.Segment
+setup                  -> board_layout.Setup
+tracks                 -> board_layout.Tracks
+via                    -> board_layout.Via
+via_size               -> board_layout.ViaSize
+vias                   -> board_layout.Vias
 ```
 
-### symbol_library.py - Symbol Management (14 tokens)
-
-**Dependencies: base_types**
+### design_rules.py - Design Rule Check Definitions
 
 ```python
-symbol                 -> symbol_library.Symbol  # symbols.txt
-lib_symbols            -> symbol_library.LibSymbols  # library_symbol_section.txt
-extends                -> symbol_library.Extends  # symbols.txt
-fields_autoplaced      -> symbol_library.FieldsAutoplaced  # global_label_section.txt
-in_bom                 -> symbol_library.InBom  # symbols.txt
-instances              -> symbol_library.Instances  # hierarchical_sheet_section.txt
-number                 -> symbol_library.Number  # hierarchical_sheet_section.txt
-pin                    -> symbol_library.Pin  # symbol_pin.txt
-pin_names              -> symbol_library.PinNames  # symbols.txt
-pin_numbers            -> symbol_library.PinNumbers  # symbols.txt
-pinfunction            -> symbol_library.Pinfunction  # footprint_pad.txt
-pintype                -> symbol_library.Pintype  # footprint_pad.txt
-prefix                 -> symbol_library.Prefix  # dimension_format.txt
-unit_name              -> symbol_library.UnitName  # symbols.txt
+constraint_max         -> design_rules.ConstraintMax
+constraint_min         -> design_rules.ConstraintMin
+constraint_opt         -> design_rules.ConstraintOpt
+design_rule            -> design_rules.DesignRule
+design_rule_condition  -> design_rules.DesignRuleCondition
+design_rule_constraint -> design_rules.DesignRuleConstraint
+design_rule_layer      -> design_rules.DesignRuleLayer
+design_rule_priority   -> design_rules.DesignRulePriority
+design_rule_severity   -> design_rules.DesignRuleSeverity
+kicad_design_rules     -> design_rules.KiCadDesignRules
 ```
 
-### footprint_library.py - Footprint Management (12 tokens)
-
-**Dependencies: base_types, symbol_library, pad_and_drill, text_and_documents, board_layout**
+### footprint_library.py - Footprint Management
 
 ```python
-footprint              -> footprint_library.Footprint  # footprint.txt
-footprints             -> footprint_library.Footprints  # footprint.txt
-attr                   -> footprint_library.Attr  # footprint_attributes.txt
-autoplace_cost180      -> footprint_library.AutoplaceCost180  # footprint.txt
-autoplace_cost90       -> footprint_library.AutoplaceCost90  # footprint.txt
-model                  -> footprint_library.Model  # footprint_3d_model.txt
-net_tie_pad_groups     -> footprint_library.NetTiePadGroups  # footprint.txt
-on_board               -> footprint_library.OnBoard  # symbols.txt
-solder_mask_margin     -> footprint_library.SolderMaskMargin  # footprint.txt
-solder_paste_margin    -> footprint_library.SolderPasteMargin  # footprint.txt
-solder_paste_marginio  -> footprint_library.SolderPasteMarginRatio  # footprint_pad.txt
-tags                   -> footprint_library.Tags  # footprint.txt
+attr                   -> footprint_library.Attr
+autoplace_cost180      -> footprint_library.AutoplaceCost180
+autoplace_cost90       -> footprint_library.AutoplaceCost90
+footprint              -> footprint_library.Footprint
+footprints             -> footprint_library.Footprints
+model                  -> footprint_library.Model
+net_tie_pad_groups     -> footprint_library.NetTiePadGroups
+on_board               -> footprint_library.OnBoard
+solder_mask_margin     -> footprint_library.SolderMaskMargin
+solder_paste_margin    -> footprint_library.SolderPasteMargin
+solder_paste_margin_ratio -> footprint_library.SolderPasteMarginRatio
+tags                   -> footprint_library.Tags
 ```
 
-### zone_system.py - Zone and Copper Filling (28 tokens)
-
-**Dependencies: base_types, primitive_graphics**
+### pad_and_drill.py - Pad and Drill Elements
 
 ```python
-zone                   -> zone_system.Zone  # zone.txt
-connect_pads           -> zone_system.ConnectPads  # zone.txt
-copperpour             -> zone_system.Copperpour  # zone_keep_out_settings.txt
-epsilon_r              -> zone_system.EpsilonR  # stack_up_layer_settings.txt
-fill_segments          -> zone_system.FillSegments  # zone_fill_segments.txt
-filled_areas_thicknss  -> zone_system.FilledAreasThickness  # zone.txt
-filled_polygon         -> zone_system.FilledPolygon  # zone_fill_polygons.txt
-filled_segments        -> zone_system.FilledSegments  # zone_fill_segments.txt
-hatch                  -> zone_system.Hatch  # zone.txt
-hatch_border_algorihm  -> zone_system.HatchBorderAlgorithm  # zone.txt
-hatch_gap              -> zone_system.HatchGap  # zone.txt
-hatch_min_hole_area    -> zone_system.HatchMinHoleArea  # zone.txt
-hatch_orientation      -> zone_system.HatchOrientation  # zone.txt
-hatch_smoothing_leel   -> zone_system.HatchSmoothingLevel  # zone.txt
-hatch_smoothing_vaue   -> zone_system.HatchSmoothingValue  # zone.txt
-hatch_thickness        -> zone_system.HatchThickness  # zone.txt
-island_area_min        -> zone_system.IslandAreaMin  # zone.txt
-island_removal_mode    -> zone_system.IslandRemovalMode  # zone.txt
-keep_end_layers        -> zone_system.KeepEndLayers  # zone.txt
-keepout                -> zone_system.Keepout  # zone_keep_out_settings.txt
-loss_tangent           -> zone_system.LossTangent  # stack_up_layer_settings.txt
-material               -> zone_system.Material  # stack_up_layer_settings.txt
-min_thickness          -> zone_system.MinThickness  # zone.txt
-mode                   -> zone_system.Mode  # zone.txt
-priority               -> zone_system.Priority  # zone.txt
-remove_unused_layer    -> zone_system.RemoveUnusedLayer  # zone.txt
-remove_unused_layes    -> zone_system.RemoveUnusedLayers  # zone.txt
-smoothing              -> zone_system.Smoothing  # zone.txt
+chamfer                -> pad_and_drill.Chamfer
+chamfer_ratio          -> pad_and_drill.ChamferRatio
+die_length             -> pad_and_drill.DieLength
+drill                  -> pad_and_drill.Drill
+free                   -> pad_and_drill.Free
+net                    -> pad_and_drill.Net
+options                -> pad_and_drill.Options
+pad                    -> pad_and_drill.Pad
+pads                   -> pad_and_drill.Pads
+primitives             -> pad_and_drill.Primitives
+roundrect_rratio       -> pad_and_drill.RoundrectRratio
+shape                  -> pad_and_drill.Shape
+solder_paste_ratio     -> pad_and_drill.SolderPasteRatio
+thermal_bridge_width   -> pad_and_drill.ThermalBridgeWidth
+thermal_gap            -> pad_and_drill.ThermalGap
+thermal_width          -> pad_and_drill.ThermalWidth
+zone_connect           -> pad_and_drill.ZoneConnect
 ```
 
-### board_layout.py - PCB Board Design (13 tokens)
-
-**Dependencies: base_types**
+### primitive_graphics.py - Basic Graphics Primitives
 
 ```python
-general                -> board_layout.General  # general_section.txt
-layers                 -> board_layout.Layers  # layers_section.txt
-nets                   -> board_layout.Nets  # nets_section.txt
-private_layers         -> board_layout.PrivateLayers  # setup_section.txt
-segment                -> board_layout.Segment  # track_segment.txt
-setup                  -> board_layout.Setup  # setup_section.txt
-tracks                 -> board_layout.Tracks  # setup_section.txt
-via                    -> board_layout.Via  # track_via.txt
-vias                   -> board_layout.Vias  # setup_section.txt
-net_name               -> board_layout.NetName  # track_segment.txt
-orientation            -> board_layout.Orientation  # footprint.txt
-override_value         -> board_layout.OverrideValue  # dimension_format.txt
-path                   -> board_layout.Path  # hierarchical_sheet_section.txt
+arc                    -> primitive_graphics.Arc
+bezier                 -> primitive_graphics.Bezier
+circle                 -> primitive_graphics.Circle
+line                   -> primitive_graphics.Line
+polygon                -> primitive_graphics.Polygon
+polyline               -> primitive_graphics.Polyline
+rect                   -> primitive_graphics.Rect
+rectangle              -> primitive_graphics.Rectangle
 ```
 
-### schematic_system.py - Schematic Drawing (13 tokens)
-
-**Dependencies: base_types, symbol_library**
+### project_settings.py - JSON Project Settings
 
 ```python
-bus                    -> schematic_system.Bus  # wire_and_bus_section.txt
-bus_entry              -> schematic_system.BusEntry  # bus_entry_section.txt
-global_label           -> schematic_system.GlobalLabel  # global_label_section.txt
-junction               -> schematic_system.Junction  # junction_section.txt
-label                  -> schematic_system.Label  # local_label_section.txt
-no_connect             -> schematic_system.NoConnect  # no_connect_section.txt
-sheet                  -> schematic_system.Sheet  # hierarchical_sheet_section.txt
-wire                   -> schematic_system.Wire  # wire_and_bus_section.txt
-project                -> schematic_system.Project  # hierarchical_sheet_section.txt
-incrx                  -> schematic_system.Incrx  # graphical_line.txt
-incry                  -> schematic_system.Incry  # graphical_line.txt
-length                 -> schematic_system.Length  # symbol_circle.txt
-repeat                 -> schematic_system.Repeat  # graphical_line.txt
+board_defaults         -> project_settings.BoardDefaults
+board_settings         -> project_settings.BoardSettings
+cvpcb_settings         -> project_settings.CvpcbSettings
+design_settings        -> project_settings.DesignSettings
+erc_settings           -> project_settings.ERCSettings
+ipc2581_settings       -> project_settings.IPC2581Settings
+kicad_project          -> project_settings.KicadProject
+library_settings       -> project_settings.LibrarySettings
+net_class              -> project_settings.NetClass
+net_settings           -> project_settings.NetSettings
+pcbnew_settings        -> project_settings.PcbnewSettings
+project_meta           -> project_settings.ProjectMeta
+schematic_bom_settings -> project_settings.SchematicBOMSettings
+schematic_settings     -> project_settings.SchematicSettings
+```
+
+### schematic_system.py - Schematic Drawing
+
+```python
+bus                    -> schematic_system.Bus
+bus_entry              -> schematic_system.BusEntry
+embedded_fonts         -> schematic_system.EmbeddedFonts
+global_label           -> schematic_system.GlobalLabel
+incrx                  -> schematic_system.Incrx
+incry                  -> schematic_system.Incry
+junction               -> schematic_system.Junction
+kicad_sch              -> schematic_system.KicadSch
+label                  -> schematic_system.Label
+length                 -> schematic_system.Length
+no_connect             -> schematic_system.NoConnect
+project                -> schematic_system.Project
+repeat                 -> schematic_system.Repeat
+sheet                  -> schematic_system.Sheet
+sheet_instance         -> schematic_system.SheetInstance
+sheet_instances        -> schematic_system.SheetInstances
+wire                   -> schematic_system.Wire
+```
+
+### symbol_library.py - Symbol Management
+
+```python
+exclude_from_sim       -> symbol_library.ExcludeFromSim
+extends                -> symbol_library.Extends
+fields_autoplaced      -> symbol_library.FieldsAutoplaced
+in_bom                 -> symbol_library.InBom
+instances              -> symbol_library.Instances
+lib_symbols            -> symbol_library.LibSymbols
+number                 -> symbol_library.Number
+pin                    -> symbol_library.Pin
+pin_names              -> symbol_library.PinNames
+pin_numbers            -> symbol_library.PinNumbers
+pinfunction            -> symbol_library.Pinfunction
+pintype                -> symbol_library.Pintype
+prefix                 -> symbol_library.Prefix
+symbol                 -> symbol_library.Symbol
+unit_name              -> symbol_library.UnitName
+```
+
+### text_and_documents.py - Text and Document Elements
+
+```python
+bitmap                 -> text_and_documents.Bitmap
+bottom_margin          -> text_and_documents.BottomMargin
+comment                -> text_and_documents.Comment
+company                -> text_and_documents.Company
+data                   -> text_and_documents.Data
+date                   -> text_and_documents.Date
+descr                  -> text_and_documents.Descr
+generator              -> text_and_documents.Generator
+generator_version      -> text_and_documents.GeneratorVersion
+group                  -> text_and_documents.Group
+image                  -> text_and_documents.Image
+kicad_wks              -> text_and_documents.KicadWks
+left_margin            -> text_and_documents.LeftMargin
+members                -> text_and_documents.Members
+page                   -> text_and_documents.Page
+paper                  -> text_and_documents.Paper
+pngdata                -> text_and_documents.Pngdata
+rev                    -> text_and_documents.Rev
+right_margin           -> text_and_documents.RightMargin
+scale                  -> text_and_documents.Scale
+suffix                 -> text_and_documents.Suffix
+tbtext                 -> text_and_documents.Tbtext
+tedit                  -> text_and_documents.Tedit
+textlinewidth          -> text_and_documents.Textlinewidth
+textsize               -> text_and_documents.Textsize
+title_block            -> text_and_documents.TitleBlock
+top_margin             -> text_and_documents.TopMargin
+version                -> text_and_documents.Version
+wks_line               -> text_and_documents.WksLine
+wks_linewidth          -> text_and_documents.WksLinewidth
+wks_margin             -> text_and_documents.WksMargin
+wks_rect               -> text_and_documents.WksRect
+wks_setup              -> text_and_documents.WksSetup
+wks_tb_text            -> text_and_documents.WksTbText
+wks_textlinewidth      -> text_and_documents.WksTextlinewidth
+wks_textsize           -> text_and_documents.WksTextsize
+```
+
+### zone_system.py - Zone and Copper Filling
+
+```python
+connect_pads           -> zone_system.ConnectPads
+copperpour             -> zone_system.Copperpour
+epsilon_r              -> zone_system.EpsilonR
+fill_segments          -> zone_system.FillSegments
+filled_areas_thickness -> zone_system.FilledAreasThickness
+filled_polygon         -> zone_system.FilledPolygon
+filled_segments        -> zone_system.FilledSegments
+hatch                  -> zone_system.Hatch
+hatch_border_algorithm -> zone_system.HatchBorderAlgorithm
+hatch_gap              -> zone_system.HatchGap
+hatch_min_hole_area    -> zone_system.HatchMinHoleArea
+hatch_orientation      -> zone_system.HatchOrientation
+hatch_smoothing_level  -> zone_system.HatchSmoothingLevel
+hatch_smoothing_value  -> zone_system.HatchSmoothingValue
+hatch_thickness        -> zone_system.HatchThickness
+island_area_min        -> zone_system.IslandAreaMin
+island_removal_mode    -> zone_system.IslandRemovalMode
+keep_end_layers        -> zone_system.KeepEndLayers
+keepout                -> zone_system.Keepout
+loss_tangent           -> zone_system.LossTangent
+material               -> zone_system.Material
+min_thickness          -> zone_system.MinThickness
+mode                   -> zone_system.Mode
+priority               -> zone_system.Priority
+remove_unused_layer    -> zone_system.RemoveUnusedLayer
+remove_unused_layers   -> zone_system.RemoveUnusedLayers
+smoothing              -> zone_system.Smoothing
+zone                   -> zone_system.Zone
 ```
 
 ## Class Naming Convention
@@ -279,7 +339,7 @@ Each S-expression token gets a corresponding class with the pattern:
 2. **Nested Elements**: When tokens contain other tokens, they reference classes from appropriate modules
 3. **File Organization**: Tokens grouped by functional area and dependency level
 4. **Inheritance**: All classes inherit from a base `KiCadObject` class
-5. **Token Count**: Total of 207 unique tokens mapped to 207 classes across 10 Python modules
+5. **Token Count**: Total of 241 unique tokens mapped to 241 classes across 12 Python modules
 
 ## Class Implementation Specification
 
@@ -317,7 +377,7 @@ class ClassName(KiCadObject):
 - Basic: `str`, `int`, `float`, `bool` with defaults `""`, `0`, `0.0`, `False`
 - Optional: `Optional[type]` with `default=None` and `metadata={"required": False}`
 - Nested: `module.ClassName` (import modules, no defaults for required objects)
-- Lists: `list[module.Type]` with `default_factory=list` or `None` for optional
+- Lists: `List[module.Type]` with `default_factory=list` or `None` for optional
 
 **Field Order (CRITICAL):**
 

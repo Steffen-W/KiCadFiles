@@ -14,9 +14,8 @@ from kicadfiles import (
     Pad,
     ParseStrictness,
     Size,
-    sexpr_to_str,
-    str_to_sexpr,
 )
+from kicadfiles.sexpr_parser import sexpr_to_str, str_to_sexpr
 
 
 def basic_object_creation():

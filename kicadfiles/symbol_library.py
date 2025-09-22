@@ -1,7 +1,7 @@
 """Symbol library elements for KiCad S-expressions - schematic symbol definitions."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import At, Effects, Property
@@ -127,7 +127,7 @@ class Instances(KiCadObject):
 
     __token_name__ = "instances"
 
-    instances: list[Any] = field(
+    instances: List[Any] = field(
         default_factory=list, metadata={"description": "List of instance data"}
     )
 
@@ -208,7 +208,7 @@ class Pin(KiCadObject):
         metadata={"description": "Pin number text effects", "required": False},
     )
     hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("hide"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether pin is hidden", "required": False},
     )
 
@@ -232,7 +232,7 @@ class PinNames(KiCadObject):
         default=None, metadata={"description": "Pin name offset", "required": False}
     )
     hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("hide"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether pin names are hidden", "required": False},
     )
 
@@ -252,7 +252,7 @@ class PinNumbers(KiCadObject):
     __token_name__ = "pin_numbers"
 
     hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("hide"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether pin numbers are hidden", "required": False},
     )
 
@@ -409,19 +409,19 @@ class Symbol(KiCadObject):
             "required": False,
         },
     )
-    properties: Optional[list[Property]] = field(
+    properties: Optional[List[Property]] = field(
         default_factory=list,
         metadata={"description": "List of symbol properties", "required": False},
     )
-    graphic_items: Optional[list[Any]] = field(
+    graphic_items: Optional[List[Any]] = field(
         default_factory=list,
         metadata={"description": "List of graphical items", "required": False},
     )
-    pins: Optional[list[Pin]] = field(
+    pins: Optional[List[Pin]] = field(
         default_factory=list,
         metadata={"description": "List of symbol pins", "required": False},
     )
-    units: Optional[list["Symbol"]] = field(
+    units: Optional[List["Symbol"]] = field(
         default_factory=list,
         metadata={"description": "List of child symbol units", "required": False},
     )
@@ -447,7 +447,7 @@ class LibSymbols(KiCadObject):
 
     __token_name__ = "lib_symbols"
 
-    symbols: list[Symbol] = field(
+    symbols: List[Symbol] = field(
         default_factory=list, metadata={"description": "List of symbols"}
     )
 
@@ -484,7 +484,7 @@ class KicadSymbolLib(KiCadObject):
         default=None,
         metadata={"description": "Generator version", "required": False},
     )
-    symbols: Optional[list[Symbol]] = field(
+    symbols: Optional[List[Symbol]] = field(
         default_factory=list,
         metadata={"description": "List of symbol definitions", "required": False},
     )

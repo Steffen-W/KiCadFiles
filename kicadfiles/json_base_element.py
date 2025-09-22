@@ -57,10 +57,6 @@ class JsonObject(ABC):
         default=None, init=False, repr=False
     )
 
-    def __post_init__(self) -> None:
-        """Post-initialization hook for subclasses."""
-        pass
-
     @classmethod
     def from_dict(cls: Type[T], data: Dict[str, Any]) -> T:
         """Create instance from dictionary data.

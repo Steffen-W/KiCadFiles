@@ -1,7 +1,7 @@
 """Schematic system elements for KiCad S-expressions - schematic drawing and connectivity."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from .base_element import KiCadObject, ParseStrictness
 from .base_types import At, Color, Effects, Fill, Property, Pts, Size, Stroke, Uuid
@@ -124,7 +124,7 @@ class GlobalLabel(KiCadObject):
     uuid: str = field(
         default="", metadata={"description": "Universally unique identifier"}
     )
-    properties: Optional[list[Property]] = field(
+    properties: Optional[List[Property]] = field(
         default_factory=list,
         metadata={"description": "Properties of the global label", "required": False},
     )
@@ -269,10 +269,10 @@ class Sheet(KiCadObject):
         default=None, metadata={"description": "Fill definition", "required": False}
     )
     uuid: str = field(default="", metadata={"description": "Unique identifier"})
-    properties: list[Property] = field(
+    properties: List[Property] = field(
         default_factory=list, metadata={"description": "List of properties"}
     )
-    pins: Optional[list[Pin]] = field(
+    pins: Optional[List[Pin]] = field(
         default_factory=list,
         metadata={"description": "List of sheet pins", "required": False},
     )
@@ -327,7 +327,7 @@ class Project(KiCadObject):
     __token_name__ = "project"
 
     name: str = field(default="", metadata={"description": "Project name"})
-    instances: list[Any] = field(
+    instances: List[Any] = field(
         default_factory=list, metadata={"description": "List of symbol instances"}
     )
 
@@ -442,7 +442,7 @@ class SheetInstances(KiCadObject):
 
     __token_name__ = "sheet_instances"
 
-    sheet_instances: list[SheetInstance] = field(
+    sheet_instances: List[SheetInstance] = field(
         default_factory=list,
         metadata={"description": "List of sheet instances"},
     )
@@ -532,39 +532,39 @@ class KicadSch(KiCadObject):
         default=None,
         metadata={"description": "Symbol library container", "required": False},
     )
-    junctions: Optional[list[Junction]] = field(
+    junctions: Optional[List[Junction]] = field(
         default_factory=list,
         metadata={"description": "List of junctions", "required": False},
     )
-    no_connects: Optional[list[NoConnect]] = field(
+    no_connects: Optional[List[NoConnect]] = field(
         default_factory=list,
         metadata={"description": "List of no connect markers", "required": False},
     )
-    bus_entries: Optional[list[BusEntry]] = field(
+    bus_entries: Optional[List[BusEntry]] = field(
         default_factory=list,
         metadata={"description": "List of bus entries", "required": False},
     )
-    wires: Optional[list[Wire]] = field(
+    wires: Optional[List[Wire]] = field(
         default_factory=list,
         metadata={"description": "List of wires", "required": False},
     )
-    buses: Optional[list[Bus]] = field(
+    buses: Optional[List[Bus]] = field(
         default_factory=list,
         metadata={"description": "List of buses", "required": False},
     )
-    labels: Optional[list[Label]] = field(
+    labels: Optional[List[Label]] = field(
         default_factory=list,
         metadata={"description": "List of labels", "required": False},
     )
-    global_labels: Optional[list[GlobalLabel]] = field(
+    global_labels: Optional[List[GlobalLabel]] = field(
         default_factory=list,
         metadata={"description": "List of global labels", "required": False},
     )
-    sheets: Optional[list[Sheet]] = field(
+    sheets: Optional[List[Sheet]] = field(
         default_factory=list,
         metadata={"description": "List of hierarchical sheets", "required": False},
     )
-    instances: Optional[list[Any]] = field(
+    instances: Optional[List[Any]] = field(
         default_factory=list,
         metadata={"description": "List of symbol instances", "required": False},
     )

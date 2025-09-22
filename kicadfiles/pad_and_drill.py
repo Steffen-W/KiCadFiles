@@ -1,10 +1,10 @@
 """Pad and drill related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
-from .base_element import KiCadObject
-from .base_types import Anchor, At, Clearance, Layers, Locked, Offset, Size, Width
+from .base_element import KiCadObject, OptionalFlag
+from .base_types import Anchor, At, Clearance, Layers, Offset, Size, Width
 from .enums import PadShape, PadType, ZoneConnection
 
 
@@ -24,7 +24,7 @@ class Chamfer(KiCadObject):
 
     __token_name__ = "chamfer"
 
-    corners: list[str] = field(
+    corners: List[str] = field(
         default_factory=list, metadata={"description": "List of corners to chamfer"}
     )
 
@@ -331,7 +331,7 @@ class Primitives(KiCadObject):
 
     __token_name__ = "primitives"
 
-    elements: list[Any] = field(
+    elements: List[Any] = field(
         default_factory=list, metadata={"description": "List of primitive elements"}
     )
     width: Width = field(
@@ -436,8 +436,8 @@ class Pad(KiCadObject):
     property: Optional[str] = field(
         default=None, metadata={"description": "Pad property", "required": False}
     )
-    locked: Optional[Locked] = field(
-        default=None,
+    locked: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether pad is locked", "required": False},
     )
     remove_unused_layer: Optional[bool] = field(
@@ -455,7 +455,7 @@ class Pad(KiCadObject):
     chamfer_ratio: Optional[float] = field(
         default=None, metadata={"description": "Chamfer ratio", "required": False}
     )
-    chamfer: Optional[list[str]] = field(
+    chamfer: Optional[List[str]] = field(
         default_factory=list,
         metadata={"description": "Chamfer corners", "required": False},
     )
@@ -523,6 +523,6 @@ class Pads(KiCadObject):
 
     __token_name__ = "pads"
 
-    pads: list[Pad] = field(
+    pads: List[Pad] = field(
         default_factory=list, metadata={"description": "List of pads"}
     )

@@ -1,30 +1,10 @@
 """Base types for KiCad S-expressions - fundamental elements with no cross-dependencies."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import List, Optional
 
 from .base_element import KiCadObject, OptionalFlag
 from .enums import FillType, PadShape, StrokeType
-
-
-@dataclass
-class Hide(KiCadObject):
-    """Hide flag definition token.
-
-    The 'hide' token defines whether an element is hidden in the format::
-
-        (hide yes)
-        (hide no)
-
-    Args:
-        hidden: Whether the element is hidden (default: True)
-    """
-
-    __token_name__ = "hide"
-
-    hidden: bool = field(
-        default=True, metadata={"description": "Whether element is hidden"}
-    )
 
 
 @dataclass
@@ -126,7 +106,7 @@ class Pts(KiCadObject):
 
     __token_name__ = "pts"
 
-    points: list[Xy] = field(
+    points: List[Xy] = field(
         default_factory=list, metadata={"description": "List of 2D coordinate points"}
     )
 
@@ -282,6 +262,9 @@ class End(KiCadObject):
     y: float = field(
         default=0.0, metadata={"description": "Vertical position of the end point"}
     )
+    corner: Optional[str] = field(
+        default=None, metadata={"description": "Corner reference", "required": False}
+    )
 
 
 @dataclass
@@ -433,42 +416,6 @@ class Linewidth(KiCadObject):
 
 
 @dataclass
-class Locked(KiCadObject):
-    """Locked state definition token.
-
-    The 'locked' token defines whether an object is locked in the format::
-
-        (locked)
-
-    This is a flag token that indicates the object is locked when present.
-
-    Args:
-        value: Always True when token is present (bool)
-    """
-
-    __token_name__ = "locked"
-
-    value: bool = field(default=True, metadata={"description": "Locked state flag"})
-
-
-@dataclass
-class Unlocked(KiCadObject):
-    """Unlocked state definition token.
-
-    The 'unlocked' token defines whether an object is unlocked in the format::
-
-        (unlocked yes)
-
-    Args:
-        value: Unlocked state (bool, default True)
-    """
-
-    __token_name__ = "unlocked"
-
-    value: bool = field(default=True, metadata={"description": "Unlocked state"})
-
-
-@dataclass
 class Name(KiCadObject):
     """Name definition token.
 
@@ -528,6 +475,9 @@ class Pos(KiCadObject):
     )
     y: float = field(
         default=0.0, metadata={"description": "Vertical position coordinate"}
+    )
+    corner: Optional[str] = field(
+        default=None, metadata={"description": "Corner reference", "required": False}
     )
 
 
@@ -615,6 +565,9 @@ class Start(KiCadObject):
     )
     y: float = field(
         default=0.0, metadata={"description": "Vertical position of the start point"}
+    )
+    corner: Optional[str] = field(
+        default=None, metadata={"description": "Corner reference", "required": False}
     )
 
 
@@ -792,23 +745,6 @@ class Uuid(KiCadObject):
 
 
 @dataclass
-class Visible(KiCadObject):
-    """Visibility definition token.
-
-    The 'visible' token defines whether an object is visible in the format:
-    (visible BOOL_VALUE)
-
-
-    Args:
-        value: Visibility state (bool)
-    """
-
-    __token_name__ = "visible"
-
-    value: bool = field(default=True, metadata={"description": "Visibility state"})
-
-
-@dataclass
 class Font(KiCadObject):
     """Font definition token.
 
@@ -831,11 +767,11 @@ class Font(KiCadObject):
         default=None, metadata={"description": "Font thickness", "required": False}
     )
     bold: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("bold"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("bold"),
         metadata={"description": "Bold flag", "required": False},
     )
     italic: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("italic"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("italic"),
         metadata={"description": "Italic flag", "required": False},
     )
 
@@ -863,14 +799,14 @@ class Justify(KiCadObject):
 
     # Horizontal justification flags
     left: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("left"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("left"),
         metadata={
             "description": "Left horizontal justification flag",
             "required": False,
         },
     )
     right: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("right"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("right"),
         metadata={
             "description": "Right horizontal justification flag",
             "required": False,
@@ -879,11 +815,11 @@ class Justify(KiCadObject):
 
     # Vertical justification flags
     top: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("top"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("top"),
         metadata={"description": "Top vertical justification flag", "required": False},
     )
     bottom: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("bottom"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("bottom"),
         metadata={
             "description": "Bottom vertical justification flag",
             "required": False,
@@ -892,7 +828,7 @@ class Justify(KiCadObject):
 
     # Center can be horizontal or vertical - ambiguous in S-expression
     center: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("center"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("center"),
         metadata={
             "description": "Center justification flag (horizontal or vertical)",
             "required": False,
@@ -901,7 +837,7 @@ class Justify(KiCadObject):
 
     # Mirror flag
     mirror: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag("mirror"),
+        default_factory=lambda: OptionalFlag.create_bool_flag("mirror"),
         metadata={"description": "Mirror text flag", "required": False},
     )
 
@@ -933,8 +869,8 @@ class Effects(KiCadObject):
         default=None,
         metadata={"description": "Text justification", "required": False},
     )
-    hide: Optional[Hide] = field(
-        default=None,
+    hide: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
 
@@ -983,8 +919,8 @@ class Property(KiCadObject):
     effects: Optional[Effects] = field(
         default=None, metadata={"description": "Text effects", "required": False}
     )
-    unlocked: Optional[Unlocked] = field(
-        default=None,
+    unlocked: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("unlocked"),
         metadata={"description": "Whether property is unlocked", "required": False},
     )
     layer: Optional[Layer] = field(
@@ -993,8 +929,8 @@ class Property(KiCadObject):
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
     )
-    hide: Optional[Hide] = field(
-        default=None,
+    hide: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Hide property flag", "required": False},
     )
 
@@ -1037,7 +973,7 @@ class Layers(KiCadObject):
     )
 
     @property
-    def layers(self) -> list[str]:
+    def layers(self) -> List[str]:
         """Get all non-None layer names as a list."""
         return [
             layer

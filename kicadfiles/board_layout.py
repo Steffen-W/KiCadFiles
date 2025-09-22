@@ -1,17 +1,16 @@
 """Board layout elements for KiCad S-expressions - PCB/board design and routing."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from .advanced_graphics import GrText
-from .base_element import KiCadObject, ParseStrictness
+from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import (
     At,
     Diameter,
     End,
     Layer,
     Layers,
-    Locked,
     Property,
     Start,
     Tstamp,
@@ -78,7 +77,7 @@ class Nets(KiCadObject):
 
     __token_name__ = "nets"
 
-    net_definitions: list[tuple[Any, ...]] = field(
+    net_definitions: List[tuple[Any, ...]] = field(
         default_factory=list,
         metadata={"description": "List of net definitions (ordinal, net_name)"},
     )
@@ -98,7 +97,7 @@ class PrivateLayers(KiCadObject):
 
     __token_name__ = "private_layers"
 
-    layers: list[str] = field(
+    layers: List[str] = field(
         default_factory=list, metadata={"description": "List of private layer names"}
     )
 
@@ -146,7 +145,7 @@ class Segment(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the track segment resides on"},
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={
             "description": "Whether the line cannot be edited",
@@ -243,7 +242,7 @@ class Tracks(KiCadObject):
 
     __token_name__ = "tracks"
 
-    segments: list[Segment] = field(
+    segments: List[Segment] = field(
         default_factory=list, metadata={"description": "List of track segments"}
     )
 
@@ -288,7 +287,7 @@ class Via(KiCadObject):
         default=None,
         metadata={"description": "Via type (blind | micro)", "required": False},
     )
-    locked: Optional[Locked] = field(
+    locked: Optional[OptionalFlag] = field(
         default=None,
         metadata={
             "description": "Whether the line cannot be edited",
@@ -352,7 +351,7 @@ class Vias(KiCadObject):
 
     __token_name__ = "vias"
 
-    vias: list[Via] = field(
+    vias: List[Via] = field(
         default_factory=list, metadata={"description": "List of vias"}
     )
 
@@ -481,25 +480,25 @@ class KicadPcb(KiCadObject):
     )
 
     # Multiple elements (lists)
-    properties: list[Property] = field(
+    properties: List[Property] = field(
         default_factory=list, metadata={"description": "Board properties"}
     )
-    nets: list[Net] = field(
+    nets: List[Net] = field(
         default_factory=list, metadata={"description": "Net definitions"}
     )
-    footprints: list[Footprint] = field(
+    footprints: List[Footprint] = field(
         default_factory=list, metadata={"description": "Footprint instances"}
     )
-    gr_texts: list[GrText] = field(
+    gr_texts: List[GrText] = field(
         default_factory=list, metadata={"description": "Graphical text elements"}
     )
-    segments: list[Segment] = field(
+    segments: List[Segment] = field(
         default_factory=list, metadata={"description": "Track segments"}
     )
-    vias: list[Via] = field(
+    vias: List[Via] = field(
         default_factory=list, metadata={"description": "Via definitions"}
     )
-    zones: list[Zone] = field(
+    zones: List[Zone] = field(
         default_factory=list, metadata={"description": "Zone definitions"}
     )
 

@@ -9,9 +9,8 @@ from kicadfiles import (
     ParseStrictness,
     Size,
     __version__,
-    sexpr_to_str,
-    str_to_sexpr,
 )
+from kicadfiles.sexpr_parser import sexpr_to_str, str_to_sexpr
 
 
 def test_version():

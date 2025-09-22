@@ -38,7 +38,7 @@ class ParseCursor:
     def enter(self, sexpr: SExpr, name: str) -> "ParseCursor":
         """Create new cursor for nested object."""
         # Create new parser for nested object to track usage independently
-        nested_parser = SExprParser(sexpr, track_usage=self.parser.track_usage)
+        nested_parser = SExprParser(sexpr)
         return ParseCursor(
             sexpr=sexpr,
             parser=nested_parser,  # New parser for nested object
@@ -117,7 +117,7 @@ class KiCadObject(ABC):
             parser = SExprParser.from_string(sexpr)
             sexpr = parser.sexpr
         else:
-            parser = SExprParser(sexpr, track_usage=True)
+            parser = SExprParser(sexpr)
 
         # Create cursor with parser and parse directly
         cursor = ParseCursor(
@@ -157,14 +157,13 @@ class KiCadObject(ABC):
                 parsed_values[field_info.name] = field_defaults[field_info.name]
 
         # Check for unused parameters and warn
-        if cursor.parser.track_usage:
-            unused = cursor.parser.get_unused_parameters()
-            if unused and cursor.strictness != ParseStrictness.SILENT:
-                unused_summary = cls._format_unused_parameters(unused)
-                cls._log_parse_issue(
-                    cursor,
-                    f"{cursor.get_path_str()}: Unused parameters in {cls.__name__}: {unused_summary}",
-                )
+        unused = cursor.parser.get_unused_parameters()
+        if unused and cursor.strictness != ParseStrictness.SILENT:
+            unused_summary = cls._format_unused_parameters(unused)
+            cls._log_parse_issue(
+                cursor,
+                f"{cursor.get_path_str()}: Unused parameters in {cls.__name__}: {unused_summary}",
+            )
 
         return cls(**parsed_values)
 
@@ -347,29 +346,29 @@ class KiCadObject(ABC):
     ) -> List[Any]:
         """Parse list of values with cursor tracking."""
         result: List[Any] = []
-        sexpr_data = cursor.sexpr[1:]  # Skip token name
+        _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
 
         if field_info.token_name:  # List of KiCadObjects
-            for i, item in enumerate(sexpr_data, 1):
+            for token_idx, item in enumerate(cursor.sexpr[1:], 1):
                 if (
                     isinstance(item, list)
                     and item
                     and str(item[0]) == field_info.token_name
                 ):
-                    cursor.parser.mark_used(i)  # Mark in main parser
+                    cursor.parser.mark_used(token_idx)  # Mark in main parser
                     item_cursor = cursor.enter(
                         item, f"{field_info.token_name}[{len(result)}]"
                     )
                     parsed_item = field_info.inner_type._parse_recursive(item_cursor)
                     result.append(parsed_item)
         else:  # List of primitives: (field_name val1 val2 val3)
-            for i, item in enumerate(sexpr_data, 1):
+            for token_idx, item in enumerate(cursor.sexpr[1:], 1):
                 if (
                     isinstance(item, list)
                     and len(item) > 1
                     and str(item[0]) == field_info.name
                 ):
-                    cursor.parser.mark_used(i)  # Mark in main parser
+                    cursor.parser.mark_used(token_idx)  # Mark in main parser
                     for value in item[1:]:
                         converted = cls._convert_value(value, field_info.inner_type)
                         result.append(converted)
@@ -387,14 +386,14 @@ class KiCadObject(ABC):
         if not field_info.token_name:
             return None
 
-        sexpr_data = cursor.sexpr[1:]  # Skip token name
-        for i, item in enumerate(sexpr_data, 1):
+        _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
+        for token_idx, item in enumerate(cursor.sexpr[1:], 1):
             if (
                 isinstance(item, list)
                 and item
                 and str(item[0]) == field_info.token_name
             ):
-                cursor.parser.mark_used(i)  # Mark in main parser
+                cursor.parser.mark_used(token_idx)  # Mark in main parser
                 nested_cursor = cursor.enter(item, field_info.token_name)
                 return cast(
                     KiCadObject,
@@ -408,19 +407,32 @@ class KiCadObject(ABC):
         cls,
         field_info: FieldInfo,
         cursor: ParseCursor,
-    ) -> OptionalFlag:
+    ) -> Optional[OptionalFlag]:
         """Parse OptionalFlag with cursor tracking."""
-        sexpr_data = cursor.sexpr[1:]  # Skip token name
+        _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
 
-        for i, item in enumerate(sexpr_data, 1):
-            if str(item) == field_info.name:
-                cursor.parser.mark_used(i)  # Mark in main parser
-                result = OptionalFlag(field_info.name)
+        for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+            # Handle both simple flags and flags with values
+            if (
+                isinstance(item, list)
+                and len(item) >= 1
+                and str(item[0]) == field_info.name
+            ):
+                cursor.parser.mark_used(token_idx)  # Mark in main parser
+                token_value = str(item[1]) if len(item) > 1 else None
+                result = OptionalFlag(
+                    field_info.name, is_token=True, token_value=token_value
+                )
+                result.__found__ = True
+                return result
+            elif str(item) == field_info.name:
+                cursor.parser.mark_used(token_idx)  # Mark in main parser
+                result = OptionalFlag(field_info.name, is_token=True)
                 result.__found__ = True
                 return result
 
-        # Not found
-        return OptionalFlag(field_info.name)
+        # Not found - return None for optional fields
+        return None
 
     @classmethod
     def _parse_primitive_with_cursor(
@@ -430,16 +442,16 @@ class KiCadObject(ABC):
         field_defaults: Dict[str, Any],
     ) -> Any:
         """Parse primitive value with cursor tracking."""
-        sexpr_data = cursor.sexpr[1:]  # Skip token name
+        _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
 
         # Try named field first: (field_name value)
-        for i, item in enumerate(sexpr_data, 1):
+        for token_idx, item in enumerate(cursor.sexpr[1:], 1):
             if (
                 isinstance(item, list)
                 and len(item) >= 2
                 and str(item[0]) == field_info.name
             ):
-                cursor.parser.mark_used(i)  # Mark in main parser
+                cursor.parser.mark_used(token_idx)  # Mark in main parser
                 try:
                     return cls._convert_value(item[1], field_info.inner_type)
                 except ValueError as e:
@@ -449,8 +461,8 @@ class KiCadObject(ABC):
                     )
 
         # Try positional access
-        if field_info.position_index < len(sexpr_data):
-            value = sexpr_data[field_info.position_index]
+        if field_info.position_index < len(cursor.sexpr[1:]):
+            value = cursor.sexpr[1:][field_info.position_index]
             if not isinstance(value, list):
                 cursor.parser.mark_used(
                     field_info.position_index + 1
@@ -558,8 +570,25 @@ class KiCadObject(ABC):
                     result.append(value.to_sexpr())
                 elif isinstance(value, OptionalFlag):
                     # Only add the flag to the result if it was found
-                    if value.is_present():
-                        result.append(value.get_value())
+                    if value.__found__:
+                        sexpr_output = value.to_sexpr()
+                        if sexpr_output:  # Don't add empty strings
+                            # Parse the string output back to proper S-expression format
+                            if sexpr_output.startswith("(") and sexpr_output.endswith(
+                                ")"
+                            ):
+                                # It's a token like "(hide)" or "(hide yes)"
+                                inner = sexpr_output[1:-1]  # Remove parentheses
+                                parts = inner.split(" ", 1)
+                                if len(parts) == 1:
+                                    result.append(parts[0])  # Simple flag
+                                else:
+                                    result.append(
+                                        [parts[0], parts[1]]
+                                    )  # Flag with value
+                            else:
+                                # It's a simple string
+                                result.append(sexpr_output)
                 else:
                     # Primitives as named fields: (field_name value)
                     # Convert enum to its value for serialization
@@ -570,54 +599,54 @@ class KiCadObject(ABC):
 
         return result
 
-    def __eq__(self, other: object) -> bool:
-        """Fast and robust equality comparison for KiCadObjects."""
-        if not isinstance(other, KiCadObject):
-            return False
+    # def __eq__(self, other: object) -> bool:
+    #     """Fast and robust equality comparison for KiCadObjects."""
+    #     if not isinstance(other, KiCadObject):
+    #         return False
 
-        if self.__class__ != other.__class__:
-            return False
+    #     if self.__class__ != other.__class__:
+    #         return False
 
-        field_infos = self._classify_fields()
+    #     field_infos = self._classify_fields()
 
-        for field_info in field_infos:
-            self_value = getattr(self, field_info.name)
-            other_value = getattr(other, field_info.name)
+    #     for field_info in field_infos:
+    #         self_value = getattr(self, field_info.name)
+    #         other_value = getattr(other, field_info.name)
 
-            if (self_value is None) != (other_value is None):
-                return False
+    #         if (self_value is None) != (other_value is None):
+    #             return False
 
-            if self_value is None and other_value is None:
-                continue
+    #         if self_value is None and other_value is None:
+    #             continue
 
-            if not isinstance(other_value, type(self_value)):
-                return False
+    #         if not isinstance(other_value, type(self_value)):
+    #             return False
 
-            if isinstance(self_value, list):
-                if len(self_value) != len(other_value):
-                    return False
+    #         if isinstance(self_value, list):
+    #             if len(self_value) != len(other_value):
+    #                 return False
 
-                for self_item, other_item in zip(self_value, other_value):
-                    if isinstance(self_item, KiCadObject):
-                        if not self_item.__eq__(other_item):  # Recursive comparison
-                            return False
-                    else:
-                        if self_item != other_item:
-                            return False
+    #             for self_item, other_item in zip(self_value, other_value):
+    #                 if isinstance(self_item, KiCadObject):
+    #                     if not self_item.__eq__(other_item):  # Recursive comparison
+    #                         return False
+    #                 else:
+    #                     if self_item != other_item:
+    #                         return False
 
-            elif isinstance(self_value, KiCadObject):
-                if not self_value.__eq__(other_value):  # Recursive comparison
-                    return False
+    #         elif isinstance(self_value, KiCadObject):
+    #             if not self_value.__eq__(other_value):  # Recursive comparison
+    #                 return False
 
-            else:
-                if self_value != other_value:
-                    return False
+    #         else:
+    #             if self_value != other_value:
+    #                 return False
 
-        return True
+    #     return True
 
-    def __hash__(self) -> int:
-        """Hash implementation - required when implementing __eq__."""
-        return hash((self.__class__.__name__, self.__token_name__))
+    # def __hash__(self) -> int:
+    #     """Hash implementation - required when implementing __eq__."""
+    #     return hash((self.__class__.__name__, self.__token_name__))
 
     def to_sexpr_str(self, pretty_print: bool = True) -> str:
         """Convert to formatted S-expression string."""
@@ -656,7 +685,7 @@ class KiCadObject(ABC):
                     display_value = "[]"
                 elif isinstance(value, OptionalFlag):
                     # Use OptionalFlag's own __str__ method
-                    if value.is_present():
+                    if value.__found__:
                         display_value = str(value)
                     else:
                         continue
@@ -678,43 +707,137 @@ class KiCadObject(ABC):
         return f"{self.__class__.__name__}({', '.join(non_none_fields)})"
 
 
+class TokenPreference(Enum):
+    """Preference for how the token should be serialized when both formats are valid."""
+
+    TOKEN = "token"  # Prefer (locked) format
+    STRING = "string"  # Prefer "locked" format
+    VALUE_EXPLICIT = (
+        "value_explicit"  # Prefer (locked yes) even if value could be implicit
+    )
+    VALUE_IMPLICIT = "value_implicit"  # Prefer (locked) when value is default/boolean
+
+
 @dataclass
 class OptionalFlag:
-    """Simple flag container for optional string tokens in S-expressions."""
+    """Enhanced flag container for optional tokens in S-expressions with preference support.
 
-    _value_: str
+    Can handle:
+    1. Simple presence flags: (locked) -> token="locked", is_token=True, token_value=None
+    2. Tokens with values: (locked yes) -> token="locked", is_token=True, token_value="yes"
+    3. Simple strings: "locked" -> token="locked", is_token=False, token_value=None
+
+    The preference parameter allows specifying preferred serialization format for future use.
+    """
+
+    token: str
+    is_token: bool = (
+        False  # True if it was a token like (locked), False if simple string
+    )
+    token_value: Optional[str] = (
+        None  # Additional value after token like "yes" in (locked yes)
+    )
+    preference: TokenPreference = (
+        TokenPreference.TOKEN
+    )  # Preferred serialization format
     __found__: bool = False
-
-    def __init__(self, value: str):
-        self._value_ = value
-        self.__found__ = False
 
     def __str__(self) -> str:
         """Clean string representation."""
-        return f"OptionalFlag({self._value_}={self.__found__})"
+        pref_str = (
+            f" pref:{self.preference.value}"
+            if self.preference != TokenPreference.TOKEN
+            else ""
+        )
+
+        if self.is_token:
+            if self.token_value:
+                return f"OptionalFlag(({self.token} {self.token_value})={self.__found__}{pref_str})"
+            else:
+                return f"OptionalFlag(({self.token})={self.__found__}{pref_str})"
+        else:
+            return f"OptionalFlag({self.token}={self.__found__}{pref_str})"
 
     def __repr__(self) -> str:
         """Developer-friendly representation."""
-        return f"OptionalFlag(value='{self._value_}', found={self.__found__})"
+        parts = [f"'{self.token}'"]
+
+        if self.token_value is not None:
+            parts.append(f"value={repr(self.token_value)}")
+
+        if not self.is_token:
+            parts.append("string")
+
+        if self.preference != TokenPreference.TOKEN:
+            parts.append(f"pref={self.preference.value}")
+
+        if not self.__found__:
+            parts.append("None")
+
+        return f"OptionalFlag({', '.join(parts)})"
 
     def __eq__(self, other: object) -> bool:
         """Equality comparison for OptionalFlag objects."""
         if not isinstance(other, OptionalFlag):
             return False
-        return self._value_ == other._value_ and self.__found__ == other.is_present()
+        return (
+            self.token == other.token
+            and self.is_token == other.is_token
+            and self.token_value == other.token_value
+            and self.__found__ == other.__found__
+        )
+        # Note: preference is not included in equality - it's a formatting hint
 
     def __hash__(self) -> int:
         """Hash implementation - required when implementing __eq__."""
-        return hash((self._value_, self.__found__))
+        return hash((self.token, self.is_token, self.token_value, self.__found__))
 
     def __bool__(self) -> bool:
         """Boolean conversion - returns True if flag was found."""
         return self.__found__
 
-    def is_present(self) -> bool:
-        """Explicit method to check if flag is present."""
-        return self.__found__
+    def to_sexpr(self, respect_preference: bool = True) -> str:
+        """Convert back to S-expression format for round-trip.
 
-    def get_value(self) -> str:
-        """Return the expected value regardless of found status."""
-        return self._value_
+        Args:
+            respect_preference: If True, use preference to guide format choice when ambiguous
+        """
+        if not self.__found__:
+            return ""
+
+        # If we have explicit format information, use it (unless overridden by preference)
+        if (
+            respect_preference
+            and self.preference == TokenPreference.STRING
+            and not self.token_value
+        ):
+            # Force string format if preferred and no value
+            return self.token
+
+        if self.is_token:
+            if self.token_value:
+                # Handle preference for value display
+                if (
+                    respect_preference
+                    and self.preference == TokenPreference.VALUE_IMPLICIT
+                    and self.token_value.lower() in ["true", "yes", "1"]
+                ):
+                    # Prefer implicit format for boolean-like values
+                    return f"({self.token})"
+                else:
+                    return f"({self.token} {self.token_value})"
+            else:
+                return f"({self.token})"
+        else:
+            # Handle preference for token format
+            if respect_preference and self.preference == TokenPreference.TOKEN:
+                return f"({self.token})"
+            else:
+                return self.token
+
+    @classmethod
+    def create_bool_flag(
+        cls, token: str, preference: TokenPreference = TokenPreference.TOKEN
+    ) -> "OptionalFlag":
+        """Create a simple boolean flag (presence indicates True)."""
+        return cls(token=token, is_token=True, preference=preference)

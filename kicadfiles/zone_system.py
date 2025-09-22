@@ -1,7 +1,7 @@
 """Zone system elements for KiCad S-expressions - copper zones and keepout areas."""
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from .base_element import KiCadObject
 from .base_types import Angle, Clearance, Fill, Pts
@@ -92,7 +92,7 @@ class FillSegments(KiCadObject):
 
     __token_name__ = "fill_segments"
 
-    segments: list[Any] = field(
+    segments: List[Any] = field(
         default_factory=list, metadata={"description": "List of fill segments"}
     )
 
@@ -166,7 +166,7 @@ class FilledSegments(KiCadObject):
     layer: str = field(
         default="", metadata={"description": "Layer the zone fill resides on"}
     )
-    segments: list[Pts] = field(
+    segments: List[Pts] = field(
         default_factory=list,
         metadata={
             "description": "List of X and Y coordinates of segments used to fill the zone"
@@ -674,11 +674,11 @@ class Zone(KiCadObject):
     keepout: Optional[Keepout] = field(
         default=None, metadata={"description": "Keepout settings", "required": False}
     )
-    filled_polygons: Optional[list[FilledPolygon]] = field(
+    filled_polygons: Optional[List[FilledPolygon]] = field(
         default_factory=list,
         metadata={"description": "List of fill polygons", "required": False},
     )
-    filled_segments: Optional[list[FilledSegments]] = field(
+    filled_segments: Optional[List[FilledSegments]] = field(
         default_factory=list,
         metadata={"description": "List of fill segments", "required": False},
     )
