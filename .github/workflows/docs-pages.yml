@@ -1,0 +1,59 @@
+name: Build & Deploy Sphinx Docs to GitHub Pages
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install sphinx sphinx-rtd-theme
+
+    - name: Build Sphinx Documentation
+      run: |
+        echo "📚 Building documentation with Sphinx..."
+
+        # Check if docs directory exists, create if not
+        if [ ! -d "docs" ]; then
+          mkdir docs
+          cd docs
+          sphinx-quickstart -q --sep --project="KiCadFiles" --author="GitHub Actions" --release="latest" --language="en" --makefile --batchfile .
+          cd ..
+        fi
+
+        # Build documentation
+        cd docs
+        make html
+        cd ..
+
+        echo "✅ Documentation built successfully"
+
+    - name: Configure Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./docs/_build/html
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
