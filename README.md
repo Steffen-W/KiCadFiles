@@ -6,6 +6,7 @@ A comprehensive Python library for parsing and manipulating KiCad file formats.
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/kicadfiles.svg)](https://badge.fury.io/py/kicadfiles)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](https://steffen-mechanic.github.io/KiCadFiles/)
+[![codecov](https://codecov.io/gh/Steffen-W/KiCadFiles/branch/master/graph/badge.svg)](https://codecov.io/gh/Steffen-W/KiCadFiles)
 
 📚 **[View Full Documentation](https://steffen-mechanic.github.io/KiCadFiles/)** - Complete API reference and examples
 
