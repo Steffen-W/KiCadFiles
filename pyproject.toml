@@ -44,11 +44,11 @@ dev = [
     "flake8",
     "mypy",
     "pyright",
+    "docformatter",
 ]
 docs = [
     "sphinx",
     "sphinx-rtd-theme",
-    "myst-parser",
 ]
 
 [tool.setuptools.packages.find]
@@ -78,6 +78,12 @@ ignore_errors = true
 
 [tool.pyright]
 exclude = ["kicadfiles/sexpdata.py"]
+
+[tool.docformatter]
+wrap-summaries = 88
+wrap-descriptions = 88
+make-summary-multi-line = false
+pre-summary-newline = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

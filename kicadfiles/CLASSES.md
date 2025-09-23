@@ -4,39 +4,6 @@ A comprehensive Python library for parsing and manipulating KiCad file formats w
 
 ## File Organization
 
-### enums.py - Common Enumeration Types
-
-```python
-clearance_type         -> enums.ClearanceType
-fill_type              -> enums.FillType
-footprint_text_type    -> enums.FootprintTextType
-hatch_style            -> enums.HatchStyle
-justify_horizontal     -> enums.JustifyHorizontal
-justify_vertical       -> enums.JustifyVertical
-label_shape            -> enums.LabelShape
-layer_type             -> enums.LayerType
-pad_shape              -> enums.PadShape
-pad_type               -> enums.PadType
-pin_electrical_type    -> enums.PinElectricalType
-pin_graphic_style      -> enums.PinGraphicStyle
-smoothing_style        -> enums.SmoothingStyle
-stroke_type            -> enums.StrokeType
-via_type               -> enums.ViaType
-zone_connection        -> enums.ZoneConnection
-zone_fill_mode         -> enums.ZoneFillMode
-zone_keepout_setting   -> enums.ZoneKeepoutSetting
-```
-
-### base_element.py - Base Classes
-
-```python
-kicad_object           -> base_element.KiCadObject
-optional_flag          -> base_element.OptionalFlag
-parse_mode             -> base_element.ParseMode
-parse_strictness       -> base_element.ParseStrictness
-token_preference       -> base_element.TokenPreference
-```
-
 ### advanced_graphics.py - Complex Graphics Objects
 
 ```python
@@ -61,6 +28,18 @@ precision              -> advanced_graphics.Precision
 render_cache           -> advanced_graphics.RenderCache
 suppress_zeros         -> advanced_graphics.SuppressZeros
 units_format           -> advanced_graphics.UnitsFormat
+```
+
+### base_element.py - Base Classes
+
+```python
+field_info             -> base_element.FieldInfo
+field_type             -> base_element.FieldType
+kicad_object           -> base_element.KiCadObject
+optional_flag          -> base_element.OptionalFlag
+parse_cursor           -> base_element.ParseCursor
+parse_strictness       -> base_element.ParseStrictness
+token_preference       -> base_element.TokenPreference
 ```
 
 ### base_types.py - Fundamental Types
@@ -139,6 +118,31 @@ design_rule_severity   -> design_rules.DesignRuleSeverity
 kicad_design_rules     -> design_rules.KiCadDesignRules
 ```
 
+### enums.py - Common Enumeration Types
+
+```python
+clearance_type         -> enums.ClearanceType
+constraint_type        -> enums.ConstraintType
+fill_type              -> enums.FillType
+footprint_text_type    -> enums.FootprintTextType
+hatch_style            -> enums.HatchStyle
+justify_horizontal     -> enums.JustifyHorizontal
+justify_vertical       -> enums.JustifyVertical
+label_shape            -> enums.LabelShape
+layer_type             -> enums.LayerType
+pad_shape              -> enums.PadShape
+pad_type               -> enums.PadType
+pin_electrical_type    -> enums.PinElectricalType
+pin_graphic_style      -> enums.PinGraphicStyle
+severity_level         -> enums.SeverityLevel
+smoothing_style        -> enums.SmoothingStyle
+stroke_type            -> enums.StrokeType
+via_type               -> enums.ViaType
+zone_connection        -> enums.ZoneConnection
+zone_fill_mode         -> enums.ZoneFillMode
+zone_keepout_setting   -> enums.ZoneKeepoutSetting
+```
+
 ### footprint_library.py - Footprint Management
 
 ```python
@@ -154,6 +158,20 @@ solder_mask_margin     -> footprint_library.SolderMaskMargin
 solder_paste_margin    -> footprint_library.SolderPasteMargin
 solder_paste_margin_ratio -> footprint_library.SolderPasteMarginRatio
 tags                   -> footprint_library.Tags
+```
+
+### json_base_element.py - JSON Base Classes
+
+```python
+json_object            -> json_base_element.JsonObject
+```
+
+### library_tables.py - Library Table Management
+
+```python
+fp_lib_table           -> library_tables.FpLibTable
+library_entry          -> library_tables.LibraryEntry
+sym_lib_table          -> library_tables.SymLibTable
 ```
 
 ### pad_and_drill.py - Pad and Drill Elements
@@ -240,6 +258,7 @@ extends                -> symbol_library.Extends
 fields_autoplaced      -> symbol_library.FieldsAutoplaced
 in_bom                 -> symbol_library.InBom
 instances              -> symbol_library.Instances
+kicad_symbol_lib       -> symbol_library.KicadSymbolLib
 lib_symbols            -> symbol_library.LibSymbols
 number                 -> symbol_library.Number
 pin                    -> symbol_library.Pin
@@ -291,6 +310,10 @@ wks_setup              -> text_and_documents.WksSetup
 wks_tb_text            -> text_and_documents.WksTbText
 wks_textlinewidth      -> text_and_documents.WksTextlinewidth
 wks_textsize           -> text_and_documents.WksTextsize
+wks_bottom_margin      -> text_and_documents.WksBottomMargin
+wks_left_margin        -> text_and_documents.WksLeftMargin
+wks_right_margin       -> text_and_documents.WksRightMargin
+wks_top_margin         -> text_and_documents.WksTopMargin
 ```
 
 ### zone_system.py - Zone and Copper Filling
@@ -339,7 +362,6 @@ Each S-expression token gets a corresponding class with the pattern:
 2. **Nested Elements**: When tokens contain other tokens, they reference classes from appropriate modules
 3. **File Organization**: Tokens grouped by functional area and dependency level
 4. **Inheritance**: All classes inherit from a base `KiCadObject` class
-5. **Token Count**: Total of 241 unique tokens mapped to 241 classes across 12 Python modules
 
 ## Class Implementation Specification
 
@@ -348,8 +370,10 @@ Each S-expression token gets a corresponding class with the pattern:
 ```python
 from dataclasses import dataclass, field
 from typing import Optional
-from ..kicad_common import KiCadObject
-import base_types  # Import required modules
+
+from .base_element import KiCadObject
+from .enums import SomeEnum  # Import required enums
+from . import other_module   # Import other modules as needed
 
 @dataclass
 class ClassName(KiCadObject):
@@ -366,7 +390,7 @@ class ClassName(KiCadObject):
     __token_name__ = "token_name"
 
     # Follow exact documentation order
-    param1: type = field(metadata={"description": "Description"})
+    param1: type = field(default=default_value, metadata={"description": "Description"})
     optional_param: Optional[type] = field(default=None, metadata={"description": "Description", "required": False})
 ```
 
@@ -376,7 +400,8 @@ class ClassName(KiCadObject):
 
 - Basic: `str`, `int`, `float`, `bool` with defaults `""`, `0`, `0.0`, `False`
 - Optional: `Optional[type]` with `default=None` and `metadata={"required": False}`
-- Nested: `module.ClassName` (import modules, no defaults for required objects)
+- Nested Objects: Use `default_factory=lambda: ClassName()` for required nested objects
+- Enums: Direct enum values as defaults (e.g., `default=PadShape.RECT`)
 - Lists: `List[module.Type]` with `default_factory=list` or `None` for optional
 
 **Field Order (CRITICAL):**
@@ -420,13 +445,15 @@ class Example(KiCadObject):
 ```python
 from dataclasses import dataclass, field
 from typing import Optional
-import base_types
+
+from .base_element import KiCadObject
+from .enums import StrokeType
 
 @dataclass
 class Stroke(KiCadObject):
-    """Stroke definition for graphical objects.
+    """Stroke definition token.
 
-    The 'stroke' token defines how outlines are drawn in the format::
+    The 'stroke' token defines how the outlines of graphical objects are drawn in the format::
 
         (stroke
             (width WIDTH)
@@ -435,15 +462,24 @@ class Stroke(KiCadObject):
         )
 
     Args:
-        width: Line width specification
-        type: Stroke line style (solid, dash, etc.)
-        color: Line color specification (optional)
+        width: Line width specification (Width object)
+        type: Stroke line style specification (Type object)
+        color: Line color specification (Color object, optional)
     """
     __token_name__ = "stroke"
 
-    width: base_types.Width = field(metadata={"description": "Line width"})
-    type: base_types.Type = field(metadata={"description": "Line style"})
-    color: Optional[base_types.Color] = field(default=None, metadata={"description": "Line color", "required": False})
+    width: Width = field(
+        default_factory=lambda: Width(),
+        metadata={"description": "Line width specification"},
+    )
+    type: Type = field(
+        default_factory=lambda: Type(value=StrokeType.SOLID.value),
+        metadata={"description": "Stroke line style specification"},
+    )
+    color: Optional[Color] = field(
+        default=None,
+        metadata={"description": "Line color specification", "required": False},
+    )
 ```
 
 ## Core Principles

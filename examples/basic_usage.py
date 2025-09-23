@@ -7,15 +7,7 @@ including creating objects, parsing S-expressions, and handling different
 strictness modes.
 """
 
-from kicadfiles import (
-    At,
-    Footprint,
-    Layer,
-    Pad,
-    ParseStrictness,
-    Size,
-)
-from kicadfiles.sexpr_parser import sexpr_to_str, str_to_sexpr
+from kicadfiles import At, Footprint, KicadPcb, Layer, Pad, ParseStrictness, Size
 
 
 def basic_object_creation():
@@ -80,14 +72,29 @@ def complex_object_example():
     """Demonstrate working with complex nested objects."""
     print("=== Complex Object Example ===")
 
-    # Create a simple footprint with pads
+    # Create a footprint with pads
     footprint = Footprint(
         library_link="Resistor_SMD:R_0603",
         at=At(x=50.0, y=30.0, angle=0.0),
-        layer=Layer(name="F.Cu"),
+        pads=[
+            Pad(
+                number="1",
+                type="smd",
+                shape="roundrect",
+                at=At(x=-0.8, y=0.0),
+                size=Size(width=0.7, height=0.9),
+            ),
+            Pad(
+                number="2",
+                type="smd",
+                shape="roundrect",
+                at=At(x=0.8, y=0.0),
+                size=Size(width=0.7, height=0.9),
+            ),
+        ],
     )
 
-    print(f"Footprint: {footprint}")
+    print(f"Created footprint with {len(footprint.pads)} pads")
 
     # Convert to S-expression with pretty printing
     sexpr_str = footprint.to_sexpr_str(pretty_print=True)
@@ -96,18 +103,29 @@ def complex_object_example():
     print()
 
 
-def low_level_sexpr_handling():
-    """Demonstrate low-level S-expression handling."""
-    print("=== Low-Level S-Expression Handling ===")
+def file_loading_example():
+    """Demonstrate loading KiCad files like in the documentation."""
+    print("=== File Loading Example ===")
 
-    # Parse string to raw S-expression
-    sexpr_str = '(at 10.0 20.0 (comment "test position"))'
-    sexpr = str_to_sexpr(sexpr_str)
-    print(f"Raw S-expression: {sexpr}")
+    try:
+        # Load a PCB file (using the same path as in documentation)
+        pcb = KicadPcb.from_file(
+            "tests/fixtures/pcb/minimal.kicad_pcb", ParseStrictness.STRICT
+        )
+        print(f"Successfully loaded PCB with {len(pcb.footprints)} footprints")
 
-    # Convert back to string
-    regenerated = sexpr_to_str(sexpr, pretty_print=True)
-    print(f"Regenerated string:\n{regenerated}")
+        # Show some basic information
+        print(f"PCB version: {pcb.version}")
+        if pcb.general:
+            print(f"PCB general info: {pcb.general}")
+
+    except FileNotFoundError:
+        print(
+            "Note: PCB fixture file not found - this example works when run from the project root"
+        )
+    except Exception as e:
+        print(f"Error loading PCB: {e}")
+
     print()
 
 
@@ -121,7 +139,7 @@ def main():
     sexpr_parsing()
     strictness_modes()
     complex_object_example()
-    low_level_sexpr_handling()
+    file_loading_example()
 
     print("All examples completed successfully!")
 

@@ -2,21 +2,22 @@
 
 A comprehensive Python library for parsing and manipulating KiCad file formats.
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![CI/CD](https://github.com/Steffen-W/KiCadFiles/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/Steffen-W/KiCadFiles/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/kicadfiles.svg)](https://badge.fury.io/py/kicadfiles)
-[![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](https://steffen-mechanic.github.io/KiCadFiles/)
+[![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](https://steffen-w.github.io/KiCadFiles/)
 [![codecov](https://codecov.io/gh/Steffen-W/KiCadFiles/branch/master/graph/badge.svg)](https://codecov.io/gh/Steffen-W/KiCadFiles)
 
-📚 **[View Full Documentation](https://steffen-mechanic.github.io/KiCadFiles/)** - Complete API reference and examples
+📚 **[View Full Documentation](https://steffen-w.github.io/KiCadFiles/)** - Complete API reference and examples
 
 ## Features
 
-- **Complete KiCad S-expression support**: 207 classes representing all KiCad tokens
+- **Complete KiCad S-expression support**: >200 classes representing KiCad tokens (missing tokens? [create an issue](https://github.com/Steffen-W/KiCadFiles/issues) with examples)
 - **Type-safe parsing**: Full Python type hints for all classes and methods
 - **Flexible error handling**: Three strictness modes (STRICT, FAILSAFE, SILENT)
 - **Round-trip parsing**: Parse KiCad files and convert back to S-expressions
-- **Minimal dependencies**: Uses only `sexpdata` from <https://github.com/jd-boyd/sexpdata> for S-expression parsing
+- **Minimal dependencies**: Self-contained S-expression parsing (no external dependencies)
 - **Extensive testing**: Comprehensive test suite ensuring reliability
 
 ## Installation
@@ -41,7 +42,7 @@ at_obj = At.from_sexpr("(at 10.0 20.0 90.0)", ParseStrictness.STRICT)
 
 # Convert back to S-expression string
 sexpr_str = at_obj.to_sexpr_str(pretty_print=False)
-print(sexpr_str)  # Output: ("at" ("x" 10.0) ("y" 20.0) ("angle" 90.0))
+print(sexpr_str)  # Output: (at 10.0 20.0 90.0)
 ```
 
 ### Parsing with Different Strictness Modes
@@ -147,6 +148,8 @@ footprint = Footprint.from_sexpr(
 )
 ```
 
+For a complete overview of all classes and their module organization, see **[kicadfiles/CLASSES.md](kicadfiles/CLASSES.md)**.
+
 ## Development
 
 ### Setting up Development Environment
@@ -166,8 +169,13 @@ pytest tests/ -v
 ### Code Formatting
 
 ```bash
-black kicadfiles/
-isort kicadfiles/
+# Complete pipeline (recommended)
+docformatter --in-place --recursive kicadfiles
+black .
+isort .
+flake8 kicadfiles
+pyright kicadfiles
+mypy kicadfiles
 ```
 
 ### Linting
@@ -186,9 +194,7 @@ pyright kicadfiles/
 ### Documentation
 
 ```bash
-pip install -e ".[docs]"
-cd docs
-make html
+cd docs && make clean && make html && cd ..
 ```
 
 ### Coverage

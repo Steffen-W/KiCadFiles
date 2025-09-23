@@ -1,8 +1,16 @@
-name: Auto Version Tag
+name: CI/CD Pipeline
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
     branches: [ main, master ]
+    paths: ['kicadfiles/**', 'tests/**', 'docs/**', 'pyproject.toml', 'README.md']
+  pull_request:
+    branches: [ main, master ]
+    paths: ['kicadfiles/**', 'tests/**', 'docs/**', 'pyproject.toml', 'README.md']
   workflow_dispatch:
     inputs:
       create_tag:
@@ -15,8 +23,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
     - name: Checkout code
@@ -26,6 +35,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
@@ -47,17 +57,17 @@ jobs:
         pytest tests/ -v --tb=short --cov=kicadfiles --cov-report=xml --cov-report=term
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.12'
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
 
-  build-docs:
+  docs:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: |
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     permissions:
       contents: read
       pages: write
@@ -71,24 +81,22 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install sphinx sphinx-rtd-theme
+        pip install -e ".[docs]"
 
     - name: Build Sphinx Documentation
       run: |
         echo "📚 Building documentation with Sphinx..."
-        if [ ! -d "docs" ]; then
-          mkdir docs
-          cd docs
-          sphinx-quickstart -q --sep --project="KiCadFiles" --author="GitHub Actions" --release="latest" --language="en" --makefile --batchfile .
-          cd ..
-        fi
         cd docs
         make html
-        cd ..
+        if [ ! -f "build/html/index.html" ]; then
+          echo "❌ Documentation build failed - index.html not found"
+          exit 1
+        fi
         echo "✅ Documentation built successfully"
 
     - name: Configure Pages
@@ -103,13 +111,15 @@ jobs:
       id: deployment
       uses: actions/deploy-pages@v4
 
-  create-version-tag:
+  release:
     runs-on: ubuntu-latest
-    needs: test
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && (github.event_name == 'workflow_dispatch' && inputs.create_tag == true)
+    needs: [test, docs]
+    if: |
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.create_tag == true
     permissions:
       contents: write
-      packages: write
 
     steps:
     - name: Checkout code
@@ -168,7 +178,6 @@ jobs:
         git push origin "$NEW_TAG"
 
         echo "✅ Created and pushed tag: $NEW_TAG"
-
 
     - name: Create GitHub Release
       if: steps.tag_exists.outputs.exists == 'false'
