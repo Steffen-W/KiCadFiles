@@ -12,7 +12,7 @@ Parsing KiCad Files
 .. code-block:: python
 
    from kicadfiles import (
-       KicadPcb, KicadSch, Footprint, KicadWks, KicadSymbolLib,
+       KicadPcb, KicadSch, Footprint, KicadSymbolLib, KicadWks,
        KicadProject, KiCadDesignRules, FpLibTable, SymLibTable,
        ParseStrictness
    )

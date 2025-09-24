@@ -18,7 +18,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx.ext.autosummary",
     "sphinx.ext.inheritance_diagram",
@@ -35,12 +34,6 @@ language = "en"
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
-# -- Options for intersphinx extension ---------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#configuration
-
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-}
 
 # -- Options for autodoc extension -------------------------------------------
 
@@ -52,6 +45,9 @@ autodoc_default_options = {
     "exclude-members": "__weakref__,__dict__,__module__",
     "imported-members": False,
 }
+
+# Reduce duplicate warnings
+autodoc_inherit_docstrings = False
 
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"
@@ -68,8 +64,11 @@ add_module_names = False
 # -- Suppress specific warnings ----------------------------------------------
 
 suppress_warnings = [
-    'toc.not_included',      # Suppress autosummary files not in toctree warnings
-    'autosummary.import_cycle',  # Suppress autosummary import cycle warnings
+    "toc.not_included",  # Suppress autosummary files not in toctree warnings
+    "autosummary.import_cycle",  # Suppress autosummary import cycle warnings
+    "autodoc.duplicate_object",  # Suppress duplicate object warnings
+    "ref.python",  # Suppress cross-reference ambiguity warnings
+    "docutils",  # Suppress docstring formatting warnings
 ]
 
 # -- Options for Napoleon extension ------------------------------------------

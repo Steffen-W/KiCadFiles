@@ -170,7 +170,6 @@ pytest tests/ -v
 
 ```bash
 # Complete pipeline (recommended)
-docformatter --in-place --recursive kicadfiles
 black .
 isort .
 flake8 kicadfiles
@@ -195,6 +194,7 @@ pyright kicadfiles/
 
 ```bash
 cd docs && make clean && make html && cd ..
+# Open docs/build/html/index.html in browser
 ```
 
 ### Coverage

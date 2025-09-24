@@ -10,49 +10,25 @@ Core Classes
 
 .. autosummary::
 
-   kicadfiles.base_element
-   kicadfiles.base_types
-   kicadfiles.enums
+   kicadfiles.base_element.KiCadObject
+   kicadfiles.base_element.ParseStrictness
 
 File Format Classes
 -------------------
 
-These classes represent complete KiCad file formats:
+These classes represent complete KiCad file formats and support both ``from_file()`` and ``save_to_file()`` methods:
 
 .. autosummary::
 
-   kicadfiles.board_layout
-   kicadfiles.symbol_library
-   kicadfiles.footprint_library
-   kicadfiles.schematic_system
-   kicadfiles.project_settings
-
-Graphics and Drawing
---------------------
-
-.. autosummary::
-
-   kicadfiles.primitive_graphics
-   kicadfiles.advanced_graphics
-   kicadfiles.text_and_documents
-
-PCB Components
---------------
-
-.. autosummary::
-
-   kicadfiles.pad_and_drill
-   kicadfiles.zone_system
-
-Utilities
----------
-
-.. autosummary::
-
-   kicadfiles.sexpdata
-   kicadfiles.sexpr_parser
-   kicadfiles.json_base_element
-   kicadfiles.design_rules
+   kicadfiles.board_layout.KicadPcb
+   kicadfiles.schematic_system.KicadSch
+   kicadfiles.footprint_library.Footprint
+   kicadfiles.symbol_library.KicadSymbolLib
+   kicadfiles.text_and_documents.KicadWks
+   kicadfiles.project_settings.KicadProject
+   kicadfiles.design_rules.KiCadDesignRules
+   kicadfiles.library_tables.FpLibTable
+   kicadfiles.library_tables.SymLibTable
 
 Complete Module Reference
 -------------------------

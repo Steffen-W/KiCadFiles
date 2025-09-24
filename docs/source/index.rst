@@ -27,6 +27,53 @@ Installation
 Quick Start
 -----------
 
+Main File Format Classes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from kicadfiles import (
+       KicadPcb, KicadSch, Footprint, KicadWks, KicadSymbolLib,
+       KicadProject, KiCadDesignRules, FpLibTable, SymLibTable,
+       ParseStrictness
+   )
+
+   # PCB board (.kicad_pcb)
+   pcb = KicadPcb.from_file("tests/fixtures/pcb/minimal.kicad_pcb", ParseStrictness.STRICT)
+   # pcb.save_to_file("output.kicad_pcb")  # Uncomment to save
+
+   # Schematic (.kicad_sch)
+   schematic = KicadSch.from_file("tests/fixtures/schematic/minimal.kicad_sch", ParseStrictness.STRICT)
+   # schematic.save_to_file("output.kicad_sch")  # Uncomment to save
+
+   # Footprint (.kicad_mod)
+   footprint = Footprint.from_file("tests/fixtures/footprints/small.kicad_mod", ParseStrictness.STRICT)
+   # footprint.save_to_file("output.kicad_mod")  # Uncomment to save
+
+   # Symbol library (.kicad_sym)
+   symbol_lib = KicadSymbolLib.from_file("tests/fixtures/symbols/small.kicad_sym", ParseStrictness.STRICT)
+   # symbol_lib.save_to_file("output.kicad_sym")  # Uncomment to save
+
+   # Worksheet (.kicad_wks)
+   worksheet = KicadWks.from_file("tests/fixtures/worksheets/small.kicad_wks", ParseStrictness.STRICT)
+   # worksheet.save_to_file("output.kicad_wks")  # Uncomment to save
+
+   # Project settings (.kicad_pro)
+   project = KicadProject.from_file("tests/fixtures/projects/minimal.kicad_pro", ParseStrictness.STRICT)
+   # project.save_to_file("output.kicad_pro")  # Uncomment to save
+
+   # Design rules (.kicad_dru)
+   design_rules = KiCadDesignRules.from_file("tests/fixtures/design_rules/minimal.kicad_dru", ParseStrictness.STRICT)
+   # design_rules.save_to_file("output.kicad_dru")  # Uncomment to save
+
+   # Footprint library table
+   fp_lib_table = FpLibTable.from_file("tests/fixtures/tables/fp-lib-table", ParseStrictness.STRICT)
+   # fp_lib_table.save_to_file("output-fp-lib-table")  # Uncomment to save
+
+   # Symbol library table
+   sym_lib_table = SymLibTable.from_file("tests/fixtures/tables/sym-lib-table", ParseStrictness.STRICT)
+   # sym_lib_table.save_to_file("output-sym-lib-table")  # Uncomment to save
+
 Basic Usage
 ~~~~~~~~~~~
 
@@ -97,53 +144,6 @@ Working with Complex Objects
    # Convert to S-expression
    sexpr = footprint.to_sexpr_str(pretty_print=True)
    print(sexpr)
-
-Main File Format Classes
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   from kicadfiles import (
-       KicadPcb, KicadSch, Footprint, KicadWks, KicadSymbolLib,
-       KicadProject, KiCadDesignRules, FpLibTable, SymLibTable,
-       ParseStrictness
-   )
-
-   # PCB board (.kicad_pcb)
-   pcb = KicadPcb.from_file("tests/fixtures/pcb/minimal.kicad_pcb", ParseStrictness.STRICT)
-   # pcb.save_to_file("output.kicad_pcb")  # Uncomment to save
-
-   # Schematic (.kicad_sch)
-   schematic = KicadSch.from_file("tests/fixtures/schematic/minimal.kicad_sch", ParseStrictness.STRICT)
-   # schematic.save_to_file("output.kicad_sch")  # Uncomment to save
-
-   # Footprint (.kicad_mod)
-   footprint = Footprint.from_file("tests/fixtures/footprints/small.kicad_mod", ParseStrictness.STRICT)
-   # footprint.save_to_file("output.kicad_mod")  # Uncomment to save
-
-   # Symbol library (.kicad_sym)
-   symbol_lib = KicadSymbolLib.from_file("tests/fixtures/symbols/small.kicad_sym", ParseStrictness.STRICT)
-   # symbol_lib.save_to_file("output.kicad_sym")  # Uncomment to save
-
-   # Worksheet (.kicad_wks)
-   worksheet = KicadWks.from_file("tests/fixtures/worksheets/small.kicad_wks", ParseStrictness.STRICT)
-   # worksheet.save_to_file("output.kicad_wks")  # Uncomment to save
-
-   # Project settings (.kicad_pro)
-   project = KicadProject.from_file("tests/fixtures/projects/minimal.kicad_pro", ParseStrictness.STRICT)
-   # project.save_to_file("output.kicad_pro")  # Uncomment to save
-
-   # Design rules (.kicad_dru)
-   design_rules = KiCadDesignRules.from_file("tests/fixtures/design_rules/minimal.kicad_dru", ParseStrictness.STRICT)
-   # design_rules.save_to_file("output.kicad_dru")  # Uncomment to save
-
-   # Footprint library table
-   fp_lib_table = FpLibTable.from_file("tests/fixtures/tables/fp-lib-table", ParseStrictness.STRICT)
-   # fp_lib_table.save_to_file("output-fp-lib-table")  # Uncomment to save
-
-   # Symbol library table
-   sym_lib_table = SymLibTable.from_file("tests/fixtures/tables/sym-lib-table", ParseStrictness.STRICT)
-   # sym_lib_table.save_to_file("output-sym-lib-table")  # Uncomment to save
 
 .. toctree::
    :maxdepth: 2

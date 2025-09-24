@@ -119,3 +119,9 @@ kicadfiles.design_rules module
 
 .. automodule:: kicadfiles.design_rules
    :members:
+
+kicadfiles.library_tables module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: kicadfiles.library_tables
+   :members:
