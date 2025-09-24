@@ -16,7 +16,7 @@ class Anchor(KiCadObject):
         (anchor PAD_SHAPE)
 
     Args:
-        pad_shape: The anchor pad shape (rect or circle)
+        pad_shape: Anchor pad shape (rect or circle)
     """
 
     __token_name__ = "anchor"
@@ -36,7 +36,7 @@ class Angle(KiCadObject):
         (angle VALUE)
 
     Args:
-        value: The angle value in degrees
+        value: Angle value in degrees
     """
 
     __token_name__ = "angle"
@@ -53,10 +53,9 @@ class Xy(KiCadObject):
     The 'xy' token defines a 2D coordinate point in the format:
     (xy X Y)
 
-
     Args:
-        x: Horizontal coordinate (float)
-        y: Vertical coordinate (float)
+        x: Horizontal coordinate
+        y: Vertical coordinate
     """
 
     __token_name__ = "xy"
@@ -72,11 +71,10 @@ class Xyz(KiCadObject):
     The 'xyz' token defines 3D coordinates in the format:
     (xyz X Y Z)
 
-
     Args:
-        x: X coordinate (float)
-        y: Y coordinate (float)
-        z: Z coordinate (float)
+        x: X coordinate
+        y: Y coordinate
+        z: Z coordinate
     """
 
     __token_name__ = "xyz"
@@ -101,7 +99,7 @@ class Pts(KiCadObject):
     The number of points is determined by the object type.
 
     Args:
-        points: List of 2D coordinate points (list of Xy objects)
+        points: List of 2D coordinate points
     """
 
     __token_name__ = "pts"
@@ -123,14 +121,14 @@ class At(KiCadObject):
     Alternative for 3D models::
         (at (xyz X Y Z))
 
-    Args:
-        x: The horizontal position of the object (alternative 1, optional)
-        y: The vertical position of the object (alternative 1, optional)
-        angle: Optional rotational angle of the object (alternative 1, optional)
-        xyz: 3D position coordinates for 3D models (alternative 2, optional)
-
     Note:
         Symbol text ANGLEs are stored in tenth's of a degree. All other ANGLEs are stored in degrees.
+
+    Args:
+        x: Horizontal position of the object (optional)
+        y: Vertical position of the object (optional)
+        angle: Optional rotational angle of the object (optional)
+        xyz: 3D position coordinates (optional)
     """
 
     __token_name__ = "at"
@@ -168,8 +166,8 @@ class Center(KiCadObject):
         (center X Y)
 
     Args:
-        x: The horizontal position of the center point
-        y: The vertical position of the center point
+        x: Horizontal position of the center point
+        y: Vertical position of the center point
     """
 
     __token_name__ = "center"
@@ -191,7 +189,7 @@ class Clearance(KiCadObject):
         (clearance VALUE)
 
     Args:
-        value: The clearance value
+        value: Clearance value
     """
 
     __token_name__ = "clearance"
@@ -233,7 +231,7 @@ class Diameter(KiCadObject):
         (diameter VALUE)
 
     Args:
-        value: Diameter value (float)
+        value: Diameter value
     """
 
     __token_name__ = "diameter"
@@ -250,8 +248,9 @@ class End(KiCadObject):
         (end X Y)
 
     Args:
-        x: Horizontal position coordinate (float)
-        y: Vertical position coordinate (float)
+        x: Horizontal position of the end point
+        y: Vertical position of the end point
+        corner: Corner reference (optional)
     """
 
     __token_name__ = "end"
@@ -274,9 +273,8 @@ class Type(KiCadObject):
     The 'type' token defines a type value in the format:
     (type VALUE)
 
-
     Args:
-        value: Type value (str)
+        value: Type value
     """
 
     __token_name__ = "type"
@@ -296,7 +294,7 @@ class Fill(KiCadObject):
     This represents the nested structure exactly as it appears in the S-expression files.
 
     Args:
-        type: Fill type specification (Type object)
+        type: Fill type specification
     """
 
     __token_name__ = "fill"
@@ -314,9 +312,8 @@ class Height(KiCadObject):
     The 'height' token defines a height value in the format:
     (height VALUE)
 
-
     Args:
-        value: Height value (float)
+        value: Height value
     """
 
     __token_name__ = "height"
@@ -333,7 +330,7 @@ class Id(KiCadObject):
         (id VALUE)
 
     Args:
-        value: Identifier value (str)
+        value: Identifier value
     """
 
     __token_name__ = "id"
@@ -356,7 +353,7 @@ class Layer(KiCadObject):
         (layer "LAYER_NAME")
 
     Args:
-        name: Layer name or "dielectric" for dielectric layers
+        name: Layer name or 'dielectric'
         number: Layer stack number (optional)
         type: Layer type description (optional)
         color: Layer color as string (optional)
@@ -407,7 +404,7 @@ class Linewidth(KiCadObject):
         (linewidth VALUE)
 
     Args:
-        value: Line width value (float)
+        value: Line width value
     """
 
     __token_name__ = "linewidth"
@@ -424,7 +421,7 @@ class Name(KiCadObject):
         (name "NAME_VALUE")
 
     Args:
-        value: Name value (str)
+        value: Name value
     """
 
     __token_name__ = "name"
@@ -439,10 +436,9 @@ class Offset(KiCadObject):
     The 'offset' token defines an offset position in the format:
     (offset X Y)
 
-
     Args:
-        x: Horizontal offset coordinate (float)
-        y: Vertical offset coordinate (float)
+        x: Horizontal offset coordinate
+        y: Vertical offset coordinate
     """
 
     __token_name__ = "offset"
@@ -462,10 +458,10 @@ class Pos(KiCadObject):
     The 'pos' token defines a position in the format:
     (pos X Y)
 
-
     Args:
-        x: Horizontal position coordinate (float)
-        y: Vertical position coordinate (float)
+        x: Horizontal position coordinate
+        y: Vertical position coordinate
+        corner: Corner reference (optional)
     """
 
     __token_name__ = "pos"
@@ -488,9 +484,8 @@ class Radius(KiCadObject):
     The 'radius' token defines a radius value in the format:
     (radius VALUE)
 
-
     Args:
-        value: Radius value (float)
+        value: Radius value
     """
 
     __token_name__ = "radius"
@@ -511,8 +506,8 @@ class Rotate(KiCadObject):
         (rotate (xyz X Y Z))
 
     Args:
-        angle: Rotation angle in degrees for 2D elements (alternative 1, optional)
-        xyz: 3D rotation angles for 3D models (alternative 2, optional)
+        angle: Rotation angle in degrees (optional)
+        xyz: 3D rotation angles (optional)
     """
 
     __token_name__ = "rotate"
@@ -533,10 +528,9 @@ class Size(KiCadObject):
     The 'size' token defines width and height dimensions in the format:
     (size WIDTH HEIGHT)
 
-
     Args:
-        width: Width dimension (float)
-        height: Height dimension (float)
+        width: Width dimension
+        height: Height dimension
     """
 
     __token_name__ = "size"
@@ -552,10 +546,10 @@ class Start(KiCadObject):
     The 'start' token defines a start point in the format:
     (start X Y)
 
-
     Args:
-        x: Horizontal position coordinate (float)
-        y: Vertical position coordinate (float)
+        x: Horizontal position of the start point
+        y: Vertical position of the start point
+        corner: Corner reference (optional)
     """
 
     __token_name__ = "start"
@@ -578,9 +572,8 @@ class Width(KiCadObject):
     The 'width' token defines a width value in the format:
     (width VALUE)
 
-
     Args:
-        value: Width value (float)
+        value: Width value
     """
 
     __token_name__ = "width"
@@ -602,9 +595,9 @@ class Stroke(KiCadObject):
     This represents the nested structure exactly as it appears in the S-expression files.
 
     Args:
-        width: Line width specification (Width object)
-        type: Stroke line style specification (Type object)
-        color: Line color specification (Color object, optional)
+        width: Line width specification
+        type: Stroke line style specification
+        color: Line color specification (optional)
     """
 
     __token_name__ = "stroke"
@@ -630,9 +623,8 @@ class Style(KiCadObject):
     The 'style' token defines a style value in the format:
     (style VALUE)
 
-
     Args:
-        value: Style value (str)
+        value: Style value
     """
 
     __token_name__ = "style"
@@ -647,9 +639,8 @@ class Text(KiCadObject):
     The 'text' token defines text content in the format:
     (text "TEXT_CONTENT")
 
-
     Args:
-        content: Text content (str)
+        content: Text content
     """
 
     __token_name__ = "text"
@@ -664,9 +655,8 @@ class Thickness(KiCadObject):
     The 'thickness' token defines a thickness value in the format:
     (thickness VALUE)
 
-
     Args:
-        value: Thickness value (float)
+        value: Thickness value
     """
 
     __token_name__ = "thickness"
@@ -681,9 +671,8 @@ class Title(KiCadObject):
     The 'title' token defines a title in the format:
     (title "TITLE_VALUE")
 
-
     Args:
-        value: Title value (str)
+        value: Title value
     """
 
     __token_name__ = "title"
@@ -698,9 +687,8 @@ class Tstamp(KiCadObject):
     The 'tstamp' token defines a timestamp identifier in the format:
     (tstamp UUID)
 
-
     Args:
-        value: Timestamp UUID (str)
+        value: Timestamp UUID
     """
 
     __token_name__ = "tstamp"
@@ -715,9 +703,8 @@ class Units(KiCadObject):
     The 'units' token defines measurement units in the format:
     (units VALUE)
 
-
     Args:
-        value: Units value (str)
+        value: Units value (mm | inches)
     """
 
     __token_name__ = "units"
@@ -734,9 +721,8 @@ class Uuid(KiCadObject):
     The 'uuid' token defines a universally unique identifier in the format:
     (uuid UUID_VALUE)
 
-
     Args:
-        value: UUID value (str)
+        value: UUID value
     """
 
     __token_name__ = "uuid"
@@ -752,10 +738,10 @@ class Font(KiCadObject):
     (font [size WIDTH HEIGHT] [thickness THICKNESS] [bold] [italic])
 
     Args:
-        size: Font size (Size object, optional)
-        thickness: Font thickness (float, optional)
-        bold: Whether font is bold (bool, optional)
-        italic: Whether font is italic (bool, optional)
+        size: Font size (optional)
+        thickness: Font thickness (optional)
+        bold: Bold flag (optional)
+        italic: Italic flag (optional)
     """
 
     __token_name__ = "font"
@@ -789,10 +775,8 @@ class Justify(KiCadObject):
         right: Right horizontal justification flag (optional)
         top: Top vertical justification flag (optional)
         bottom: Bottom vertical justification flag (optional)
-        center: Center justification flag (horizontal or vertical, optional)
+        center: Center justification flag (horizontal or vertical) (optional)
         mirror: Mirror text flag (optional)
-
-    Note: Uses individual OptionalFlag variables to handle parameter order variation
     """
 
     __token_name__ = "justify"
@@ -855,9 +839,9 @@ class Effects(KiCadObject):
         )
 
     Args:
-        font: Font definition (Font object, optional)
-        justify: Text justification (str, optional)
-        hide: Whether text is hidden (bool, optional)
+        font: Font definition (optional)
+        justify: Text justification (optional)
+        hide: Whether text is hidden (optional)
     """
 
     __token_name__ = "effects"
@@ -896,9 +880,9 @@ class Property(KiCadObject):
     Args:
         key: Property key name (must be unique)
         value: Property value
-        id: Property ID (optional, for symbol properties)
-        at: Position and rotation (optional, for symbol properties)
-        effects: Text effects (optional, for symbol properties)
+        id: Property ID (optional)
+        at: Position and rotation (optional)
+        effects: Text effects (optional)
         unlocked: Whether property is unlocked (optional)
         layer: Layer assignment (optional)
         uuid: Unique identifier (optional)
@@ -907,7 +891,9 @@ class Property(KiCadObject):
 
     __token_name__ = "property"
 
-    key: str = field(default="", metadata={"description": "Property key name"})
+    key: str = field(
+        default="", metadata={"description": "Property key name (must be unique)"}
+    )
     value: str = field(default="", metadata={"description": "Property value"})
     id: Optional[Id] = field(
         default=None, metadata={"description": "Property ID", "required": False}
@@ -950,7 +936,11 @@ class Layers(KiCadObject):
     Currently using individual fields as workaround.
 
     Args:
-        layer1-5: Individual layer names (positional parameters)
+        layer1: First layer name (optional)
+        layer2: Second layer name (optional)
+        layer3: Third layer name (optional)
+        layer4: Fourth layer name (optional)
+        layer5: Fifth layer name (optional)
     """
 
     __token_name__ = "layers"

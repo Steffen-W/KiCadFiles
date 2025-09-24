@@ -131,7 +131,7 @@ class GeneratorVersion(KiCadObject):
         (generator_version VERSION)
 
     Args:
-        version: Generator version string
+        version: Generator version
     """
 
     __token_name__ = "generator_version"
@@ -296,7 +296,7 @@ class Version(KiCadObject):
         (version VERSION_NUMBER)
 
     Args:
-        version: Version number
+        version: File format version number
     """
 
     __token_name__ = "version"
@@ -315,7 +315,7 @@ class BottomMargin(KiCadObject):
         (bottom_margin DISTANCE)
 
     Args:
-        margin: Bottom margin distance value
+        margin: Bottom margin value
     """
 
     __token_name__ = "bottom_margin"
@@ -332,7 +332,7 @@ class LeftMargin(KiCadObject):
         (left_margin DISTANCE)
 
     Args:
-        margin: Left margin distance value
+        margin: Left margin value
     """
 
     __token_name__ = "left_margin"
@@ -349,7 +349,7 @@ class RightMargin(KiCadObject):
         (right_margin DISTANCE)
 
     Args:
-        margin: Right margin distance value
+        margin: Right margin value
     """
 
     __token_name__ = "right_margin"
@@ -464,7 +464,7 @@ class TopMargin(KiCadObject):
         (top_margin DISTANCE)
 
     Args:
-        margin: Top margin distance value
+        margin: Top margin value
     """
 
     __token_name__ = "top_margin"
@@ -502,8 +502,8 @@ class Scale(KiCadObject):
         (scale (xyz X Y Z))
 
     Args:
-        factor: Scale factor for 2D elements (alternative 1, optional)
-        xyz: 3D scale coordinates for 3D models (alternative 2, optional)
+        factor: Scale factor for 2D elements (optional)
+        xyz: 3D scale coordinates (optional)
     """
 
     __token_name__ = "scale"
@@ -570,7 +570,12 @@ class Group(KiCadObject):
 
 @dataclass
 class WksTextsize(KiCadObject):
-    """Worksheet text size definition token."""
+    """Worksheet text size definition token.
+
+    Args:
+        width: Text width
+        height: Text height
+    """
 
     __token_name__ = "textsize"
 
@@ -586,7 +591,11 @@ class WksTextsize(KiCadObject):
 
 @dataclass
 class WksLinewidth(KiCadObject):
-    """Worksheet line width definition token."""
+    """Worksheet line width definition token.
+
+    Args:
+        value: Line width value
+    """
 
     __token_name__ = "linewidth"
 
@@ -598,7 +607,11 @@ class WksLinewidth(KiCadObject):
 
 @dataclass
 class WksTextlinewidth(KiCadObject):
-    """Worksheet text line width definition token."""
+    """Worksheet text line width definition token.
+
+    Args:
+        value: Text line width value
+    """
 
     __token_name__ = "textlinewidth"
 
@@ -610,7 +623,11 @@ class WksTextlinewidth(KiCadObject):
 
 @dataclass
 class WksMargin(KiCadObject):
-    """Worksheet margin definition token."""
+    """Worksheet margin definition token.
+
+    Args:
+        value: Margin value
+    """
 
     __token_name__ = "margin"
 
@@ -621,36 +638,82 @@ class WksMargin(KiCadObject):
 
 
 @dataclass
-class WksLeftMargin(WksMargin):
-    """Worksheet left margin definition token."""
+class WksLeftMargin(KiCadObject):
+    """Worksheet left margin definition token.
+
+    Args:
+        value: Left margin distance value
+    """
 
     __token_name__ = "left_margin"
 
+    value: float = field(
+        default=10.0,
+        metadata={"description": "Left margin distance value"},
+    )
+
 
 @dataclass
-class WksRightMargin(WksMargin):
-    """Worksheet right margin definition token."""
+class WksRightMargin(KiCadObject):
+    """Worksheet right margin definition token.
+
+    Args:
+        value: Right margin distance value
+    """
 
     __token_name__ = "right_margin"
 
+    value: float = field(
+        default=10.0,
+        metadata={"description": "Right margin distance value"},
+    )
+
 
 @dataclass
-class WksTopMargin(WksMargin):
-    """Worksheet top margin definition token."""
+class WksTopMargin(KiCadObject):
+    """Worksheet top margin definition token.
+
+    Args:
+        value: Top margin distance value
+    """
 
     __token_name__ = "top_margin"
 
+    value: float = field(
+        default=10.0,
+        metadata={"description": "Top margin distance value"},
+    )
+
 
 @dataclass
-class WksBottomMargin(WksMargin):
-    """Worksheet bottom margin definition token."""
+class WksBottomMargin(KiCadObject):
+    """Worksheet bottom margin definition token.
+
+    Args:
+        value: Bottom margin distance value
+    """
 
     __token_name__ = "bottom_margin"
+
+    value: float = field(
+        default=10.0,
+        metadata={"description": "Bottom margin distance value"},
+    )
 
 
 @dataclass
 class WksSetup(KiCadObject):
-    """Worksheet setup definition token."""
+    """Worksheet setup definition token.
+
+    Args:
+        textsize: Text size (optional)
+        linewidth: Line width (optional)
+        textlinewidth: Text line width (optional)
+        left_margin: Left margin (optional)
+        right_margin: Right margin (optional)
+        top_margin: Top margin (optional)
+        bottom_margin: Bottom margin (optional)
+    """
 
     __token_name__ = "setup"
 
@@ -686,7 +749,17 @@ class WksSetup(KiCadObject):
 
 @dataclass
 class WksRect(KiCadObject):
-    """Worksheet rectangle definition token."""
+    """Worksheet rectangle definition token.
+
+    Args:
+        name: Rectangle name
+        start: Start position
+        end: End position
+        comment: Comment (optional)
+        repeat: Repeat count (optional)
+        incrx: X increment (optional)
+        incry: Y increment (optional)
+    """
 
     __token_name__ = "rect"
 
@@ -713,7 +786,16 @@ class WksRect(KiCadObject):
 
 @dataclass
 class WksLine(KiCadObject):
-    """Worksheet line definition token."""
+    """Worksheet line definition token.
+
+    Args:
+        name: Line name
+        start: Start position
+        end: End position
+        repeat: Repeat count (optional)
+        incrx: X increment (optional)
+        incry: Y increment (optional)
+    """
 
     __token_name__ = "line"
 
@@ -737,7 +819,19 @@ class WksLine(KiCadObject):
 
 @dataclass
 class WksTbText(KiCadObject):
-    """Worksheet text block definition token."""
+    """Worksheet text block definition token.
+
+    Args:
+        text: Text content
+        name: Text name
+        pos: Text position
+        font: Font settings (optional)
+        justify: Text justification (optional)
+        repeat: Repeat count (optional)
+        incrx: X increment (optional)
+        incry: Y increment (optional)
+        comment: Comment (optional)
+    """
 
     __token_name__ = "tbtext"
 
@@ -781,8 +875,13 @@ class KicadWks(KiCadObject):
     Args:
         version: Format version
         generator: Generator name
+        generator_version: Generator version (optional)
         page: Page settings (optional)
         title_block: Title block (optional)
+        setup: Worksheet setup (optional)
+        rect: List of rectangles (optional)
+        line: List of lines (optional)
+        tbtext: List of text blocks (optional)
         elements: List of worksheet elements (optional)
     """
 
@@ -920,7 +1019,7 @@ class Image(KiCadObject):
         (image (at X Y) (scale FACTOR) (uuid UUID) (data ...))
 
     Args:
-        at: Position coordinates
+        at: Position
         scale: Scale factor
         uuid: Unique identifier (optional)
         data: Image data (optional)

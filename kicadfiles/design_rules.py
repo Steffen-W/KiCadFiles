@@ -18,14 +18,12 @@ class ConstraintMin(KiCadObject):
         (min VALUE)
 
     Args:
-        value: Minimum value (float)
+        value: Minimum value
     """
 
     __token_name__ = "min"
 
-    value: str = field(
-        default="0.0", metadata={"description": "Minimum value with optional units"}
-    )
+    value: str = field(default="0.0", metadata={"description": "Minimum value"})
 
 
 @dataclass
@@ -37,14 +35,12 @@ class ConstraintMax(KiCadObject):
         (max VALUE)
 
     Args:
-        value: Maximum value (str)
+        value: Maximum value
     """
 
     __token_name__ = "max"
 
-    value: str = field(
-        default="0.0", metadata={"description": "Maximum value with optional units"}
-    )
+    value: str = field(default="0.0", metadata={"description": "Maximum value"})
 
 
 @dataclass
@@ -56,14 +52,12 @@ class ConstraintOpt(KiCadObject):
         (opt VALUE)
 
     Args:
-        value: Optimal value (str)
+        value: Optimal value
     """
 
     __token_name__ = "opt"
 
-    value: str = field(
-        default="0.0", metadata={"description": "Optimal value with optional units"}
-    )
+    value: str = field(default="0.0", metadata={"description": "Optimal value"})
 
 
 @dataclass
@@ -76,7 +70,7 @@ class DesignRuleConstraint(KiCadObject):
         (constraint disallow ITEM_TYPE)
 
     Args:
-        constraint_type: Type of constraint (ConstraintType enum)
+        constraint_type: Type of constraint
         min_constraint: Minimum value constraint (optional)
         opt_constraint: Optimal value constraint (optional)
         max_constraint: Maximum value constraint (optional)
@@ -117,7 +111,7 @@ class DesignRuleLayer(KiCadObject):
         (layer inner)
 
     Args:
-        layer_name: Name of the layer or special layer group (str)
+        layer_name: Name of the layer or special layer group
     """
 
     __token_name__ = "layer"
@@ -136,7 +130,7 @@ class DesignRuleCondition(KiCadObject):
         (condition "EXPRESSION")
 
     Args:
-        expression: Conditional expression (str)
+        expression: Conditional expression
     """
 
     __token_name__ = "condition"
@@ -155,7 +149,7 @@ class DesignRuleSeverity(KiCadObject):
         (severity error | warning | ignore)
 
     Args:
-        level: Severity level (SeverityLevel enum)
+        level: Severity level
     """
 
     __token_name__ = "severity"
@@ -174,7 +168,7 @@ class DesignRulePriority(KiCadObject):
         (priority PRIORITY_NUMBER)
 
     Args:
-        priority: Priority number (higher numbers = higher priority)
+        priority: Priority number (higher = higher priority)
     """
 
     __token_name__ = "priority"
@@ -201,7 +195,7 @@ class DesignRule(KiCadObject):
         )
 
     Args:
-        name: Rule name (str)
+        name: Rule name
         severity: Severity level (optional)
         layer: Layer specification (optional)
         condition: Conditional expression (optional)
@@ -245,7 +239,7 @@ class KiCadDesignRules(KiCadObject):
 
     Args:
         version: File format version
-        rules: List of design rules
+        rules: List of design rules (optional)
     """
 
     __token_name__ = (

@@ -31,7 +31,7 @@ class ViaSize(KiCadObject):
         (size DIAMETER)
 
     Args:
-        diameter: The diameter value of the via
+        diameter: Via diameter value
     """
 
     __token_name__ = "size"
@@ -179,13 +179,13 @@ class Setup(KiCadObject):
         )
 
     Args:
-        stackup: Stack-up settings for board manufacturing (optional)
-        pad_to_mask_clearance: Clearance between footprint pads and solder mask
+        stackup: Stackup definition (optional)
+        pad_to_mask_clearance: Pad to mask clearance
         solder_mask_min_width: Minimum solder mask width (optional)
-        pad_to_paste_clearance: Clearance between footprint pads and solder paste (optional)
-        pad_to_paste_clearance_ratio: Percentage of pad size for solder paste (optional)
-        aux_axis_origin: Auxiliary axis origin coordinates (optional)
-        grid_origin: Grid origin coordinates (optional)
+        pad_to_paste_clearance: Pad to paste clearance (optional)
+        pad_to_paste_clearance_ratio: Pad to paste clearance ratio (0-100%) (optional)
+        aux_axis_origin: Auxiliary axis origin (X, Y) (optional)
+        grid_origin: Grid origin (X, Y) (optional)
         plot_settings: Plot settings (optional)
     """
 
@@ -268,7 +268,7 @@ class Via(KiCadObject):
         )
 
     Args:
-        type: Via type (blind | micro) (optional, default is through hole)
+        type: Via type (blind | micro) (optional)
         locked: Whether the line cannot be edited (optional)
         at: Coordinates of the center of the via
         size: Diameter of the via annular ring
@@ -432,19 +432,20 @@ class KicadPcb(KiCadObject):
         )
 
     Args:
-        version: File format version string
-        generator: Generator application name
-        general: General board settings (required)
+        version: File format version
+        generator: Generator application
+        generator_version: Generator version (optional)
+        general: General board settings (optional)
         page: Page settings (optional)
         layers: Layer definitions (optional)
-        setup: Board setup parameters (optional)
-        properties: Board properties list
-        nets: Net definitions list
-        footprints: Footprint instances list
-        gr_texts: Graphical text elements list
-        segments: Track segments list
-        vias: Via definitions list
-        zones: Zone definitions list
+        setup: Board setup (optional)
+        properties: Board properties
+        nets: Net definitions
+        footprints: Footprint instances
+        gr_texts: Graphical text elements
+        segments: Track segments
+        vias: Via definitions
+        zones: Zone definitions
     """
 
     __token_name__ = "kicad_pcb"

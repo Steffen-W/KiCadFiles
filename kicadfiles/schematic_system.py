@@ -22,9 +22,9 @@ class Bus(KiCadObject):
         )
 
     Args:
-        pts: List of X and Y coordinates of start and end points
-        stroke: How the bus is drawn
-        uuid: Universally unique identifier
+        pts: Bus connection points
+        stroke: Stroke definition
+        uuid: Unique identifier
     """
 
     __token_name__ = "bus"
@@ -52,10 +52,10 @@ class BusEntry(KiCadObject):
         )
 
     Args:
-        at: X and Y coordinates of the bus entry
-        size: X and Y distance of the end point from the position
-        stroke: How the bus entry is drawn
-        uuid: Universally unique identifier
+        at: Position
+        size: Entry size
+        stroke: Stroke definition
+        uuid: Unique identifier
     """
 
     __token_name__ = "bus_entry"
@@ -144,10 +144,10 @@ class Junction(KiCadObject):
         )
 
     Args:
-        at: X and Y coordinates of the junction
-        diameter: Diameter of the junction (0 for default)
-        color: Red, Green, Blue, and Alpha transparency (optional)
-        uuid: Universally unique identifier
+        at: Position
+        diameter: Junction diameter (0 for default)
+        color: Junction color (optional)
+        uuid: Unique identifier
     """
 
     __token_name__ = "junction"
@@ -291,9 +291,9 @@ class Wire(KiCadObject):
         )
 
     Args:
-        pts: List of X and Y coordinates of start and end points
-        stroke: How the wire is drawn
-        uuid: Universally unique identifier
+        pts: Wire connection points
+        stroke: Stroke definition
+        uuid: Unique identifier
     """
 
     __token_name__ = "wire"
@@ -485,7 +485,11 @@ class KicadSch(KiCadObject):
     Args:
         version: File format version
         generator: Generator application name
+        generator_version: Generator version (optional)
         uuid: Universally unique identifier for the schematic
+        paper: Paper settings (optional)
+        sheet_instances: Sheet instances (optional)
+        embedded_fonts: Embedded fonts setting (optional)
         lib_symbols: Symbol library container (optional)
         junctions: List of junctions (optional)
         no_connects: List of no connect markers (optional)

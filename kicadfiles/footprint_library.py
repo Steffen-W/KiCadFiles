@@ -68,7 +68,7 @@ class NetTiePadGroups(KiCadObject):
         (net_tie_pad_groups "PAD_LIST" "PAD_LIST" ...)
 
     Args:
-        groups: List of pad group strings with space-separated pad numbers
+        groups: List of pad group strings
     """
 
     __token_name__ = "net_tie_pad_groups"
@@ -186,9 +186,9 @@ class Model(KiCadObject):
 
     Args:
         path: Path and file name of the 3D model
-        at: 3D position coordinates relative to the footprint using xyz alternative
-        scale: Model scale factor for each 3D axis using xyz alternative
-        rotate: Model rotation for each 3D axis relative to the footprint using xyz alternative
+        at: 3D position coordinates relative to the footprint
+        scale: Model scale factor for each 3D axis
+        rotate: Model rotation for each 3D axis relative to the footprint
     """
 
     __token_name__ = "model"
@@ -251,16 +251,20 @@ class Footprint(KiCadObject):
 
     Args:
         library_link: Link to footprint library (optional)
+        version: File format version (optional)
+        generator: Generator application (optional)
+        generator_version: Generator version (optional)
         locked: Whether the footprint cannot be edited (optional)
         placed: Whether the footprint has been placed (optional)
         layer: Layer the footprint is placed on
-        tedit: Last edit timestamp
+        tedit: Last edit timestamp (optional)
         uuid: Unique identifier for board footprints (optional)
         at: Position and rotation coordinates (optional)
         descr: Description of the footprint (optional)
         tags: Search tags for the footprint (optional)
         properties: List of footprint properties (optional)
-        path: Hierarchical path of linked schematic symbol
+        path: Hierarchical path of linked schematic symbol (optional)
+        attr: Footprint attributes (optional)
         autoplace_cost90: Vertical cost for automatic placement (optional)
         autoplace_cost180: Horizontal cost for automatic placement (optional)
         solder_mask_margin: Solder mask distance from pads (optional)
@@ -270,11 +274,14 @@ class Footprint(KiCadObject):
         zone_connect: How pads connect to filled zones (optional)
         thermal_width: Thermal relief spoke width (optional)
         thermal_gap: Distance from pad to zone for thermal relief (optional)
-        attr: Footprint attributes (optional)
         private_layers: List of private layers (optional)
         net_tie_pad_groups: Net tie pad groups (optional)
         pads: List of pads (optional)
         models: List of 3D models (optional)
+        fp_rects: List of footprint rectangles (optional)
+        fp_circles: List of footprint circles (optional)
+        fp_texts: List of footprint texts (optional)
+        embedded_fonts: Embedded fonts settings (optional)
     """
 
     __token_name__ = "footprint"
@@ -493,7 +500,7 @@ class AutoplaceCost180(KiCadObject):
         (autoplace_cost180 COST)
 
     Args:
-        cost: Horizontal cost for automatic placement (1-10)
+        cost: 180 degree rotation cost
     """
 
     __token_name__ = "autoplace_cost180"
@@ -510,7 +517,7 @@ class AutoplaceCost90(KiCadObject):
         (autoplace_cost90 COST)
 
     Args:
-        cost: Vertical cost for automatic placement (1-10)
+        cost: 90 degree rotation cost
     """
 
     __token_name__ = "autoplace_cost90"

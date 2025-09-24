@@ -48,7 +48,7 @@ class Copperpour(KiCadObject):
     where VALUE can be: not_allowed, allowed
 
     Args:
-        value: Copper pour setting (not_allowed, allowed)
+        value: Copper pour setting
     """
 
     __token_name__ = "copperpour"
@@ -68,7 +68,7 @@ class EpsilonR(KiCadObject):
         (epsilon_r VALUE)
 
     Args:
-        value: Dielectric constant value
+        value: Relative dielectric constant
     """
 
     __token_name__ = "epsilon_r"
@@ -183,7 +183,7 @@ class Hatch(KiCadObject):
         (hatch STYLE PITCH)
 
     Args:
-        style: Hatch display style (none | edge | full)
+        style: Hatch display style
         pitch: Hatch pitch distance
     """
 
@@ -388,7 +388,7 @@ class KeepEndLayers(KiCadObject):
         (keep_end_layers)
 
     Args:
-        value: Always True when token is present
+        value: Keep end layers flag
     """
 
     __token_name__ = "keep_end_layers"
@@ -422,23 +422,33 @@ class Keepout(KiCadObject):
 
     tracks: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
-        metadata={"description": "Whether tracks should be excluded"},
+        metadata={
+            "description": "Whether tracks should be excluded (allowed | not_allowed)"
+        },
     )
     vias: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
-        metadata={"description": "Whether vias should be excluded"},
+        metadata={
+            "description": "Whether vias should be excluded (allowed | not_allowed)"
+        },
     )
     pads: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
-        metadata={"description": "Whether pads should be excluded"},
+        metadata={
+            "description": "Whether pads should be excluded (allowed | not_allowed)"
+        },
     )
     copperpour: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
-        metadata={"description": "Whether copper pours should be excluded"},
+        metadata={
+            "description": "Whether copper pours should be excluded (allowed | not_allowed)"
+        },
     )
     footprints: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
-        metadata={"description": "Whether footprints should be excluded"},
+        metadata={
+            "description": "Whether footprints should be excluded (allowed | not_allowed)"
+        },
     )
 
 
@@ -451,7 +461,7 @@ class LossTangent(KiCadObject):
         (loss_tangent VALUE)
 
     Args:
-        value: Loss tangent value
+        value: Dielectric loss tangent value
     """
 
     __token_name__ = "loss_tangent"
@@ -506,7 +516,7 @@ class Mode(KiCadObject):
         (mode MODE)
 
     Args:
-        mode: Fill mode (solid | hatched)
+        mode: Fill mode
     """
 
     __token_name__ = "mode"
@@ -542,7 +552,7 @@ class RemoveUnusedLayer(KiCadObject):
         (remove_unused_layer)
 
     Args:
-        value: Always True when token is present
+        value: Remove unused layer flag
     """
 
     __token_name__ = "remove_unused_layer"
@@ -561,7 +571,7 @@ class RemoveUnusedLayers(KiCadObject):
         (remove_unused_layers)
 
     Args:
-        value: Always True when token is present
+        value: Remove unused layers flag
     """
 
     __token_name__ = "remove_unused_layers"
@@ -580,7 +590,7 @@ class Smoothing(KiCadObject):
         (smoothing STYLE)
 
     Args:
-        style: Smoothing style (chamfer | fillet)
+        style: Corner smoothing style
     """
 
     __token_name__ = "smoothing"
@@ -616,21 +626,21 @@ class Zone(KiCadObject):
         )
 
     Args:
-        net: Net ordinal number from nets section
-        net_name: Name of the net (empty string for keepout areas)
-        layer: Layer the zone resides on
-        uuid: Unique identifier of the zone object
-        name: Name of the zone (optional)
-        hatch: Zone outline display hatch style and pitch
-        priority: Zone priority (optional)
-        connect_pads: Pad connection type and clearance
-        min_thickness: Minimum fill width allowed in the zone
-        filled_areas_thickness: Whether zone line width is used (optional)
-        keepout: Keep out settings for keepout zones (optional)
+        hatch: Hatch settings
+        connect_pads: Pad connection settings
         fill: Fill settings
         polygon: Zone outline polygon
+        net: Net number
+        net_name: Net name
+        layer: Layer name
+        uuid: Unique identifier
+        min_thickness: Minimum thickness
+        name: Zone name (optional)
+        priority: Zone priority (optional)
+        filled_areas_thickness: Filled areas thickness flag (optional)
+        keepout: Keepout settings (optional)
         filled_polygons: List of fill polygons (optional)
-        filled_segments: List of fill segments for old boards (optional)
+        filled_segments: List of fill segments (optional)
     """
 
     __token_name__ = "zone"

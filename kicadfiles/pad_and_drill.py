@@ -40,7 +40,7 @@ class ChamferRatio(KiCadObject):
     The scaling factor is a number between 0 and 1.
 
     Args:
-        ratio: Chamfer scaling factor between 0 and 1
+        ratio: Chamfer scaling factor (0-1)
     """
 
     __token_name__ = "chamfer_ratio"
@@ -82,8 +82,8 @@ class Options(KiCadObject):
     Valid anchor pad shapes are rect and circle.
 
     Args:
-        clearance: Type of clearance used for custom pad (optional)
-        anchor: Anchor pad shape of custom pad (optional)
+        clearance: Clearance type for custom pad (optional)
+        anchor: Anchor pad shape (optional)
     """
 
     __token_name__ = "options"
@@ -113,7 +113,7 @@ class RoundrectRratio(KiCadObject):
     The scaling factor is a number between 0 and 1.
 
     Args:
-        ratio: Corner radius scaling factor between 0 and 1
+        ratio: Corner radius scaling factor (0-1)
     """
 
     __token_name__ = "roundrect_rratio"
@@ -154,7 +154,7 @@ class SolderPasteRatio(KiCadObject):
         (solder_paste_ratio RATIO)
 
     Args:
-        ratio: Percentage of pad size used for solder paste
+        ratio: Solder paste ratio value
     """
 
     __token_name__ = "solder_paste_ratio"
@@ -173,7 +173,7 @@ class ThermalBridgeWidth(KiCadObject):
         (thermal_bridge_width WIDTH)
 
     Args:
-        width: Thermal bridge width value
+        width: Thermal bridge width
     """
 
     __token_name__ = "thermal_bridge_width"
@@ -191,7 +191,7 @@ class ThermalGap(KiCadObject):
         (thermal_gap DISTANCE)
 
     Args:
-        distance: Distance from pad to zone for thermal relief
+        distance: Thermal gap distance
     """
 
     __token_name__ = "thermal_gap"
@@ -235,7 +235,7 @@ class ZoneConnect(KiCadObject):
     - 2: Pad connected using solid fill
 
     Args:
-        connection_type: Zone connection type (0-3)
+        connection_type: Zone connection type
     """
 
     __token_name__ = "zone_connect"
@@ -255,8 +255,8 @@ class Net(KiCadObject):
         (net ORDINAL "NET_NAME")
 
     Args:
-        number: Net ordinal number (integer that defines net order)
-        name: Net name string
+        number: Net number
+        name: Net name
     """
 
     __token_name__ = "net"
@@ -298,14 +298,14 @@ class Drill(KiCadObject):
     width: Optional[float] = field(
         default=None,
         metadata={
-            "description": "Optional width of the slot for oval drills",
+            "description": "Width of the slot for oval drills",
             "required": False,
         },
     )
     offset: Optional[Offset] = field(
         default=None,
         metadata={
-            "description": "Optional drill offset coordinates from the center of the pad",
+            "description": "Drill offset coordinates from the center of the pad",
             "required": False,
         },
     )
@@ -324,9 +324,9 @@ class Primitives(KiCadObject):
         )
 
     Args:
-        elements: List of graphical items (lines, rectangles, arcs, circles, curves, polygons, annotation bounding boxes)
-        width: Line width of the graphical items
-        fill: Whether the geometry should be filled (optional)
+        elements: List of primitive elements
+        width: Line width of graphical items
+        fill: Whether geometry should be filled (optional)
     """
 
     __token_name__ = "primitives"
@@ -380,8 +380,8 @@ class Pad(KiCadObject):
 
     Args:
         number: Pad number or name
-        type: Pad type (thru_hole | smd | connect | np_thru_hole)
-        shape: Pad shape (circle | rect | oval | trapezoid | roundrect | custom)
+        type: Pad type
+        shape: Pad shape
         at: Position and rotation
         size: Pad dimensions
         layers: Layer list
@@ -518,7 +518,7 @@ class Pads(KiCadObject):
         )
 
     Args:
-        pads: List of pad objects
+        pads: List of pads
     """
 
     __token_name__ = "pads"

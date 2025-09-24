@@ -182,8 +182,8 @@ class GrBbox(KiCadObject):
         )
 
     Args:
-        start: Coordinates of the upper left corner of the rectangle
-        end: Coordinates of the lower right corner of the rectangle
+        start: Coordinates of the upper left corner
+        end: Coordinates of the lower right corner
     """
 
     __token_name__ = "gr_bbox"
@@ -622,11 +622,12 @@ class FpCircle(KiCadObject):
         )
 
     Args:
-        center: Center point coordinates
-        end: End point coordinates
+        center: Center point
+        end: End point
         layer: Layer definition
-        width: Line width
+        width: Line width (optional)
         tstamp: Timestamp UUID (optional)
+        uuid: Unique identifier (optional)
         stroke: Stroke definition (optional)
         fill: Fill definition (optional)
         locked: Whether the circle is locked (optional)
@@ -727,8 +728,8 @@ class FpLine(KiCadObject):
         )
 
     Args:
-        start: Start point coordinates
-        end: End point coordinates
+        start: Start point
+        end: End point
         layer: Layer definition
         width: Line width
         tstamp: Timestamp UUID (optional)
@@ -782,7 +783,7 @@ class FpPoly(KiCadObject):
         tstamp: Timestamp UUID (optional)
         stroke: Stroke definition (optional)
         fill: Fill definition (optional)
-        locked: Whether the polygon is locked (optional)
+        locked: Whether thepolygon is locked (optional)
     """
 
     __token_name__ = "fp_poly"
@@ -829,14 +830,14 @@ class FpRect(KiCadObject):
         )
 
     Args:
-        start: Coordinates of the upper left corner of the rectangle
-        end: Coordinates of the lower right corner of the rectangle
+        start: Coordinates of the upper left corner
+        end: Coordinates of the lower right corner
         layer: Layer definition
-        width: Line width of the rectangle (prior to version 7)
-        stroke: Stroke definition for line width and style (from version 7)
+        width: Line width (prior to version 7) (optional)
+        stroke: Stroke definition (from version 7) (optional)
         fill: Whether the rectangle is filled (optional)
         locked: Whether the rectangle cannot be edited (optional)
-        uuid: Unique identifier of the rectangle object
+        uuid: Unique identifier
     """
 
     __token_name__ = "fp_rect"

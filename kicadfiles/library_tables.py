@@ -26,6 +26,13 @@ class LibraryEntry(KiCadObject):
     """A single library entry in a library table.
 
     Represents a (lib ...) entry with name, type, uri, options, and description.
+
+    Args:
+        name: Library name/identifier
+        type: Library type (e.g., 'KiCad')
+        uri: Path to library
+        options: Additional options
+        descr: Human readable description
     """
 
     __token_name__ = "lib"
@@ -49,6 +56,10 @@ class FpLibTable(KiCadObject):
     """Footprint library table (fp-lib-table file).
 
     Contains version information and a list of footprint library entries.
+
+    Args:
+        version: Table format version
+        libraries: List of library entries
     """
 
     __token_name__ = "fp_lib_table"
@@ -91,6 +102,10 @@ class SymLibTable(KiCadObject):
     """Symbol library table (sym-lib-table file).
 
     Contains version information and a list of symbol library entries.
+
+    Args:
+        version: Table format version
+        libraries: List of library entries
     """
 
     __token_name__ = "sym_lib_table"

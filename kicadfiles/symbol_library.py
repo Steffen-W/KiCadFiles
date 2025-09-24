@@ -19,7 +19,7 @@ class ExcludeFromSim(KiCadObject):
         (exclude_from_sim no)
 
     Args:
-        excluded: Whether the symbol is excluded from simulation (default: False)
+        excluded: Whether symbol is excluded from simulation
     """
 
     __token_name__ = "exclude_from_sim"
@@ -40,7 +40,7 @@ class EmbeddedFonts(KiCadObject):
         (embedded_fonts no)
 
     Args:
-        enabled: Whether embedded fonts are enabled (default: False)
+        enabled: Whether embedded fonts are enabled
     """
 
     __token_name__ = "embedded_fonts"
@@ -59,7 +59,7 @@ class Extends(KiCadObject):
         (extends "LIBRARY_ID")
 
     Args:
-        library_id: Parent symbol library ID (str)
+        library_id: Parent symbol library ID
     """
 
     __token_name__ = "extends"
@@ -80,7 +80,7 @@ class FieldsAutoplaced(KiCadObject):
     This is a flag token that indicates fields were autoplaced when present.
 
     Args:
-        value: Always True when token is present (bool)
+        value: Fields autoplaced flag
     """
 
     __token_name__ = "fields_autoplaced"
@@ -99,7 +99,7 @@ class InBom(KiCadObject):
         (in_bom yes | no)
 
     Args:
-        value: Whether symbol appears in BOM (bool)
+        value: Whether symbol appears in BOM
     """
 
     __token_name__ = "in_bom"
@@ -122,7 +122,7 @@ class Instances(KiCadObject):
         )
 
     Args:
-        instances: List of instance data (list of objects)
+        instances: List of instance data
     """
 
     __token_name__ = "instances"
@@ -141,8 +141,8 @@ class Number(KiCadObject):
         (number "NUMBER" TEXT_EFFECTS)
 
     Args:
-        number: Pin number string (str)
-        effects: Text effects (Effects object, optional)
+        number: Pin number string
+        effects: Text effects (optional)
     """
 
     __token_name__ = "number"
@@ -169,15 +169,15 @@ class Pin(KiCadObject):
         )
 
     Args:
-        electrical_type: Pin electrical type (str)
-        graphic_style: Pin graphic style (str)
-        at: Position and rotation (At object)
-        length: Pin length (float)
-        name: Pin name (str, optional)
-        name_effects: Pin name text effects (Effects object, optional)
-        number: Pin number (str, optional)
-        number_effects: Pin number text effects (Effects object, optional)
-        hide: Whether pin is hidden (bool, optional)
+        electrical_type: Pin electrical type
+        graphic_style: Pin graphic style
+        at: Position and rotation
+        length: Pin length
+        name: Pin name (optional)
+        name_effects: Pin name text effects (optional)
+        number: Pin number (optional)
+        number_effects: Pin number text effects (optional)
+        hide: Whether pin is hidden (optional)
     """
 
     __token_name__ = "pin"
@@ -222,8 +222,8 @@ class PinNames(KiCadObject):
         (pin_names [(offset OFFSET)] [hide])
 
     Args:
-        offset: Pin name offset (float, optional)
-        hide: Whether pin names are hidden (bool, optional)
+        offset: Pin name offset (optional)
+        hide: Whether pin names are hidden (optional)
     """
 
     __token_name__ = "pin_names"
@@ -246,7 +246,7 @@ class PinNumbers(KiCadObject):
         (pin_numbers [hide])
 
     Args:
-        hide: Whether pin numbers are hidden (bool, optional)
+        hide: Whether pin numbers are hidden (optional)
     """
 
     __token_name__ = "pin_numbers"
@@ -266,7 +266,7 @@ class Pinfunction(KiCadObject):
         (pinfunction "FUNCTION_NAME")
 
     Args:
-        function: Pin function name (str)
+        function: Pin function name
     """
 
     __token_name__ = "pinfunction"
@@ -286,7 +286,7 @@ class Pintype(KiCadObject):
     unspecified, power_in, power_out, open_collector, open_emitter, no_connect
 
     Args:
-        type: Pin electrical type (str)
+        type: Pin electrical type
     """
 
     __token_name__ = "pintype"
@@ -306,7 +306,7 @@ class Prefix(KiCadObject):
         (prefix "PREFIX")
 
     Args:
-        prefix: Reference prefix string (str)
+        prefix: Reference prefix string
     """
 
     __token_name__ = "prefix"
@@ -323,7 +323,7 @@ class UnitName(KiCadObject):
         (unit_name "NAME")
 
     Args:
-        name: Unit display name (str)
+        name: Unit display name
     """
 
     __token_name__ = "unit_name"
@@ -351,17 +351,19 @@ class Symbol(KiCadObject):
         )
 
     Args:
-        library_id: Unique library identifier or unit ID (str)
-        extends: Parent library ID for derived symbols (str, optional)
-        pin_numbers: Pin numbers visibility settings (PinNumbers object, optional)
-        pin_names: Pin names attributes (PinNames object, optional)
-        in_bom: Whether symbol appears in BOM (bool)
-        on_board: Whether symbol is exported to PCB (bool)
-        properties: List of symbol properties (list of Property objects, optional)
-        graphic_items: List of graphical items (list, optional)
-        pins: List of symbol pins (list of Pin objects, optional)
-        units: List of child symbol units (list of Symbol objects, optional)
-        unit_name: Display name for subunits (str, optional)
+        library_id: Unique library identifier or unit ID
+        extends: Parent library ID for derived symbols (optional)
+        pin_numbers: Pin numbers visibility settings (optional)
+        pin_names: Pin names attributes (optional)
+        in_bom: Whether symbol appears in BOM (optional)
+        on_board: Whether symbol is exported to PCB (optional)
+        exclude_from_sim: Whether symbol is excluded from simulation (optional)
+        embedded_fonts: Whether embedded fonts are used (optional)
+        properties: List of symbol properties (optional)
+        graphic_items: List of graphical items (optional)
+        pins: List of symbol pins (optional)
+        units: List of child symbol units (optional)
+        unit_name: Display name for subunits (optional)
     """
 
     __token_name__ = "symbol"
@@ -442,7 +444,7 @@ class LibSymbols(KiCadObject):
         )
 
     Args:
-        symbols: List of symbols (list of Symbol objects)
+        symbols: List of symbols
     """
 
     __token_name__ = "lib_symbols"
@@ -467,6 +469,7 @@ class KicadSymbolLib(KiCadObject):
     Args:
         version: File format version
         generator: Generator application name
+        generator_version: Generator version (optional)
         symbols: List of symbol definitions (optional)
     """
 
