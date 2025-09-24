@@ -932,47 +932,15 @@ class Layers(KiCadObject):
 
     Used for pad layers, via layers, and other layer specifications.
 
-    TODO: Implement proper list parsing for direct parameters format.
-    Currently using individual fields as workaround.
+    Attributes:
+        layers (List[str]): List of layer names
 
     Args:
-        layer1: First layer name (optional)
-        layer2: Second layer name (optional)
-        layer3: Third layer name (optional)
-        layer4: Fourth layer name (optional)
-        layer5: Fifth layer name (optional)
+        layers: List of layer names
     """
 
     __token_name__ = "layers"
 
-    # TODO: Replace with proper list parsing - temporary workaround with individual fields
-    layer1: Optional[str] = field(
-        default=None, metadata={"description": "First layer name", "required": False}
+    layers: List[str] = field(
+        default_factory=list, metadata={"description": "List of layer names"}
     )
-    layer2: Optional[str] = field(
-        default=None, metadata={"description": "Second layer name", "required": False}
-    )
-    layer3: Optional[str] = field(
-        default=None, metadata={"description": "Third layer name", "required": False}
-    )
-    layer4: Optional[str] = field(
-        default=None, metadata={"description": "Fourth layer name", "required": False}
-    )
-    layer5: Optional[str] = field(
-        default=None, metadata={"description": "Fifth layer name", "required": False}
-    )
-
-    @property
-    def layers(self) -> List[str]:
-        """Get all non-None layer names as a list."""
-        return [
-            layer
-            for layer in [
-                self.layer1,
-                self.layer2,
-                self.layer3,
-                self.layer4,
-                self.layer5,
-            ]
-            if layer is not None
-        ]

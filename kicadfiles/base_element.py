@@ -361,18 +361,18 @@ class KiCadObject(ABC):
                     )
                     parsed_item = field_info.inner_type._parse_recursive(item_cursor)
                     result.append(parsed_item)
-        else:  # List of primitives: (field_name val1 val2 val3)
-            for token_idx, item in enumerate(cursor.sexpr[1:], 1):
-                if (
-                    isinstance(item, list)
-                    and len(item) > 1
-                    and str(item[0]) == field_info.name
-                ):
-                    cursor.parser.mark_used(token_idx)  # Mark in main parser
-                    for value in item[1:]:
-                        converted = cls._convert_value(value, field_info.inner_type)
+        else:  # List of primitives
+            list_fields = [
+                fi for fi in cls._classify_fields() if fi.field_type == FieldType.LIST
+            ]
+            if len(list_fields) == 1:
+                for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+                    if token_idx not in cursor.parser.used_indices and not isinstance(
+                        item, list
+                    ):
+                        cursor.parser.mark_used(token_idx)
+                        converted = cls._convert_value(item, field_info.inner_type)
                         result.append(converted)
-                    break
 
         return result  # Always list, never None
 
