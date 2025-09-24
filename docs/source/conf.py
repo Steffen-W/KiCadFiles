@@ -42,7 +42,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "special-members": "__init__",
     "undoc-members": True,
-    "exclude-members": "__weakref__,__dict__,__module__",
+    "exclude-members": "__weakref__,__dict__,__module__,__dataclass_fields__,__dataclass_params__",
     "imported-members": False,
 }
 
@@ -51,6 +51,49 @@ autodoc_inherit_docstrings = False
 
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"
+
+# Automatically collect dataclass field names but filter out potential conflicts
+def get_dataclass_fields_safe():
+    """Get dataclass fields while avoiding potential naming conflicts."""
+    import importlib
+    import pkgutil
+    import kicadfiles
+    import inspect
+
+    field_names = set()
+    class_names = set()
+    function_names = set()
+
+    # First pass: collect all names
+    for importer, modname, ispkg in pkgutil.walk_packages(kicadfiles.__path__, kicadfiles.__name__ + "."):
+        try:
+            module = importlib.import_module(modname)
+            for name in dir(module):
+                if name.startswith('_'):
+                    continue
+                obj = getattr(module, name)
+                if hasattr(obj, '__dataclass_fields__'):
+                    field_names.update(obj.__dataclass_fields__.keys())
+                elif inspect.isclass(obj):
+                    class_names.add(name)
+                elif callable(obj):
+                    function_names.add(name)
+        except Exception:
+            continue
+
+    # Filter out fields that conflict with class or function names
+    safe_fields = field_names - class_names - function_names
+
+    return ','.join(sorted(safe_fields))
+
+# Apply safe dataclass field exclusion
+try:
+    safe_dataclass_fields = get_dataclass_fields_safe()
+    current_excludes = autodoc_default_options.get("exclude-members", "")
+    autodoc_default_options["exclude-members"] = current_excludes + "," + safe_dataclass_fields
+except Exception:
+    # Fallback: no exclusions if detection fails
+    pass
 
 # -- Options for autosummary extension ---------------------------------------
 
