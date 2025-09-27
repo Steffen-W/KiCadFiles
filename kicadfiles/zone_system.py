@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .base_element import KiCadObject
+from .base_element import KiCadObject, OptionalFlag
 from .base_types import Angle, Clearance, Fill, Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
@@ -605,8 +605,8 @@ class Zone(KiCadObject):
     priority: Optional[int] = field(
         default=None, metadata={"description": "Zone priority", "required": False}
     )
-    filled_areas_thickness: Optional[bool] = field(
-        default=None,
+    filled_areas_thickness: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("filled_areas_thickness"),
         metadata={"description": "Filled areas thickness flag", "required": False},
     )
     keepout: Optional[Keepout] = field(

@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .base_element import KiCadObject, OptionalFlag
-from .enums import FillType, PadShape, StrokeType
+from .enums import PadShape, StrokeType
 from .sexpr_parser import SExpr
 
 
@@ -139,22 +139,17 @@ class AtXY(KiCadObject):
 class At(KiCadObject):
     """Position identifier token that defines positional coordinates and rotation of an object.
 
-    The 'at' token defines the positional coordinates in alternative formats:
-
-    For 2D elements::
+    The 'at' token defines the positional coordinates in the format:
         (at X Y [ANGLE])
-
-    Alternative for 3D models::
-        (at (xyz X Y Z))
 
     Note:
         Symbol text ANGLEs are stored in tenth's of a degree. All other ANGLEs are stored in degrees.
+        For 3D model positioning, use ModelAt class which supports (at (xyz X Y Z)) format.
 
     Args:
         x: Horizontal position of the object
         y: Vertical position of the object
         angle: Rotational angle of the object
-        xyz: 3D position coordinates (optional)
     """
 
     __token_name__ = "at"
@@ -168,13 +163,7 @@ class At(KiCadObject):
     )
     angle: float = field(
         default=0.0,
-        metadata={
-            "description": "Rotational angle of the object",
-        },
-    )
-    xyz: Optional[Xyz] = field(
-        default=None,
-        metadata={"description": "3D position coordinates", "required": False},
+        metadata={"description": "Rotational angle of the object"},
     )
 
 
@@ -286,6 +275,29 @@ class End(KiCadObject):
 
 
 @dataclass
+class Mid(KiCadObject):
+    """Mid point definition token.
+
+    The 'mid' token defines a mid point in the format::
+
+        (mid X Y)
+
+    Args:
+        x: Horizontal position of the mid point
+        y: Vertical position of the mid point
+    """
+
+    __token_name__ = "mid"
+
+    x: float = field(
+        default=0.0, metadata={"description": "Horizontal position of the mid point"}
+    )
+    y: float = field(
+        default=0.0, metadata={"description": "Vertical position of the mid point"}
+    )
+
+
+@dataclass
 class Type(KiCadObject):
     """Type definition token.
 
@@ -312,19 +324,25 @@ class Fill(KiCadObject):
     The 'fill' token defines how schematic and symbol library graphical items are filled in the format:
     (fill
         (type none | outline | background)
+        (color R G B A)
     )
 
     This represents the nested structure exactly as it appears in the S-expression files.
 
     Args:
-        type: Fill type specification
+        type: Fill type specification (optional)
+        color: Fill color specification (optional)
     """
 
     __token_name__ = "fill"
 
-    type: Type = field(
-        default_factory=lambda: Type(value=FillType.NONE.value),
-        metadata={"description": "Fill type specification"},
+    type: Optional[Type] = field(
+        default=None,
+        metadata={"description": "Fill type specification", "required": False},
+    )
+    color: Optional[Color] = field(
+        default=None,
+        metadata={"description": "Fill color specification", "required": False},
     )
 
 
@@ -518,29 +536,22 @@ class Radius(KiCadObject):
 
 @dataclass
 class Rotate(KiCadObject):
-    """Rotation definition token for various elements.
+    """Rotation definition token for 2D elements.
 
-    The 'rotate' token defines rotation in alternative formats:
-
-    For polygons and 2D elements::
+    The 'rotate' token defines rotation angle in the format:
         (rotate ANGLE)
 
-    Alternative for 3D models::
-        (rotate (xyz X Y Z))
+    For 3D model rotation, use ModelRotate class which supports (rotate (xyz X Y Z)) format.
 
     Args:
-        angle: Rotation angle in degrees (optional)
-        xyz: 3D rotation angles (optional)
+        angle: Rotation angle in degrees
     """
 
     __token_name__ = "rotate"
 
-    angle: Optional[float] = field(
-        default=None,
-        metadata={"description": "Rotation angle in degrees", "required": False},
-    )
-    xyz: Optional[Xyz] = field(
-        default=None, metadata={"description": "3D rotation angles", "required": False}
+    angle: float = field(
+        default=0.0,
+        metadata={"description": "Rotation angle in degrees"},
     )
 
 
@@ -660,15 +671,40 @@ class Text(KiCadObject):
     """Text content definition token.
 
     The 'text' token defines text content in the format:
-    (text "TEXT_CONTENT")
+    (text "TEXT_CONTENT"
+        (at X Y [ANGLE])
+        (effects EFFECTS)
+    )
 
     Args:
         content: Text content
+        at: Position and rotation (optional)
+        effects: Text effects (optional)
+        exclude_from_sim: Whether to exclude from simulation (optional)
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "text"
 
     content: str = field(default="", metadata={"description": "Text content"})
+    at: Optional[At] = field(
+        default=None,
+        metadata={"description": "Position and rotation", "required": False},
+    )
+    effects: Optional["Effects"] = field(
+        default=None, metadata={"description": "Text effects", "required": False}
+    )
+    exclude_from_sim: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
+        metadata={
+            "description": "Whether to exclude from simulation",
+            "required": False,
+        },
+    )
+    uuid: Optional["Uuid"] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
+    )
 
 
 @dataclass
@@ -776,6 +812,7 @@ class Font(KiCadObject):
         thickness: Font thickness (optional)
         bold: Bold flag (optional)
         italic: Italic flag (optional)
+        color: Font color (optional)
     """
 
     __token_name__ = "font"
@@ -793,6 +830,10 @@ class Font(KiCadObject):
     italic: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("italic"),
         metadata={"description": "Italic flag", "required": False},
+    )
+    color: Optional[Color] = field(
+        default=None,
+        metadata={"description": "Font color", "required": False},
     )
 
 
@@ -861,6 +902,23 @@ class Justify(KiCadObject):
 
 
 @dataclass
+class Href(KiCadObject):
+    """Hyperlink reference definition token.
+
+    The 'href' token defines a hyperlink reference in the format::
+
+        (href "URL")
+
+    Args:
+        url: The hyperlink URL
+    """
+
+    __token_name__ = "href"
+
+    url: str = field(default="", metadata={"description": "The hyperlink URL"})
+
+
+@dataclass
 class Effects(KiCadObject):
     """Text effects definition token.
 
@@ -876,6 +934,7 @@ class Effects(KiCadObject):
         font: Font definition (optional)
         justify: Text justification (optional)
         hide: Whether text is hidden (optional)
+        href: Hyperlink reference (optional)
     """
 
     __token_name__ = "effects"
@@ -890,6 +949,10 @@ class Effects(KiCadObject):
     hide: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
+    )
+    href: Optional[Href] = field(
+        default=None,
+        metadata={"description": "Hyperlink reference", "required": False},
     )
 
 

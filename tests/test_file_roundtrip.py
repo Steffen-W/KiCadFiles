@@ -20,10 +20,128 @@ from kicadfiles.text_and_documents import KicadWks
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
+def run_diagnostic_analysis(fixtures_dir, file_class_map):
+    """Run FAILSAFE mode on all files to collect and categorize issues."""
+    all_issues = []
+    files_tested = 0
+
+    for subdir in fixtures_dir.iterdir():
+        if not subdir.is_dir() or subdir.name.startswith("."):
+            continue
+
+        for fixture_file in subdir.iterdir():
+            cls = None
+
+            # Check for extension-based files
+            if fixture_file.suffix in file_class_map:
+                cls = file_class_map[fixture_file.suffix]
+            # Check for special library table files (no extension)
+            elif fixture_file.name == "fp-lib-table":
+                cls = FpLibTable
+            elif fixture_file.name == "sym-lib-table":
+                cls = SymLibTable
+
+            if cls is not None:
+                files_tested += 1
+
+                # Capture warnings/errors from FAILSAFE mode
+                import io
+                import logging
+
+                log_capture = io.StringIO()
+                log_handler = logging.StreamHandler(log_capture)
+                log_handler.setLevel(logging.WARNING)
+                logger = logging.getLogger()
+                logger.addHandler(log_handler)
+
+                try:
+                    # Try FAILSAFE mode to capture all warnings
+                    cls.from_file(str(fixture_file), ParseStrictness.FAILSAFE)
+
+                    # Get captured warnings
+                    warnings = log_capture.getvalue()
+                    if warnings:
+                        all_issues.append(
+                            {
+                                "file": f"{subdir.name}/{fixture_file.name}",
+                                "warnings": warnings,
+                            }
+                        )
+
+                except Exception as e:
+                    # Even FAILSAFE failed - record as critical error
+                    all_issues.append(
+                        {"file": f"{subdir.name}/{fixture_file.name}", "error": str(e)}
+                    )
+                finally:
+                    logger.removeHandler(log_handler)
+                    log_capture.close()
+
+    return {"files_tested": files_tested, "issues": all_issues}
+
+
+def print_diagnostic_summary(diagnostic_results):
+    """Print categorized summary of diagnostic results."""
+    issues = diagnostic_results["issues"]
+    files_tested = diagnostic_results["files_tested"]
+
+    if not issues:
+        print(f"✅ All {files_tested} files parsed successfully in FAILSAFE mode")
+        return
+
+    # Categorize issues
+    missing_fields = {}
+    unused_params = {}
+    parse_errors = []
+
+    for issue in issues:
+        file_name = issue["file"]
+
+        if "error" in issue:
+            parse_errors.append(f"{file_name}: {issue['error']}")
+        else:
+            warnings = issue["warnings"]
+
+            # Extract missing field warnings
+            for line in warnings.split("\n"):
+                if "Missing field" in line:
+                    # Extract field name
+                    if "Missing field '" in line:
+                        field = line.split("Missing field '")[1].split("'")[0]
+                        missing_fields[field] = missing_fields.get(field, 0) + 1
+
+                elif "Unused parameters" in line:
+                    # Extract parameter types
+                    if "[" in line and "]" in line:
+                        params = line.split("[")[1].split("]")[0]
+                        unused_params[params] = unused_params.get(params, 0) + 1
+
+    print(f"Found issues in {len(issues)}/{files_tested} files:")
+
+    if missing_fields:
+        print(f"\n📋 Missing Fields (top issues):")
+        for field, count in sorted(
+            missing_fields.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
+            print(f"  - '{field}': {count}x")
+
+    if unused_params:
+        print(f"\n🔧 Unused Parameters (top issues):")
+        for param, count in sorted(
+            unused_params.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
+            print(f"  - {param}: {count}x")
+
+    if parse_errors:
+        print(f"\n❌ Parse Errors ({len(parse_errors)} files):")
+        for error in parse_errors[:5]:  # Show first 5
+            print(f"  - {error}")
+        if len(parse_errors) > 5:
+            print(f"  - ... and {len(parse_errors) - 5} more")
+
+
 def test_all_s_expression_fixtures():
     """Test round-trip for all S-expression based fixture files."""
-    print("\n=== S-EXPRESSION ROUND-TRIP TEST ===")
-    print(f"Fixtures directory: {FIXTURES_DIR}")
 
     # Mapping of file extensions to classes
     file_class_map = {
@@ -34,6 +152,15 @@ def test_all_s_expression_fixtures():
         ".kicad_wks": KicadWks,
         ".kicad_dru": KiCadDesignRules,
     }
+
+    # PHASE 1: DIAGNOSTIC RUN WITH FAILSAFE
+    print("\n=== DIAGNOSTIC RUN (FAILSAFE MODE) ===")
+    diagnostic_results = run_diagnostic_analysis(FIXTURES_DIR, file_class_map)
+    print_diagnostic_summary(diagnostic_results)
+
+    # PHASE 2: ACTUAL STRICT TEST
+    print(f"\n=== S-EXPRESSION ROUND-TRIP TEST ===")
+    print(f"Fixtures directory: {FIXTURES_DIR}")
 
     tested_files = 0
     successful_tests = 0

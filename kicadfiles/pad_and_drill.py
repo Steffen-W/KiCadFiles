@@ -9,6 +9,241 @@ from .enums import PadShape, PadType, ZoneConnection
 
 
 @dataclass
+class BestLengthRatio(KiCadObject):
+    """Best length ratio definition token for teardrops.
+
+    The 'best_length_ratio' token defines the best length ratio in the format::
+
+        (best_length_ratio RATIO)
+
+    Args:
+        ratio: Best length ratio value
+    """
+
+    __token_name__ = "best_length_ratio"
+
+    ratio: float = field(
+        default=0.5, metadata={"description": "Best length ratio value"}
+    )
+
+
+@dataclass
+class MaxLength(KiCadObject):
+    """Max length definition token for teardrops.
+
+    The 'max_length' token defines the maximum length in the format::
+
+        (max_length LENGTH)
+
+    Args:
+        length: Maximum length value
+    """
+
+    __token_name__ = "max_length"
+
+    length: float = field(default=1.0, metadata={"description": "Maximum length value"})
+
+
+@dataclass
+class BestWidthRatio(KiCadObject):
+    """Best width ratio definition token for teardrops.
+
+    The 'best_width_ratio' token defines the best width ratio in the format::
+
+        (best_width_ratio RATIO)
+
+    Args:
+        ratio: Best width ratio value
+    """
+
+    __token_name__ = "best_width_ratio"
+
+    ratio: float = field(
+        default=1.0, metadata={"description": "Best width ratio value"}
+    )
+
+
+@dataclass
+class MaxWidth(KiCadObject):
+    """Max width definition token for teardrops.
+
+    The 'max_width' token defines the maximum width in the format::
+
+        (max_width WIDTH)
+
+    Args:
+        width: Maximum width value
+    """
+
+    __token_name__ = "max_width"
+
+    width: float = field(default=2.0, metadata={"description": "Maximum width value"})
+
+
+@dataclass
+class CurvedEdges(KiCadObject):
+    """Curved edges definition token for teardrops.
+
+    The 'curved_edges' token defines whether edges are curved in the format::
+
+        (curved_edges yes|no)
+
+    Args:
+        value: Whether edges are curved
+    """
+
+    __token_name__ = "curved_edges"
+
+    value: bool = field(
+        default=False, metadata={"description": "Whether edges are curved"}
+    )
+
+
+@dataclass
+class FilterRatio(KiCadObject):
+    """Filter ratio definition token for teardrops.
+
+    The 'filter_ratio' token defines the filter ratio in the format::
+
+        (filter_ratio RATIO)
+
+    Args:
+        ratio: Filter ratio value
+    """
+
+    __token_name__ = "filter_ratio"
+
+    ratio: float = field(default=0.9, metadata={"description": "Filter ratio value"})
+
+
+@dataclass
+class Enabled(KiCadObject):
+    """Enabled definition token for teardrops.
+
+    The 'enabled' token defines whether teardrops are enabled in the format::
+
+        (enabled yes|no)
+
+    Args:
+        value: Whether teardrops are enabled
+    """
+
+    __token_name__ = "enabled"
+
+    value: bool = field(
+        default=True, metadata={"description": "Whether teardrops are enabled"}
+    )
+
+
+@dataclass
+class AllowTwoSegments(KiCadObject):
+    """Allow two segments definition token for teardrops.
+
+    The 'allow_two_segments' token defines whether two segments are allowed in the format::
+
+        (allow_two_segments yes|no)
+
+    Args:
+        value: Whether two segments are allowed
+    """
+
+    __token_name__ = "allow_two_segments"
+
+    value: bool = field(
+        default=True, metadata={"description": "Whether two segments are allowed"}
+    )
+
+
+@dataclass
+class PreferZoneConnections(KiCadObject):
+    """Prefer zone connections definition token for teardrops.
+
+    The 'prefer_zone_connections' token defines whether zone connections are preferred in the format::
+
+        (prefer_zone_connections yes|no)
+
+    Args:
+        value: Whether zone connections are preferred
+    """
+
+    __token_name__ = "prefer_zone_connections"
+
+    value: bool = field(
+        default=True, metadata={"description": "Whether zone connections are preferred"}
+    )
+
+
+@dataclass
+class Teardrops(KiCadObject):
+    """Teardrops definition token for pads.
+
+    The 'teardrops' token defines teardrop settings in the format::
+
+        (teardrops
+            (best_length_ratio RATIO)
+            (max_length LENGTH)
+            (best_width_ratio RATIO)
+            (max_width WIDTH)
+            (curved_edges yes|no)
+            (filter_ratio RATIO)
+            (enabled yes|no)
+            (allow_two_segments yes|no)
+            (prefer_zone_connections yes|no)
+        )
+
+    Args:
+        best_length_ratio: Best length ratio setting
+        max_length: Maximum length setting
+        best_width_ratio: Best width ratio setting
+        max_width: Maximum width setting
+        curved_edges: Curved edges setting
+        filter_ratio: Filter ratio setting
+        enabled: Enabled setting
+        allow_two_segments: Allow two segments setting
+        prefer_zone_connections: Prefer zone connections setting
+    """
+
+    __token_name__ = "teardrops"
+
+    best_length_ratio: BestLengthRatio = field(
+        default_factory=lambda: BestLengthRatio(),
+        metadata={"description": "Best length ratio setting"},
+    )
+    max_length: MaxLength = field(
+        default_factory=lambda: MaxLength(),
+        metadata={"description": "Maximum length setting"},
+    )
+    best_width_ratio: BestWidthRatio = field(
+        default_factory=lambda: BestWidthRatio(),
+        metadata={"description": "Best width ratio setting"},
+    )
+    max_width: MaxWidth = field(
+        default_factory=lambda: MaxWidth(),
+        metadata={"description": "Maximum width setting"},
+    )
+    curved_edges: CurvedEdges = field(
+        default_factory=lambda: CurvedEdges(),
+        metadata={"description": "Curved edges setting"},
+    )
+    filter_ratio: FilterRatio = field(
+        default_factory=lambda: FilterRatio(),
+        metadata={"description": "Filter ratio setting"},
+    )
+    enabled: Enabled = field(
+        default_factory=lambda: Enabled(),
+        metadata={"description": "Enabled setting"},
+    )
+    allow_two_segments: AllowTwoSegments = field(
+        default_factory=lambda: AllowTwoSegments(),
+        metadata={"description": "Allow two segments setting"},
+    )
+    prefer_zone_connections: PreferZoneConnections = field(
+        default_factory=lambda: PreferZoneConnections(),
+        metadata={"description": "Prefer zone connections setting"},
+    )
+
+
+@dataclass
 class Chamfer(KiCadObject):
     """Chamfer corner definition token for pads.
 
@@ -279,14 +514,15 @@ class Drill(KiCadObject):
         )
 
     Args:
-        oval: Whether the drill is oval instead of round (optional)
         diameter: Drill diameter
+        oval: Whether the drill is oval instead of round (optional)
         width: Width of the slot for oval drills (optional)
         offset: Drill offset coordinates from the center of the pad (optional)
     """
 
     __token_name__ = "drill"
 
+    diameter: float = field(default=0.0, metadata={"description": "Drill diameter"})
     oval: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("oval"),
         metadata={
@@ -294,7 +530,6 @@ class Drill(KiCadObject):
             "required": False,
         },
     )
-    diameter: float = field(default=0.0, metadata={"description": "Drill diameter"})
     width: Optional[float] = field(
         default=None,
         metadata={
@@ -338,8 +573,8 @@ class Primitives(KiCadObject):
         default_factory=lambda: Width(),
         metadata={"description": "Line width of graphical items"},
     )
-    fill: Optional[bool] = field(
-        default=None,
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
         metadata={
             "description": "Whether geometry should be filled",
             "required": False,
@@ -389,6 +624,7 @@ class Pad(KiCadObject):
         property: Pad property (optional)
         locked: Whether pad is locked (optional)
         remove_unused_layer: Remove unused layers flag (optional)
+        remove_unused_layers: Remove unused layers flag (newer format) (optional)
         keep_end_layers: Keep end layers flag (optional)
         roundrect_rratio: Round rectangle corner ratio (optional)
         chamfer_ratio: Chamfer ratio (optional)
@@ -407,6 +643,7 @@ class Pad(KiCadObject):
         thermal_gap: Thermal gap (optional)
         options: Custom pad options (optional)
         primitives: Custom pad primitives (optional)
+        teardrops: Teardrop settings (optional)
     """
 
     __token_name__ = "pad"
@@ -441,12 +678,19 @@ class Pad(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether pad is locked", "required": False},
     )
-    remove_unused_layer: Optional[bool] = field(
-        default=None,
+    remove_unused_layer: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("remove_unused_layer"),
         metadata={"description": "Remove unused layers flag", "required": False},
     )
-    keep_end_layers: Optional[bool] = field(
-        default=None,
+    remove_unused_layers: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("remove_unused_layers"),
+        metadata={
+            "description": "Remove unused layers flag (newer format)",
+            "required": False,
+        },
+    )
+    keep_end_layers: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
     roundrect_rratio: Optional[RoundrectRratio] = field(
@@ -504,6 +748,10 @@ class Pad(KiCadObject):
     primitives: Optional[Primitives] = field(
         default=None,
         metadata={"description": "Custom pad primitives", "required": False},
+    )
+    teardrops: Optional[Teardrops] = field(
+        default=None,
+        metadata={"description": "Teardrop settings", "required": False},
     )
 
 

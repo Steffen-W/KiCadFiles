@@ -1,5 +1,6 @@
 # other
 _*.md
+_large_test/
 
 # AI
 .claude

@@ -4,7 +4,19 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, End, Font, Id, Justify, Name, Pos, Size, Start, Uuid, Xyz
+from .base_types import (
+    AtXY,
+    End,
+    Font,
+    Id,
+    Justify,
+    Linewidth,
+    Name,
+    Pos,
+    Size,
+    Start,
+    Uuid,
+)
 
 
 @dataclass
@@ -141,36 +153,19 @@ class GeneratorVersion(KiCadObject):
 
 @dataclass
 class Page(KiCadObject):
-    """Page settings definition token.
+    """Page number definition token.
 
-    The 'page' token defines page layout settings in the format::
+    The 'page' token defines the page number in the format::
 
-        (page SIZE | WIDTH HEIGHT [portrait])
-
-    Where SIZE can be: A0, A1, A2, A3, A4, A5, A, B, C, D, E.
+        (page "NUMBER")
 
     Args:
-        size: Standard page size (optional)
-        width: Custom page width (optional)
-        height: Custom page height (optional)
-        portrait: Whether page is in portrait mode (optional)
+        number: Page number
     """
 
     __token_name__ = "page"
 
-    size: Optional[str] = field(
-        default=None, metadata={"description": "Standard page size", "required": False}
-    )
-    width: Optional[float] = field(
-        default=None, metadata={"description": "Custom page width", "required": False}
-    )
-    height: Optional[float] = field(
-        default=None, metadata={"description": "Custom page height", "required": False}
-    )
-    portrait: Optional[bool] = field(
-        default=None,
-        metadata={"description": "Whether page is in portrait mode", "required": False},
-    )
+    number: str = field(default="", metadata={"description": "Page number"})
 
 
 @dataclass
@@ -201,8 +196,8 @@ class Paper(KiCadObject):
     height: Optional[float] = field(
         default=None, metadata={"description": "Custom paper height", "required": False}
     )
-    portrait: Optional[bool] = field(
-        default=None,
+    portrait: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("portrait"),
         metadata={
             "description": "Whether paper is in portrait mode",
             "required": False,
@@ -245,6 +240,23 @@ class Tedit(KiCadObject):
 
 
 @dataclass
+class Title(KiCadObject):
+    """Title definition token.
+
+    The 'title' token defines a document title in the format::
+
+        (title "TITLE_STRING")
+
+    Args:
+        value: Title string
+    """
+
+    __token_name__ = "title"
+
+    value: str = field(default="", metadata={"description": "Title string"})
+
+
+@dataclass
 class TitleBlock(KiCadObject):
     """Title block definition token.
 
@@ -259,7 +271,7 @@ class TitleBlock(KiCadObject):
         )
 
     Args:
-        title: Document title string (optional)
+        title: Document title (optional)
         date: Document date (optional)
         rev: Document revision (optional)
         company: Company name (optional)
@@ -268,9 +280,9 @@ class TitleBlock(KiCadObject):
 
     __token_name__ = "title_block"
 
-    title: Optional[str] = field(
+    title: Optional[Title] = field(
         default=None,
-        metadata={"description": "Document title string", "required": False},
+        metadata={"description": "Document title", "required": False},
     )
     date: Optional[Date] = field(
         default=None, metadata={"description": "Document date", "required": False}
@@ -534,30 +546,22 @@ class Suffix(KiCadObject):
 
 @dataclass
 class Scale(KiCadObject):
-    """Scale definition token for various elements.
+    """Scale definition token for 2D elements.
 
-    The 'scale' token defines scaling factor in alternative formats:
-
-    For images and 2D elements::
+    The 'scale' token defines scaling factor in the format:
         (scale SCALAR)
 
-    Alternative for 3D models::
-        (scale (xyz X Y Z))
+    For 3D model scaling, use ModelScale class which supports (scale (xyz X Y Z)) format.
 
     Args:
-        factor: Scale factor for 2D elements (optional)
-        xyz: 3D scale coordinates (optional)
+        factor: Scale factor for 2D elements
     """
 
     __token_name__ = "scale"
 
-    factor: Optional[float] = field(
-        default=None,
-        metadata={"description": "Scale factor for 2D elements", "required": False},
-    )
-    xyz: Optional[Xyz] = field(
-        default=None,
-        metadata={"description": "3D scale coordinates", "required": False},
+    factor: float = field(
+        default=1.0,
+        metadata={"description": "Scale factor for 2D elements"},
     )
 
 
@@ -808,18 +812,21 @@ class WksRect(KiCadObject):
     """Worksheet rectangle definition token.
 
     Args:
-        name: Rectangle name
+        name: Rectangle name (optional)
         start: Start position
         end: End position
         comment: Comment (optional)
         repeat: Repeat count (optional)
         incrx: X increment (optional)
         incry: Y increment (optional)
+        linewidth: Line width (optional)
     """
 
     __token_name__ = "rect"
 
-    name: str = field(default="", metadata={"description": "Rectangle name"})
+    name: Optional[str] = field(
+        default=None, metadata={"description": "Rectangle name", "required": False}
+    )
     start: Start = field(
         default_factory=lambda: Start(), metadata={"description": "Start position"}
     )
@@ -838,6 +845,9 @@ class WksRect(KiCadObject):
     incry: Optional[Incry] = field(
         default=None, metadata={"description": "Y increment", "required": False}
     )
+    linewidth: Optional[Linewidth] = field(
+        default=None, metadata={"description": "Line width", "required": False}
+    )
 
 
 @dataclass
@@ -845,7 +855,7 @@ class WksLine(KiCadObject):
     """Worksheet line definition token.
 
     Args:
-        name: Line name
+        name: Line name (optional)
         start: Start position
         end: End position
         repeat: Repeat count (optional)
@@ -855,7 +865,9 @@ class WksLine(KiCadObject):
 
     __token_name__ = "line"
 
-    name: str = field(default="", metadata={"description": "Line name"})
+    name: Optional[str] = field(
+        default=None, metadata={"description": "Line name", "required": False}
+    )
     start: Start = field(
         default_factory=lambda: Start(), metadata={"description": "Start position"}
     )
@@ -944,12 +956,13 @@ class KicadWks(KiCadObject):
     """
 
     __token_name__ = "kicad_wks"
+    __legacy_token_names__ = ["page_layout"]
 
-    version: Version = field(
-        default_factory=lambda: Version(), metadata={"description": "Format version"}
+    version: Optional[Version] = field(
+        default=None, metadata={"description": "Format version"}
     )
-    generator: Generator = field(
-        default_factory=lambda: Generator(), metadata={"description": "Generator name"}
+    generator: Optional[Generator] = field(
+        default=None, metadata={"description": "Generator name"}
     )
     generator_version: Optional[GeneratorVersion] = field(
         default=None,
@@ -1078,7 +1091,7 @@ class Image(KiCadObject):
 
     Args:
         at: Position
-        scale: Scale factor
+        scale: Scale factor (optional)
         uuid: Unique identifier (optional)
         data: Image data (optional)
         locked: Whether image is locked (optional)
@@ -1086,9 +1099,11 @@ class Image(KiCadObject):
 
     __token_name__ = "image"
 
-    at: At = field(default_factory=lambda: At(), metadata={"description": "Position"})
-    scale: Scale = field(
-        default_factory=lambda: Scale(), metadata={"description": "Scale factor"}
+    at: AtXY = field(
+        default_factory=lambda: AtXY(), metadata={"description": "Position"}
+    )
+    scale: Optional[Scale] = field(
+        default=None, metadata={"description": "Scale factor", "required": False}
     )
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}

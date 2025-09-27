@@ -15,12 +15,21 @@ from .base_types import (
     Pts,
     Size,
     Stroke,
+    Text,
     Uuid,
 )
 from .enums import LabelShape
-from .primitive_graphics import Polyline
-from .symbol_library import LibSymbols, Pin
-from .text_and_documents import Generator, GeneratorVersion, Page, Paper, Version
+from .primitive_graphics import Polyline, Rectangle
+from .symbol_library import LibSymbols
+from .text_and_documents import (
+    Generator,
+    GeneratorVersion,
+    Image,
+    Page,
+    Paper,
+    TitleBlock,
+    Version,
+)
 
 
 @dataclass
@@ -491,7 +500,9 @@ class BusEntry(KiCadObject):
 
     __token_name__ = "bus_entry"
 
-    at: At = field(default_factory=lambda: At(), metadata={"description": "Position"})
+    at: AtXY = field(
+        default_factory=lambda: AtXY(), metadata={"description": "Position"}
+    )
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Entry size"}
     )
@@ -536,8 +547,8 @@ class GlobalLabel(KiCadObject):
         default=None,
         metadata={"description": "Way the global label is drawn", "required": False},
     )
-    fields_autoplaced: Optional[bool] = field(
-        default=None,
+    fields_autoplaced: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
         metadata={
             "description": "Whether properties are placed automatically",
             "required": False,
@@ -629,8 +640,8 @@ class Label(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    fields_autoplaced: Optional[bool] = field(
-        default=None,
+    fields_autoplaced: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     effects: Optional[Effects] = field(
@@ -659,7 +670,42 @@ class NoConnect(KiCadObject):
 
     __token_name__ = "no_connect"
 
-    at: At = field(default_factory=lambda: At(), metadata={"description": "Position"})
+    at: AtXY = field(
+        default_factory=lambda: AtXY(), metadata={"description": "Position"}
+    )
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    )
+
+
+@dataclass
+class SheetPin(KiCadObject):
+    """Sheet pin definition token.
+
+    The 'pin' token defines a hierarchical sheet pin in the format::
+
+        (pin "NAME" SHAPE (at X Y ANGLE) (effects EFFECTS) (uuid UUID))
+
+    Args:
+        name: Pin name string
+        shape: Pin shape/direction
+        at: Position and angle
+        effects: Text effects (optional)
+        uuid: Unique identifier
+    """
+
+    __token_name__ = "pin"
+
+    name: str = field(default="", metadata={"description": "Pin name string"})
+    shape: LabelShape = field(
+        default=LabelShape.INPUT, metadata={"description": "Pin shape/direction"}
+    )
+    at: At = field(
+        default_factory=lambda: At(), metadata={"description": "Position and angle"}
+    )
+    effects: Optional[Effects] = field(
+        default=None, metadata={"description": "Text effects", "required": False}
+    )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
     )
@@ -693,16 +739,24 @@ class Sheet(KiCadObject):
         uuid: Unique identifier
         properties: List of properties
         pins: List of sheet pins (optional)
+        exclude_from_sim: Whether sheet is excluded from simulation (optional)
+        in_bom: Whether sheet appears in BOM (optional)
+        on_board: Whether sheet is exported to PCB (optional)
+        dnp: Do not populate flag (optional)
+        rectangles: List of rectangle graphical items (optional)
+        instances: Sheet local instances (optional)
     """
 
     __token_name__ = "sheet"
 
-    at: At = field(default_factory=lambda: At(), metadata={"description": "Position"})
+    at: AtXY = field(
+        default_factory=lambda: AtXY(), metadata={"description": "Position"}
+    )
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Sheet size"}
     )
-    fields_autoplaced: Optional[bool] = field(
-        default=None,
+    fields_autoplaced: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -717,9 +771,39 @@ class Sheet(KiCadObject):
     properties: List[Property] = field(
         default_factory=list, metadata={"description": "List of properties"}
     )
-    pins: Optional[List[Pin]] = field(
+    pins: Optional[List[SheetPin]] = field(
         default_factory=list,
         metadata={"description": "List of sheet pins", "required": False},
+    )
+    exclude_from_sim: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
+        metadata={
+            "description": "Whether sheet is excluded from simulation",
+            "required": False,
+        },
+    )
+    in_bom: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("in_bom"),
+        metadata={"description": "Whether sheet appears in BOM", "required": False},
+    )
+    on_board: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("on_board"),
+        metadata={"description": "Whether sheet is exported to PCB", "required": False},
+    )
+    dnp: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("dnp"),
+        metadata={"description": "Do not populate flag", "required": False},
+    )
+    rectangles: Optional[List[Rectangle]] = field(
+        default_factory=list,
+        metadata={
+            "description": "List of rectangle graphical items",
+            "required": False,
+        },
+    )
+    instances: Optional["SheetLocalInstances"] = field(
+        default=None,
+        metadata={"description": "Sheet local instances", "required": False},
     )
 
 
@@ -827,6 +911,29 @@ class SheetInstance(KiCadObject):
     page: Page = field(
         default_factory=lambda: Page(),
         metadata={"description": "Page object"},
+    )
+
+
+@dataclass
+class SheetLocalInstances(KiCadObject):
+    """Sheet local instances definition token.
+
+    The 'instances' token defines local sheet instances in the format::
+
+        (instances
+            (project "PROJECT_NAME"
+                (path "/PATH" (page "PAGE"))
+            )
+        )
+
+    Args:
+        project: List of project data
+    """
+
+    __token_name__ = "instances"
+
+    project: List["Project"] = field(
+        default_factory=list, metadata={"description": "List of project data"}
     )
 
 
@@ -941,6 +1048,7 @@ class Path(KiCadObject):
         value: Path value
         reference: Component reference (optional)
         unit: Unit number (optional)
+        page: Page number (optional)
     """
 
     __token_name__ = "path"
@@ -953,6 +1061,10 @@ class Path(KiCadObject):
     unit: Optional[Unit] = field(
         default=None,
         metadata={"description": "Unit number", "required": False},
+    )
+    page: Optional[Page] = field(
+        default=None,
+        metadata={"description": "Page number", "required": False},
     )
 
 
@@ -1009,6 +1121,27 @@ class SymbolInstances(KiCadObject):
 
 
 @dataclass
+class Mirror(KiCadObject):
+    """Mirror transformation definition token.
+
+    The 'mirror' token defines symbol mirroring in the format::
+
+        (mirror DIRECTION)
+
+    Where DIRECTION can be: x, y
+
+    Args:
+        direction: Mirror direction (x or y)
+    """
+
+    __token_name__ = "mirror"
+
+    direction: str = field(
+        default="x", metadata={"description": "Mirror direction (x or y)"}
+    )
+
+
+@dataclass
 class SchematicSymbol(KiCadObject):
     """Schematic symbol instance definition token.
 
@@ -1029,8 +1162,10 @@ class SchematicSymbol(KiCadObject):
         )
 
     Args:
+        lib_name: Library name (optional)
         lib_id: Library identifier (optional)
         at: Position and rotation (optional)
+        mirror: Mirror transformation (optional)
         unit: Unit number (optional)
         exclude_from_sim: Whether to exclude from simulation (optional)
         in_bom: Whether to include in BOM (optional)
@@ -1040,11 +1175,16 @@ class SchematicSymbol(KiCadObject):
         uuid: Unique identifier (optional)
         properties: List of properties (optional)
         pins: List of pin references (optional)
+        text: List of text elements (optional)
         instances: Symbol instances (optional)
     """
 
     __token_name__ = "symbol"
 
+    lib_name: Optional[str] = field(
+        default=None,
+        metadata={"description": "Library name", "required": False},
+    )
     lib_id: Optional[LibId] = field(
         default=None,
         metadata={"description": "Library identifier", "required": False},
@@ -1052,6 +1192,10 @@ class SchematicSymbol(KiCadObject):
     at: Optional[At] = field(
         default=None,
         metadata={"description": "Position and rotation", "required": False},
+    )
+    mirror: Optional[Mirror] = field(
+        default=None,
+        metadata={"description": "Mirror transformation", "required": False},
     )
     unit: Optional[Unit] = field(
         default=None,
@@ -1092,6 +1236,10 @@ class SchematicSymbol(KiCadObject):
         default_factory=list,
         metadata={"description": "List of pin references", "required": False},
     )
+    text: Optional[List[Text]] = field(
+        default_factory=list,
+        metadata={"description": "List of text elements", "required": False},
+    )
     instances: Optional[SymbolInstances] = field(
         default=None,
         metadata={"description": "Symbol instances", "required": False},
@@ -1118,6 +1266,7 @@ class KicadSch(KiCadObject):
         generator_version: Generator version (optional)
         uuid: Universally unique identifier for the schematic
         paper: Paper settings (optional)
+        title_block: Title block (optional)
         sheet_instances: Sheet instances (optional)
         embedded_fonts: Embedded fonts setting (optional)
         lib_symbols: Symbol library container (optional)
@@ -1137,6 +1286,9 @@ class KicadSch(KiCadObject):
         rule_areas: List of rule areas (optional)
         netclass_flags: List of netclass flags (optional)
         symbols: List of symbol instances (optional)
+        text: List of text elements (optional)
+        rectangles: List of rectangle graphical items (optional)
+        images: List of image elements (optional)
     """
 
     __token_name__ = "kicad_sch"
@@ -1160,6 +1312,10 @@ class KicadSch(KiCadObject):
     paper: Optional[Paper] = field(
         default=None,
         metadata={"description": "Paper settings", "required": False},
+    )
+    title_block: Optional[TitleBlock] = field(
+        default=None,
+        metadata={"description": "Title block", "required": False},
     )
     sheet_instances: Optional[SheetInstances] = field(
         default=None,
@@ -1236,6 +1392,21 @@ class KicadSch(KiCadObject):
     symbols: Optional[List[SchematicSymbol]] = field(
         default_factory=list,
         metadata={"description": "List of symbol instances", "required": False},
+    )
+    text: Optional[List[Text]] = field(
+        default_factory=list,
+        metadata={"description": "List of text elements", "required": False},
+    )
+    rectangles: Optional[List[Rectangle]] = field(
+        default_factory=list,
+        metadata={
+            "description": "List of rectangle graphical items",
+            "required": False,
+        },
+    )
+    images: Optional[List[Image]] = field(
+        default_factory=list,
+        metadata={"description": "List of image elements", "required": False},
     )
 
     @classmethod

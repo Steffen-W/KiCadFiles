@@ -310,16 +310,16 @@ class Via(KiCadObject):
         default_factory=lambda: Layers(),
         metadata={"description": "Layer set the via connects"},
     )
-    remove_unused_layers: Optional[bool] = field(
-        default=None,
+    remove_unused_layers: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("remove_unused_layers"),
         metadata={"description": "Remove unused layers flag", "required": False},
     )
-    keep_end_layers: Optional[bool] = field(
-        default=None,
+    keep_end_layers: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    free: Optional[bool] = field(
-        default=None,
+    free: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("free"),
         metadata={
             "description": "Whether via is free to move outside assigned net",
             "required": False,

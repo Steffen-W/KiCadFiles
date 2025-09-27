@@ -85,6 +85,7 @@ class KiCadObject(ABC):
     """Base class for KiCad S-expression objects with cursor-based parsing."""
 
     __token_name__: ClassVar[str] = ""
+    __legacy_token_names__: ClassVar[List[str]] = []
     _field_info_cache: ClassVar[List[FieldInfo]]
     _field_defaults_cache: ClassVar[Dict[str, Any]]
 
@@ -139,10 +140,13 @@ class KiCadObject(ABC):
     def _parse_recursive(cls: Type[T], cursor: ParseCursor) -> T:
         """Internal recursive parse function - uses existing parser."""
 
-        if not cursor.sexpr or str(cursor.sexpr[0]) != cls.__token_name__:
+        token = str(cursor.sexpr[0]) if cursor.sexpr else "empty"
+        valid_tokens = [cls.__token_name__] + (cls.__legacy_token_names__ or [])
+
+        if not cursor.sexpr or token not in valid_tokens:
             raise ValueError(
                 f"Token mismatch at {cursor.get_path_str()}: "
-                f"expected '{cls.__token_name__}', got '{cursor.sexpr[0] if cursor.sexpr else 'empty'}'"
+                f"expected '{cls.__token_name__}', got '{token}'"
             )
 
         field_infos = cls._classify_fields()

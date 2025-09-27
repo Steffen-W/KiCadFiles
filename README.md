@@ -186,7 +186,7 @@ mypy kicadfiles/
 pyright kicadfiles/
 ```
 
-### Documentation
+### Documentation with sphinx
 
 ```bash
 cd docs && make clean && make html && cd ..

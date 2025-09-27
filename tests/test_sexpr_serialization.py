@@ -197,7 +197,7 @@ def test_minimal_schematic_structural_integrity():
     sheet_instance = schematic.sheet_instances.sheet_instances[0]
     assert sheet_instance.path == "/", f"Expected path '/', got {sheet_instance.path}"
     assert (
-        sheet_instance.page.size == "1"
+        sheet_instance.page.number == "1"
     ), f"Expected page '1', got {sheet_instance.page}"
 
     # Check embedded_fonts

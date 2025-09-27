@@ -11,7 +11,6 @@ from .base_types import (
     Center,
     Effects,
     End,
-    Fill,
     Height,
     Layer,
     Pos,
@@ -219,8 +218,9 @@ class GrCircle(KiCadObject):
     width: Width = field(
         default_factory=lambda: Width(), metadata={"description": "Line width"}
     )
-    fill: Optional[Fill] = field(
-        default=None, metadata={"description": "Fill definition", "required": False}
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+        metadata={"description": "Fill definition", "required": False},
     )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
@@ -382,6 +382,37 @@ class OverrideValue(KiCadObject):
 
 
 @dataclass
+class FpTextAt(KiCadObject):
+    """Position identifier token for FpText that supports flexible coordinate formats.
+
+    The 'at' token for fp_text defines positional coordinates in the format:
+        (at X [Y] [ANGLE])
+
+    Special case: Sometimes only one coordinate is provided like (at 0).
+
+    Args:
+        x: Horizontal position of the text
+        y: Vertical position of the text (optional)
+        angle: Rotation angle of the text (optional)
+    """
+
+    __token_name__ = "at"
+
+    x: float = field(
+        default=0.0,
+        metadata={"description": "Horizontal position of the text"},
+    )
+    y: Optional[float] = field(
+        default=None,
+        metadata={"description": "Vertical position of the text", "required": False},
+    )
+    angle: Optional[float] = field(
+        default=None,
+        metadata={"description": "Rotation angle of the text", "required": False},
+    )
+
+
+@dataclass
 class Format(KiCadObject):
     """Dimension format definition token.
 
@@ -536,24 +567,26 @@ class FpArc(KiCadObject):
 
         (fp_arc
             (start X Y)
-            (mid X Y)
+            [(mid X Y)]
             (end X Y)
             (layer LAYER_DEFINITION)
             (width WIDTH)
-            STROKE_DEFINITION
+            [STROKE_DEFINITION]
             [(locked)]
-            (uuid UUID)
+            [(uuid UUID)]
+            [(angle ANGLE)]
         )
 
     Args:
         start: Start point coordinates
-        mid: Mid point coordinates
+        mid: Mid point coordinates (optional)
         end: End point coordinates
         layer: Layer definition
         width: Line width (prior to version 7)
-        stroke: Stroke definition (from version 7)
+        stroke: Stroke definition (from version 7) (optional)
         locked: Whether the arc is locked (optional)
-        uuid: Unique identifier
+        angle: Arc angle in degrees (optional)
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "fp_arc"
@@ -562,8 +595,9 @@ class FpArc(KiCadObject):
         default_factory=lambda: Start(),
         metadata={"description": "Start point coordinates"},
     )
-    mid: Pos = field(
-        default_factory=lambda: Pos(), metadata={"description": "Mid point coordinates"}
+    mid: Optional[Pos] = field(
+        default=None,
+        metadata={"description": "Mid point coordinates", "required": False},
     )
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point coordinates"}
@@ -575,16 +609,23 @@ class FpArc(KiCadObject):
         default_factory=lambda: Width(),
         metadata={"description": "Line width (prior to version 7)"},
     )
-    stroke: Stroke = field(
-        default_factory=lambda: Stroke(),
-        metadata={"description": "Stroke definition (from version 7)"},
+    stroke: Optional[Stroke] = field(
+        default=None,
+        metadata={
+            "description": "Stroke definition (from version 7)",
+            "required": False,
+        },
     )
     locked: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the arc is locked", "required": False},
     )
-    uuid: Uuid = field(
-        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    angle: Optional[Angle] = field(
+        default=None,
+        metadata={"description": "Arc angle in degrees", "required": False},
+    )
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier", "required": False}
     )
 
 
@@ -710,8 +751,9 @@ class FpLine(KiCadObject):
         start: Start point
         end: End point
         layer: Layer definition
-        width: Line width
+        width: Line width (optional)
         tstamp: Timestamp UUID (optional)
+        uuid: Unique identifier (optional)
         stroke: Stroke definition (optional)
         locked: Whether the line is locked (optional)
     """
@@ -727,11 +769,14 @@ class FpLine(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: Optional[Width] = field(
+        default=None, metadata={"description": "Line width", "required": False}
     )
     tstamp: Optional[Tstamp] = field(
         default=None, metadata={"description": "Timestamp UUID", "required": False}
+    )
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier", "required": False}
     )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
@@ -758,11 +803,12 @@ class FpPoly(KiCadObject):
     Args:
         pts: Polygon points
         layer: Layer definition
-        width: Line width
+        width: Line width (optional)
         tstamp: Timestamp UUID (optional)
         stroke: Stroke definition (optional)
         fill: Fill definition (optional)
         locked: Whether thepolygon is locked (optional)
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "fp_poly"
@@ -773,8 +819,8 @@ class FpPoly(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: Optional[Width] = field(
+        default=None, metadata={"description": "Line width", "required": False}
     )
     tstamp: Optional[Tstamp] = field(
         default=None, metadata={"description": "Timestamp UUID", "required": False}
@@ -782,12 +828,16 @@ class FpPoly(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    fill: Optional[Fill] = field(
-        default=None, metadata={"description": "Fill definition", "required": False}
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+        metadata={"description": "Fill definition", "required": False},
     )
     locked: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether thepolygon is locked", "required": False},
+    )
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier", "required": False}
     )
 
 
@@ -897,8 +947,8 @@ class FpText(KiCadObject):
         metadata={"description": "Text type (reference | value | user)"},
     )
     text: str = field(default="", metadata={"description": "Text content"})
-    at: At = field(
-        default_factory=lambda: At(),
+    at: FpTextAt = field(
+        default_factory=lambda: FpTextAt(),
         metadata={"description": "Position and rotation coordinates"},
     )
     unlocked: Optional[OptionalFlag] = field(
@@ -918,8 +968,8 @@ class FpText(KiCadObject):
     effects: Effects = field(
         default_factory=lambda: Effects(), metadata={"description": "Text effects"}
     )
-    uuid: Uuid = field(
-        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    uuid: Optional[Uuid] = field(
+        default=None, metadata={"description": "Unique identifier"}
     )
 
 

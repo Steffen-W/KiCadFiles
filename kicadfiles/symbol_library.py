@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, Effects, Length, Property
+from .base_types import At, Effects, Length, Property, Text
 from .enums import PinElectricalType, PinGraphicStyle
 from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle
 from .text_and_documents import Generator, GeneratorVersion, Version
@@ -302,6 +302,7 @@ class Symbol(KiCadObject):
         polygons: List of polygon graphical items (optional)
         polylines: List of polyline graphical items (optional)
         rectangles: List of rectangle graphical items (optional)
+        text: List of text elements (optional)
         pins: List of symbol pins (optional)
         units: List of child symbol units (optional)
         unit_name: Display name for subunits (optional)
@@ -399,6 +400,10 @@ class Symbol(KiCadObject):
             "description": "List of rectangle graphical items",
             "required": False,
         },
+    )
+    text: Optional[List[Text]] = field(
+        default_factory=list,
+        metadata={"description": "List of text elements", "required": False},
     )
     pins: Optional[List[Pin]] = field(
         default_factory=list,

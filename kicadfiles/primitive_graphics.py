@@ -3,13 +3,13 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .base_element import KiCadObject
+from .base_element import KiCadObject, OptionalFlag
 from .base_types import (
     Center,
     End,
     Fill,
     Layer,
-    Pos,
+    Mid,
     Pts,
     Radius,
     Start,
@@ -35,7 +35,7 @@ class Arc(KiCadObject):
 
     Args:
         start: Start point of the arc
-        mid: Mid point of the arc
+        mid: Mid point of the arc (optional)
         end: End point of the arc
         stroke: Stroke definition for outline
         fill: Fill definition for filling
@@ -47,8 +47,9 @@ class Arc(KiCadObject):
         default_factory=lambda: Start(),
         metadata={"description": "Start point of the arc"},
     )
-    mid: Pos = field(
-        default_factory=lambda: Pos(), metadata={"description": "Mid point of the arc"}
+    mid: Optional[Mid] = field(
+        default=None,
+        metadata={"description": "Mid point of the arc", "required": False},
     )
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point of the arc"}
@@ -203,7 +204,7 @@ class Polyline(KiCadObject):
     Args:
         pts: Polyline connection points
         stroke: Stroke definition for outline (optional)
-        fill: Fill definition for filling (optional)
+        fill: Fill definition (optional)
         uuid: Unique identifier (optional)
     """
 
@@ -217,9 +218,9 @@ class Polyline(KiCadObject):
         default=None,
         metadata={"description": "Stroke definition for outline", "required": False},
     )
-    fill: Optional[Fill] = field(
-        default=None,
-        metadata={"description": "Fill definition for filling", "required": False},
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+        metadata={"description": "Fill definition", "required": False},
     )
     uuid: Optional[Uuid] = field(
         default=None,
@@ -270,6 +271,7 @@ class Rectangle(KiCadObject):
         end: End point of the rectangle
         stroke: Stroke definition for outline
         fill: Fill definition for filling
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "rectangle"
@@ -289,4 +291,8 @@ class Rectangle(KiCadObject):
     fill: Fill = field(
         default_factory=lambda: Fill(),
         metadata={"description": "Fill definition for filling"},
+    )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
     )

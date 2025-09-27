@@ -3,11 +3,143 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from .advanced_graphics import FpCircle, FpRect, FpText
+from .advanced_graphics import FpArc, FpCircle, FpLine, FpPoly, FpRect, FpText
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, Clearance, Layer, Property, Rotate, Uuid, Width, Xyz
+from .base_types import At, Clearance, Layer, Property, Uuid, Width, Xyz
 from .pad_and_drill import Pad
-from .text_and_documents import Generator, GeneratorVersion, Scale, Tedit, Version
+from .text_and_documents import Descr, Generator, GeneratorVersion, Tedit, Version
+
+
+@dataclass
+class FileName(KiCadObject):
+    """Name definition token for embedded files.
+
+    The 'name' token defines a file name in the format::
+
+        (name "FILENAME")
+
+    Args:
+        value: File name string
+    """
+
+    __token_name__ = "name"
+
+    value: str = field(default="", metadata={"description": "File name string"})
+
+
+@dataclass
+class FileType(KiCadObject):
+    """Type definition token for embedded files.
+
+    The 'type' token defines a file type in the format::
+
+        (type TYPE)
+
+    Args:
+        value: File type string
+    """
+
+    __token_name__ = "type"
+
+    value: str = field(default="", metadata={"description": "File type string"})
+
+
+@dataclass
+class FileData(KiCadObject):
+    """Data definition token for embedded files.
+
+    The 'data' token defines base64 encoded file data in the format::
+
+        (data |DATA_LINE1|
+              |DATA_LINE2|
+              ...)
+
+    Args:
+        lines: List of base64 encoded data lines
+    """
+
+    __token_name__ = "data"
+
+    lines: List[str] = field(
+        default_factory=list,
+        metadata={"description": "List of base64 encoded data lines"},
+    )
+
+
+@dataclass
+class FileChecksum(KiCadObject):
+    """Checksum definition token for embedded files.
+
+    The 'checksum' token defines a file checksum in the format::
+
+        (checksum "CHECKSUM")
+
+    Args:
+        value: File checksum string
+    """
+
+    __token_name__ = "checksum"
+
+    value: str = field(default="", metadata={"description": "File checksum string"})
+
+
+@dataclass
+class EmbeddedFile(KiCadObject):
+    """Embedded file definition token.
+
+    The 'file' token defines an embedded file in the format::
+
+        (file
+            (name "FILENAME")
+            (type TYPE)
+            [(data |DATA|)]
+            [(checksum "CHECKSUM")]
+        )
+
+    Args:
+        name: File name token
+        type: File type token
+        data: Base64 encoded file data token (optional)
+        checksum: File checksum token (optional)
+    """
+
+    __token_name__ = "file"
+
+    name: FileName = field(
+        default_factory=lambda: FileName(), metadata={"description": "File name token"}
+    )
+    type: FileType = field(
+        default_factory=lambda: FileType(), metadata={"description": "File type token"}
+    )
+    data: Optional[FileData] = field(
+        default=None,
+        metadata={"description": "Base64 encoded file data token", "required": False},
+    )
+    checksum: Optional[FileChecksum] = field(
+        default=None, metadata={"description": "File checksum token", "required": False}
+    )
+
+
+@dataclass
+class EmbeddedFiles(KiCadObject):
+    """Embedded files container definition token.
+
+    The 'embedded_files' token defines a container for embedded files in the format::
+
+        (embedded_files
+            (file ...)
+            ...
+        )
+
+    Args:
+        files: List of embedded files
+    """
+
+    __token_name__ = "embedded_files"
+
+    files: List[EmbeddedFile] = field(
+        default_factory=list, metadata={"description": "List of embedded files"}
+    )
 
 
 @dataclass
@@ -35,22 +167,22 @@ class Attr(KiCadObject):
     type: str = field(
         default="", metadata={"description": "Footprint type (smd | through_hole)"}
     )
-    board_only: Optional[bool] = field(
-        default=None,
+    board_only: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("board_only"),
         metadata={
             "description": "Whether footprint is only defined in board",
             "required": False,
         },
     )
-    exclude_from_pos_files: Optional[bool] = field(
-        default=None,
+    exclude_from_pos_files: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_pos_files"),
         metadata={
             "description": "Whether to exclude from position files",
             "required": False,
         },
     )
-    exclude_from_bom: Optional[bool] = field(
-        default=None,
+    exclude_from_bom: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_bom"),
         metadata={
             "description": "Whether to exclude from BOM files",
             "required": False,
@@ -152,6 +284,82 @@ class Tags(KiCadObject):
 
 
 @dataclass
+class ModelAt(KiCadObject):
+    """3D model position definition token.
+
+    The 'at' token for 3D models in the format:
+    (at (xyz X Y Z))
+
+    Args:
+        xyz: 3D coordinates for model position
+    """
+
+    __token_name__ = "at"
+
+    xyz: Xyz = field(
+        default_factory=lambda: Xyz(),
+        metadata={"description": "3D coordinates for model position"},
+    )
+
+
+@dataclass
+class ModelScale(KiCadObject):
+    """3D model scale definition token.
+
+    The 'scale' token for 3D models in the format:
+    (scale (xyz X Y Z))
+
+    Args:
+        xyz: 3D scale factors for model
+    """
+
+    __token_name__ = "scale"
+
+    xyz: Xyz = field(
+        default_factory=lambda: Xyz(x=1.0, y=1.0, z=1.0),
+        metadata={"description": "3D scale factors for model"},
+    )
+
+
+@dataclass
+class ModelRotate(KiCadObject):
+    """3D model rotation definition token.
+
+    The 'rotate' token for 3D models in the format:
+    (rotate (xyz X Y Z))
+
+    Args:
+        xyz: 3D rotation angles for model
+    """
+
+    __token_name__ = "rotate"
+
+    xyz: Xyz = field(
+        default_factory=lambda: Xyz(),
+        metadata={"description": "3D rotation angles for model"},
+    )
+
+
+@dataclass
+class ModelOffset(KiCadObject):
+    """3D model offset definition token.
+
+    The 'offset' token for 3D models in the format:
+    (offset (xyz X Y Z))
+
+    Args:
+        xyz: 3D offset coordinates for model
+    """
+
+    __token_name__ = "offset"
+
+    xyz: Xyz = field(
+        default_factory=lambda: Xyz(),
+        metadata={"description": "3D offset coordinates for model"},
+    )
+
+
+@dataclass
 class Model(KiCadObject):
     """3D model definition token for footprints.
 
@@ -166,9 +374,10 @@ class Model(KiCadObject):
 
     Args:
         path: Path and file name of the 3D model
-        at: 3D position coordinates relative to the footprint
-        scale: Model scale factor for each 3D axis
-        rotate: Model rotation for each 3D axis relative to the footprint
+        at: 3D position coordinates relative to the footprint (optional)
+        scale: Model scale factor for each 3D axis (optional)
+        rotate: Model rotation for each 3D axis relative to the footprint (optional)
+        offset: Model offset coordinates (optional)
     """
 
     __token_name__ = "model"
@@ -176,19 +385,30 @@ class Model(KiCadObject):
     path: str = field(
         default="", metadata={"description": "Path and file name of the 3D model"}
     )
-    at: At = field(
-        default_factory=lambda: At(xyz=Xyz()),
-        metadata={"description": "3D position coordinates relative to the footprint"},
-    )
-    scale: Scale = field(
-        default_factory=lambda: Scale(xyz=Xyz()),
-        metadata={"description": "Model scale factor for each 3D axis"},
-    )
-    rotate: Rotate = field(
-        default_factory=lambda: Rotate(xyz=Xyz()),
+    at: Optional[ModelAt] = field(
+        default=None,
         metadata={
-            "description": "Model rotation for each 3D axis relative to the footprint"
+            "description": "3D position coordinates relative to the footprint",
+            "required": False,
         },
+    )
+    scale: Optional[ModelScale] = field(
+        default=None,
+        metadata={
+            "description": "Model scale factor for each 3D axis",
+            "required": False,
+        },
+    )
+    rotate: Optional[ModelRotate] = field(
+        default=None,
+        metadata={
+            "description": "Model rotation for each 3D axis relative to the footprint",
+            "required": False,
+        },
+    )
+    offset: Optional[ModelOffset] = field(
+        default=None,
+        metadata={"description": "Model offset coordinates", "required": False},
     )
 
 
@@ -261,10 +481,15 @@ class Footprint(KiCadObject):
         fp_rects: List of footprint rectangles (optional)
         fp_circles: List of footprint circles (optional)
         fp_texts: List of footprint texts (optional)
+        fp_lines: List of footprint lines (optional)
+        fp_arcs: List of footprint arcs (optional)
+        fp_polys: List of footprint polygons (optional)
         embedded_fonts: Embedded fonts settings (optional)
+        embedded_files: Embedded files container (optional)
     """
 
     __token_name__ = "footprint"
+    __legacy_token_names__ = ["module"]
 
     library_link: Optional[str] = field(
         default=None,
@@ -287,8 +512,8 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    placed: Optional[bool] = field(
-        default=None,
+    placed: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("placed"),
         metadata={
             "description": "Whether the footprint has been placed",
             "required": False,
@@ -315,11 +540,11 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    descr: Optional[str] = field(
+    descr: Optional[Descr] = field(
         default=None,
         metadata={"description": "Description of the footprint", "required": False},
     )
-    tags: Optional[str] = field(
+    tags: Optional[Tags] = field(
         default=None,
         metadata={"description": "Search tags for the footprint", "required": False},
     )
@@ -416,9 +641,25 @@ class Footprint(KiCadObject):
         default_factory=list,
         metadata={"description": "List of footprint texts", "required": False},
     )
+    fp_lines: Optional[List[FpLine]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint lines", "required": False},
+    )
+    fp_arcs: Optional[List[FpArc]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint arcs", "required": False},
+    )
+    fp_polys: Optional[List[FpPoly]] = field(
+        default_factory=list,
+        metadata={"description": "List of footprint polygons", "required": False},
+    )
     embedded_fonts: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
         metadata={"description": "Embedded fonts settings", "required": False},
+    )
+    embedded_files: Optional[EmbeddedFiles] = field(
+        default=None,
+        metadata={"description": "Embedded files container", "required": False},
     )
 
     @classmethod
