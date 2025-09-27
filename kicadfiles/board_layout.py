@@ -146,7 +146,7 @@ class Segment(KiCadObject):
         metadata={"description": "Layer the track segment resides on"},
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
@@ -288,7 +288,7 @@ class Via(KiCadObject):
         metadata={"description": "Via type (blind | micro)", "required": False},
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
@@ -526,6 +526,6 @@ class KicadPcb(KiCadObject):
         """
         if not file_path.endswith(".kicad_pcb"):
             raise ValueError("Unsupported file extension. Expected: .kicad_pcb")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)

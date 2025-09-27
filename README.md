@@ -41,7 +41,7 @@ layer = Layer(name="F.Cu")
 at_obj = At.from_sexpr("(at 10.0 20.0 90.0)", ParseStrictness.STRICT)
 
 # Convert back to S-expression string
-sexpr_str = at_obj.to_sexpr_str(pretty_print=False)
+sexpr_str = at_obj.to_sexpr_str()
 print(sexpr_str)  # Output: (at 10.0 20.0 90.0)
 ```
 
@@ -58,7 +58,7 @@ except ValueError as e:
 
 # FAILSAFE mode: Logs warnings and uses defaults for missing fields
 at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
-print(f"Angle defaulted to: {at_obj.angle}")  # Output: None
+print(f"Angle defaulted to: {at_obj.angle}")  # Output: 0.0
 
 # SILENT mode: Silently uses defaults for missing fields
 at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.SILENT)
@@ -92,7 +92,7 @@ footprint = Footprint(
 )
 
 # Convert to S-expression
-sexpr = footprint.to_sexpr_str(pretty_print=True)
+sexpr = footprint.to_sexpr_str()
 print(sexpr)
 ```
 
@@ -128,24 +128,20 @@ These classes represent complete KiCad file formats and support both `from_file(
 
 ## Error Handling
 
-The library provides three levels of error handling:
-
-1. **STRICT**: Raises `ValueError` for any parsing errors
-2. **FAILSAFE**: Logs warnings and uses default values for missing fields
-3. **SILENT**: Silently uses default values without warnings
+| Mode | Behavior |
+|------|----------|
+| **STRICT** | Raises `ValueError` on errors |
+| **FAILSAFE** | Logs warnings, uses defaults |
+| **SILENT** | Uses defaults silently |
 
 ```python
-# Handle parsing errors gracefully
-from kicadfiles import Footprint, ParseStrictness
-import logging
+from kicadfiles import At, ParseStrictness
 
-logging.basicConfig(level=logging.WARNING)
+# STRICT: Will raise ValueError for missing angle
+at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.STRICT)
 
-# This will log warnings but continue parsing
-footprint = Footprint.from_sexpr(
-    "(footprint incomplete_data)",
-    ParseStrictness.FAILSAFE
-)
+# FAILSAFE: Logs warning, angle defaults to 0.0
+at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
 ```
 
 For a complete overview of all classes and their module organization, see **[kicadfiles/CLASSES.md](kicadfiles/CLASSES.md)**.

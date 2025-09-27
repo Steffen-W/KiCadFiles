@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag
-from .base_types import Anchor, At, Clearance, Layers, Offset, Size, Width
+from .base_types import Anchor, AtXY, Clearance, Layers, Offset, Size, Uuid, Width
 from .enums import PadShape, PadType, ZoneConnection
 
 
@@ -287,8 +287,8 @@ class Drill(KiCadObject):
 
     __token_name__ = "drill"
 
-    oval: Optional[bool] = field(
-        default=None,
+    oval: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("oval"),
         metadata={
             "description": "Whether the drill is oval instead of round",
             "required": False,
@@ -420,8 +420,9 @@ class Pad(KiCadObject):
         default=PadShape.CIRCLE,
         metadata={"description": "Pad shape"},
     )
-    at: At = field(
-        default_factory=lambda: At(), metadata={"description": "Position and rotation"}
+    at: AtXY = field(
+        default_factory=lambda: AtXY(),
+        metadata={"description": "Position and rotation"},
     )
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Pad dimensions"}
@@ -448,7 +449,7 @@ class Pad(KiCadObject):
         default=None,
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    roundrect_rratio: Optional[float] = field(
+    roundrect_rratio: Optional[RoundrectRratio] = field(
         default=None,
         metadata={"description": "Round rectangle corner ratio", "required": False},
     )
@@ -462,7 +463,7 @@ class Pad(KiCadObject):
     net: Optional[Net] = field(
         default=None, metadata={"description": "Net connection", "required": False}
     )
-    uuid: Optional[str] = field(
+    uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
     )
     pinfunction: Optional[str] = field(

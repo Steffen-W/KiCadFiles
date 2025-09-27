@@ -21,7 +21,7 @@ from typing import (
     get_type_hints,
 )
 
-from .sexpr_parser import SExpr, SExprParser, sexpr_to_str, str_to_sexpr
+from .sexpr_parser import SExpr, SExprParser, str_to_sexpr
 
 T = TypeVar("T", bound="KiCadObject")
 
@@ -571,31 +571,17 @@ class KiCadObject(ABC):
                 elif isinstance(value, OptionalFlag):
                     # Only add the flag to the result if it was found
                     if value.__found__:
-                        sexpr_output = value.to_sexpr()
-                        if sexpr_output:  # Don't add empty strings
-                            # Parse the string output back to proper S-expression format
-                            if sexpr_output.startswith("(") and sexpr_output.endswith(
-                                ")"
-                            ):
-                                # It's a token like "(hide)" or "(hide yes)"
-                                inner = sexpr_output[1:-1]  # Remove parentheses
-                                parts = inner.split(" ", 1)
-                                if len(parts) == 1:
-                                    result.append(parts[0])  # Simple flag
-                                else:
-                                    result.append(
-                                        [parts[0], parts[1]]
-                                    )  # Flag with value
-                            else:
-                                # It's a simple string
-                                result.append(sexpr_output)
+                        if value.token_value:
+                            result.append([value.token, value.token_value])
+                        else:
+                            result.append([value.token])
                 else:
-                    # Primitives as named fields: (field_name value)
+                    # Primitives are added directly, not as named fields
                     # Convert enum to its value for serialization
                     if isinstance(value, Enum):
-                        result.append([field_info.name, value.value])
+                        result.append(value.value)
                     else:
-                        result.append([field_info.name, value])
+                        result.append(value)
 
         return result
 
@@ -648,9 +634,79 @@ class KiCadObject(ABC):
     #     """Hash implementation - required when implementing __eq__."""
     #     return hash((self.__class__.__name__, self.__token_name__))
 
-    def to_sexpr_str(self, pretty_print: bool = True) -> str:
-        """Convert to formatted S-expression string."""
-        return sexpr_to_str(self.to_sexpr(), pretty_print=pretty_print)
+    def to_sexpr_str(self, _indent_level: int = 0) -> str:
+        """Convert to KiCad-formatted S-expression string using to_sexpr() with custom formatting.
+
+        Args:
+            _indent_level: Internal parameter for recursion depth
+
+        Returns:
+            Formatted S-expression string
+        """
+        sexpr = self.to_sexpr()
+        return self._format_sexpr_kicad_style(sexpr, _indent_level)
+
+    def _format_sexpr_kicad_style(self, sexpr: Any, indent_level: int = 0) -> str:
+        """Format S-expression in KiCad style with tabs and unquoted tokens."""
+        if not isinstance(sexpr, list):
+            return self._format_primitive_value(sexpr)
+
+        if not sexpr:
+            return "()"
+
+        current_indent = "\t" * indent_level
+        token_name = str(sexpr[0])
+
+        if len(sexpr) == 1:
+            return f"{current_indent}({token_name})"
+
+        # Separate primitives and nested lists
+        primitive_values = []
+        nested_lists = []
+
+        for item in sexpr[1:]:
+            if isinstance(item, list):
+                nested_lists.append(item)
+            else:
+                # Special handling for Type and Uuid tokens - don't quote their values
+                if token_name in ("type", "uuid") and isinstance(item, str):
+                    primitive_values.append(item)  # No quotes for Type/Uuid values
+                else:
+                    primitive_values.append(self._format_primitive_value(item))
+
+        # Check for single line format: only primitives and short enough
+        if not nested_lists and len(sexpr) <= 4:
+            all_items = [token_name] + primitive_values
+            return f"{current_indent}({' '.join(all_items)})"
+
+        # Multi-line format: primitives on first line, nested lists indented
+        primitive_part = f" {' '.join(primitive_values)}" if primitive_values else ""
+        lines = [f"{current_indent}({token_name}{primitive_part}"]
+
+        for nested_item in nested_lists:
+            nested_formatted = self._format_sexpr_kicad_style(
+                nested_item, indent_level + 1
+            )
+            lines.append(nested_formatted)
+
+        lines.append(f"{current_indent})")
+        return "\n".join(lines)
+
+    def _format_primitive_value(self, value: Any) -> str:
+        """Format primitive values for S-expression serialization."""
+        if isinstance(value, bool):
+            return "yes" if value else "no"
+        elif isinstance(value, Enum):
+            return str(value.value)  # Enum values without quotes
+        elif isinstance(value, str):
+            # Check if this is a boolean-like token value (yes/no) - don't quote these
+            if value in ("yes", "no"):
+                return value
+            # Escape any quotes within the string value
+            escaped_value = value.replace('"', '\\"')
+            return f'"{escaped_value}"'  # Regular strings are quoted
+        else:
+            return str(value)  # Numbers and other values as-is
 
     def __str__(self) -> str:
         """String representation showing only non-None values (except for required fields)."""
@@ -707,27 +763,14 @@ class KiCadObject(ABC):
         return f"{self.__class__.__name__}({', '.join(non_none_fields)})"
 
 
-class TokenPreference(Enum):
-    """Preference for how the token should be serialized when both formats are valid."""
-
-    TOKEN = "token"  # Prefer (locked) format
-    STRING = "string"  # Prefer "locked" format
-    VALUE_EXPLICIT = (
-        "value_explicit"  # Prefer (locked yes) even if value could be implicit
-    )
-    VALUE_IMPLICIT = "value_implicit"  # Prefer (locked) when value is default/boolean
-
-
 @dataclass
 class OptionalFlag:
-    """Enhanced flag container for optional tokens in S-expressions with preference support.
+    """Enhanced flag container for optional tokens in S-expressions.
 
     Can handle:
     1. Simple presence flags: (locked) -> token="locked", is_token=True, token_value=None
     2. Tokens with values: (locked yes) -> token="locked", is_token=True, token_value="yes"
     3. Simple strings: "locked" -> token="locked", is_token=False, token_value=None
-
-    The preference parameter allows specifying preferred serialization format for future use.
     """
 
     token: str
@@ -737,26 +780,19 @@ class OptionalFlag:
     token_value: Optional[str] = (
         None  # Additional value after token like "yes" in (locked yes)
     )
-    preference: TokenPreference = (
-        TokenPreference.TOKEN
-    )  # Preferred serialization format
     __found__: bool = False
 
     def __str__(self) -> str:
         """Clean string representation."""
-        pref_str = (
-            f" pref:{self.preference.value}"
-            if self.preference != TokenPreference.TOKEN
-            else ""
-        )
-
         if self.is_token:
             if self.token_value:
-                return f"OptionalFlag(({self.token} {self.token_value})={self.__found__}{pref_str})"
+                return (
+                    f"OptionalFlag(({self.token} {self.token_value})={self.__found__})"
+                )
             else:
-                return f"OptionalFlag(({self.token})={self.__found__}{pref_str})"
+                return f"OptionalFlag(({self.token})={self.__found__})"
         else:
-            return f"OptionalFlag({self.token}={self.__found__}{pref_str})"
+            return f"OptionalFlag({self.token}={self.__found__})"
 
     def __repr__(self) -> str:
         """Developer-friendly representation."""
@@ -768,11 +804,8 @@ class OptionalFlag:
         if not self.is_token:
             parts.append("string")
 
-        if self.preference != TokenPreference.TOKEN:
-            parts.append(f"pref={self.preference.value}")
-
-        if not self.__found__:
-            parts.append("None")
+        # Always show found status for consistency
+        parts.append(f"found={self.__found__}")
 
         return f"OptionalFlag({', '.join(parts)})"
 
@@ -786,58 +819,35 @@ class OptionalFlag:
             and self.token_value == other.token_value
             and self.__found__ == other.__found__
         )
-        # Note: preference is not included in equality - it's a formatting hint
 
     def __hash__(self) -> int:
         """Hash implementation - required when implementing __eq__."""
         return hash((self.token, self.is_token, self.token_value, self.__found__))
 
     def __bool__(self) -> bool:
-        """Boolean conversion - returns True if flag was found."""
-        return self.__found__
+        """Boolean conversion - returns the logical boolean value based on token_value."""
+        if not self.__found__:
+            return False
+        # If there's a token_value, interpret yes/no
+        if self.token_value:
+            return self.token_value.lower() in ("yes", "true", "1")
+        # If no token_value, the presence of the flag means True
+        return True
 
-    def to_sexpr(self, respect_preference: bool = True) -> str:
-        """Convert back to S-expression format for round-trip.
-
-        Args:
-            respect_preference: If True, use preference to guide format choice when ambiguous
-        """
+    def to_sexpr(self) -> str:
+        """Convert back to S-expression format for round-trip."""
         if not self.__found__:
             return ""
 
-        # If we have explicit format information, use it (unless overridden by preference)
-        if (
-            respect_preference
-            and self.preference == TokenPreference.STRING
-            and not self.token_value
-        ):
-            # Force string format if preferred and no value
-            return self.token
-
         if self.is_token:
             if self.token_value:
-                # Handle preference for value display
-                if (
-                    respect_preference
-                    and self.preference == TokenPreference.VALUE_IMPLICIT
-                    and self.token_value.lower() in ["true", "yes", "1"]
-                ):
-                    # Prefer implicit format for boolean-like values
-                    return f"({self.token})"
-                else:
-                    return f"({self.token} {self.token_value})"
+                return f"({self.token} {self.token_value})"
             else:
                 return f"({self.token})"
         else:
-            # Handle preference for token format
-            if respect_preference and self.preference == TokenPreference.TOKEN:
-                return f"({self.token})"
-            else:
-                return self.token
+            return self.token
 
     @classmethod
-    def create_bool_flag(
-        cls, token: str, preference: TokenPreference = TokenPreference.TOKEN
-    ) -> "OptionalFlag":
+    def create_bool_flag(cls, token: str) -> "OptionalFlag":
         """Create a simple boolean flag (presence indicates True)."""
-        return cls(token=token, is_token=True, preference=preference)
+        return cls(token=token, is_token=True)

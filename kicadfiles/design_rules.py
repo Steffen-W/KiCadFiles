@@ -320,7 +320,7 @@ class KiCadDesignRules(KiCadObject):
 
         return wrapped_content
 
-    def to_dru_str(self, pretty_print: bool = True) -> str:
+    def to_dru_str(self) -> str:
         """Convert to .kicad_dru format string (without root token wrapper).
 
         This method produces the native .kicad_dru file format.
@@ -330,13 +330,13 @@ class KiCadDesignRules(KiCadObject):
 
         # Add version
         version_sexpr = ["version", self.version.version]
-        lines.append(sexpr_to_str(version_sexpr, pretty_print=pretty_print))
+        lines.append(sexpr_to_str(version_sexpr))
 
         # Add rules
         if self.rules:
             for rule in self.rules:
                 rule_sexpr = rule.to_sexpr()
-                lines.append(sexpr_to_str(rule_sexpr, pretty_print=pretty_print))
+                lines.append(sexpr_to_str(rule_sexpr))
 
         return "\n".join(lines)
 
@@ -347,6 +347,6 @@ class KiCadDesignRules(KiCadObject):
             file_path: Path to write the .kicad_dru file
             encoding: File encoding (default: utf-8)
         """
-        content = self.to_dru_str(pretty_print=True)
+        content = self.to_dru_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)

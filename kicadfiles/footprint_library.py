@@ -7,7 +7,6 @@ from .advanced_graphics import FpCircle, FpRect, FpText
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import At, Clearance, Layer, Property, Rotate, Uuid, Width, Xyz
 from .pad_and_drill import Pad
-from .schematic_system import EmbeddedFonts
 from .text_and_documents import Generator, GeneratorVersion, Scale, Tedit, Version
 
 
@@ -75,25 +74,6 @@ class NetTiePadGroups(KiCadObject):
 
     groups: List[str] = field(
         default_factory=list, metadata={"description": "List of pad group strings"}
-    )
-
-
-@dataclass
-class OnBoard(KiCadObject):
-    """On board flag definition token.
-
-    The 'on_board' token defines whether a footprint should be exported to the PCB in the format::
-
-        (on_board yes | no)
-
-    Args:
-        value: Whether footprint is exported to PCB
-    """
-
-    __token_name__ = "on_board"
-
-    value: bool = field(
-        default=True, metadata={"description": "Whether footprint is exported to PCB"}
     )
 
 
@@ -436,8 +416,8 @@ class Footprint(KiCadObject):
         default_factory=list,
         metadata={"description": "List of footprint texts", "required": False},
     )
-    embedded_fonts: Optional[EmbeddedFonts] = field(
-        default=None,
+    embedded_fonts: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
         metadata={"description": "Embedded fonts settings", "required": False},
     )
 
@@ -464,7 +444,7 @@ class Footprint(KiCadObject):
         """
         if not file_path.endswith(".kicad_mod"):
             raise ValueError("Unsupported file extension. Expected: .kicad_mod")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)
 

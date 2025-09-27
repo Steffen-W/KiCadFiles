@@ -115,7 +115,6 @@ class DocstringFixer(ast.NodeVisitor):
 
         return fields
 
-
     def extract_field_info(self, call: ast.Call) -> Tuple[Optional[str], bool]:
         """Extract description and optional status from field(metadata={...}) call."""
         if not (isinstance(call.func, ast.Name) and call.func.id == "field"):
@@ -302,10 +301,7 @@ def main():
     print("\nRunning Black formatter...")
     try:
         result = subprocess.run(
-            ["black", str(kicadfiles_dir)],
-            capture_output=True,
-            text=True,
-            check=True
+            ["black", str(kicadfiles_dir)], capture_output=True, text=True, check=True
         )
         print("Black formatting completed successfully")
         if result.stdout.strip():

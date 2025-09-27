@@ -1,6 +1,7 @@
 """Primitive graphics elements for KiCad S-expressions - basic geometric shapes."""
 
 from dataclasses import dataclass, field
+from typing import Optional
 
 from .base_element import KiCadObject
 from .base_types import (
@@ -193,10 +194,17 @@ class Polyline(KiCadObject):
 
     The 'polyline' token defines a connected series of line segments in the format::
 
-        (polyline (pts (xy X Y) (xy X Y) ...))
+        (polyline
+            (pts (xy X Y) (xy X Y) ...)
+            STROKE_DEFINITION
+            FILL_DEFINITION
+        )
 
     Args:
         pts: Polyline connection points
+        stroke: Stroke definition for outline (optional)
+        fill: Fill definition for filling (optional)
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "polyline"
@@ -204,6 +212,18 @@ class Polyline(KiCadObject):
     pts: Pts = field(
         default_factory=lambda: Pts(),
         metadata={"description": "Polyline connection points"},
+    )
+    stroke: Optional[Stroke] = field(
+        default=None,
+        metadata={"description": "Stroke definition for outline", "required": False},
+    )
+    fill: Optional[Fill] = field(
+        default=None,
+        metadata={"description": "Fill definition for filling", "required": False},
+    )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 

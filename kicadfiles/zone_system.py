@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject
-from .base_types import Angle, Clearance, Fill, Pts
+from .base_types import Angle, Clearance, Fill, Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
 
@@ -94,25 +94,6 @@ class FillSegments(KiCadObject):
 
     segments: List[Any] = field(
         default_factory=list, metadata={"description": "List of fill segments"}
-    )
-
-
-@dataclass
-class FilledAreasThickness(KiCadObject):
-    """Filled areas thickness flag definition token.
-
-    The 'filled_areas_thickness' token defines whether zone line width is used in the format::
-
-        (filled_areas_thickness no)
-
-    Args:
-        use_thickness: Whether to use line thickness
-    """
-
-    __token_name__ = "filled_areas_thickness"
-
-    use_thickness: bool = field(
-        default=False, metadata={"description": "Whether to use line thickness"}
     )
 
 
@@ -380,23 +361,6 @@ class IslandRemovalMode(KiCadObject):
 
 
 @dataclass
-class KeepEndLayers(KiCadObject):
-    """Keep end layers flag definition token.
-
-    The 'keep_end_layers' token specifies that top and bottom layers should be retained in the format::
-
-        (keep_end_layers)
-
-    Args:
-        value: Keep end layers flag
-    """
-
-    __token_name__ = "keep_end_layers"
-
-    value: bool = field(default=True, metadata={"description": "Keep end layers flag"})
-
-
-@dataclass
 class Keepout(KiCadObject):
     """Keepout zone definition token.
 
@@ -544,44 +508,6 @@ class Priority(KiCadObject):
 
 
 @dataclass
-class RemoveUnusedLayer(KiCadObject):
-    """Remove unused layer flag definition token.
-
-    The 'remove_unused_layer' token specifies copper removal from unused layers in the format::
-
-        (remove_unused_layer)
-
-    Args:
-        value: Remove unused layer flag
-    """
-
-    __token_name__ = "remove_unused_layer"
-
-    value: bool = field(
-        default=True, metadata={"description": "Remove unused layer flag"}
-    )
-
-
-@dataclass
-class RemoveUnusedLayers(KiCadObject):
-    """Remove unused layers flag definition token.
-
-    The 'remove_unused_layers' token specifies copper removal from unused layers in the format::
-
-        (remove_unused_layers)
-
-    Args:
-        value: Remove unused layers flag
-    """
-
-    __token_name__ = "remove_unused_layers"
-
-    value: bool = field(
-        default=True, metadata={"description": "Remove unused layers flag"}
-    )
-
-
-@dataclass
 class Smoothing(KiCadObject):
     """Zone smoothing definition token.
 
@@ -665,7 +591,9 @@ class Zone(KiCadObject):
     net: int = field(default=0, metadata={"description": "Net number"})
     net_name: str = field(default="", metadata={"description": "Net name"})
     layer: str = field(default="", metadata={"description": "Layer name"})
-    uuid: str = field(default="", metadata={"description": "Unique identifier"})
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    )
     min_thickness: float = field(
         default=0.0, metadata={"description": "Minimum thickness"}
     )

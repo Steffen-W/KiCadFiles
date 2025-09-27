@@ -48,6 +48,7 @@ token_preference       -> base_element.TokenPreference
 anchor                 -> base_types.Anchor
 angle                  -> base_types.Angle
 at                     -> base_types.At
+at                     -> base_types.AtXY
 center                 -> base_types.Center
 clearance              -> base_types.Clearance
 color                  -> base_types.Color
@@ -61,6 +62,7 @@ id                     -> base_types.Id
 justify                -> base_types.Justify
 layer                  -> base_types.Layer
 layers                 -> base_types.Layers
+length                 -> base_types.Length
 linewidth              -> base_types.Linewidth
 name                   -> base_types.Name
 offset                 -> base_types.Offset
@@ -88,34 +90,38 @@ xyz                    -> base_types.Xyz
 ### board_layout.py - PCB Board Design
 
 ```python
+footprint              -> board_layout.Footprint
 general                -> board_layout.General
 kicad_pcb              -> board_layout.KicadPcb
+net                    -> board_layout.Net
 net_name               -> board_layout.NetName
 nets                   -> board_layout.Nets
 orientation            -> board_layout.Orientation
+page                   -> board_layout.Page
 path                   -> board_layout.Path
 private_layers         -> board_layout.PrivateLayers
 segment                -> board_layout.Segment
 setup                  -> board_layout.Setup
 tracks                 -> board_layout.Tracks
 via                    -> board_layout.Via
-via_size               -> board_layout.ViaSize
+size                   -> board_layout.ViaSize
 vias                   -> board_layout.Vias
+zone                   -> board_layout.Zone
 ```
 
 ### design_rules.py - Design Rule Check Definitions
 
 ```python
-constraint_max         -> design_rules.ConstraintMax
-constraint_min         -> design_rules.ConstraintMin
-constraint_opt         -> design_rules.ConstraintOpt
-design_rule            -> design_rules.DesignRule
-design_rule_condition  -> design_rules.DesignRuleCondition
-design_rule_constraint -> design_rules.DesignRuleConstraint
-design_rule_layer      -> design_rules.DesignRuleLayer
-design_rule_priority   -> design_rules.DesignRulePriority
-design_rule_severity   -> design_rules.DesignRuleSeverity
-kicad_design_rules     -> design_rules.KiCadDesignRules
+max                    -> design_rules.ConstraintMax
+min                    -> design_rules.ConstraintMin
+opt                    -> design_rules.ConstraintOpt
+rule                   -> design_rules.DesignRule
+condition              -> design_rules.DesignRuleCondition
+constraint             -> design_rules.DesignRuleConstraint
+layer                  -> design_rules.DesignRuleLayer
+priority               -> design_rules.DesignRulePriority
+severity               -> design_rules.DesignRuleSeverity
+kicad_dru              -> design_rules.KiCadDesignRules
 ```
 
 ### enums.py - Common Enumeration Types
@@ -149,7 +155,6 @@ zone_keepout_setting   -> enums.ZoneKeepoutSetting
 attr                   -> footprint_library.Attr
 autoplace_cost180      -> footprint_library.AutoplaceCost180
 autoplace_cost90       -> footprint_library.AutoplaceCost90
-footprint              -> footprint_library.Footprint
 footprints             -> footprint_library.Footprints
 model                  -> footprint_library.Model
 net_tie_pad_groups     -> footprint_library.NetTiePadGroups
@@ -170,7 +175,7 @@ json_object            -> json_base_element.JsonObject
 
 ```python
 fp_lib_table           -> library_tables.FpLibTable
-library_entry          -> library_tables.LibraryEntry
+lib                    -> library_tables.LibraryEntry
 sym_lib_table          -> library_tables.SymLibTable
 ```
 
@@ -233,42 +238,71 @@ schematic_settings     -> project_settings.SchematicSettings
 ```python
 bus                    -> schematic_system.Bus
 bus_entry              -> schematic_system.BusEntry
+cells                  -> schematic_system.Cells
+column_widths          -> schematic_system.ColumnWidths
 embedded_fonts         -> schematic_system.EmbeddedFonts
 global_label           -> schematic_system.GlobalLabel
+hierarchical_label     -> schematic_system.HierarchicalLabel
 incrx                  -> schematic_system.Incrx
 incry                  -> schematic_system.Incry
 junction               -> schematic_system.Junction
 kicad_sch              -> schematic_system.KicadSch
 label                  -> schematic_system.Label
-length                 -> schematic_system.Length
+lib_id                 -> schematic_system.LibId
+netclass_flag          -> schematic_system.NetclassFlag
 no_connect             -> schematic_system.NoConnect
+pin                    -> schematic_system.PinRef
 project                -> schematic_system.Project
-repeat                 -> schematic_system.Repeat
+reference              -> schematic_system.Reference
+row_heights            -> schematic_system.RowHeights
+rule_area              -> schematic_system.RuleArea
+bezier                 -> schematic_system.SchematicBezier
+repeat                 -> schematic_system.SchematicRepeat
+symbol                 -> schematic_system.SchematicSymbol
 sheet                  -> schematic_system.Sheet
-sheet_instance         -> schematic_system.SheetInstance
+path                   -> schematic_system.SheetInstance
 sheet_instances        -> schematic_system.SheetInstances
+instances              -> schematic_system.SymbolInstances
+table                  -> schematic_system.Table
+border                 -> schematic_system.TableBorder
+table_cell             -> schematic_system.TableCell
+margins                -> schematic_system.TableMargins
+separators             -> schematic_system.TableSeparators
+span                   -> schematic_system.TableSpan
+unit                   -> schematic_system.Unit
 wire                   -> schematic_system.Wire
 ```
 
 ### symbol_library.py - Symbol Management
 
 ```python
+arc                    -> symbol_library.Arc
+bezier                 -> symbol_library.Bezier
+circle                 -> symbol_library.Circle
 exclude_from_sim       -> symbol_library.ExcludeFromSim
 extends                -> symbol_library.Extends
 fields_autoplaced      -> symbol_library.FieldsAutoplaced
+generator              -> symbol_library.Generator
+generator_version      -> symbol_library.GeneratorVersion
 in_bom                 -> symbol_library.InBom
 instances              -> symbol_library.Instances
 kicad_symbol_lib       -> symbol_library.KicadSymbolLib
 lib_symbols            -> symbol_library.LibSymbols
+line                   -> symbol_library.Line
 number                 -> symbol_library.Number
 pin                    -> symbol_library.Pin
+name                   -> symbol_library.PinName
 pin_names              -> symbol_library.PinNames
 pin_numbers            -> symbol_library.PinNumbers
 pinfunction            -> symbol_library.Pinfunction
 pintype                -> symbol_library.Pintype
+polygon                -> symbol_library.Polygon
+polyline               -> symbol_library.Polyline
 prefix                 -> symbol_library.Prefix
+rectangle              -> symbol_library.Rectangle
 symbol                 -> symbol_library.Symbol
 unit_name              -> symbol_library.UnitName
+version                -> symbol_library.Version
 ```
 
 ### text_and_documents.py - Text and Document Elements
@@ -291,6 +325,7 @@ members                -> text_and_documents.Members
 page                   -> text_and_documents.Page
 paper                  -> text_and_documents.Paper
 pngdata                -> text_and_documents.Pngdata
+repeat                 -> text_and_documents.RepeatCount
 rev                    -> text_and_documents.Rev
 right_margin           -> text_and_documents.RightMargin
 scale                  -> text_and_documents.Scale
@@ -302,18 +337,19 @@ textsize               -> text_and_documents.Textsize
 title_block            -> text_and_documents.TitleBlock
 top_margin             -> text_and_documents.TopMargin
 version                -> text_and_documents.Version
-wks_line               -> text_and_documents.WksLine
-wks_linewidth          -> text_and_documents.WksLinewidth
-wks_margin             -> text_and_documents.WksMargin
-wks_rect               -> text_and_documents.WksRect
-wks_setup              -> text_and_documents.WksSetup
-wks_tb_text            -> text_and_documents.WksTbText
-wks_textlinewidth      -> text_and_documents.WksTextlinewidth
-wks_textsize           -> text_and_documents.WksTextsize
-wks_bottom_margin      -> text_and_documents.WksBottomMargin
-wks_left_margin        -> text_and_documents.WksLeftMargin
-wks_right_margin       -> text_and_documents.WksRightMargin
-wks_top_margin         -> text_and_documents.WksTopMargin
+comment                -> text_and_documents.WksComment
+line                   -> text_and_documents.WksLine
+linewidth              -> text_and_documents.WksLinewidth
+margin                 -> text_and_documents.WksMargin
+rect                   -> text_and_documents.WksRect
+setup                  -> text_and_documents.WksSetup
+tbtext                 -> text_and_documents.WksTbText
+textlinewidth          -> text_and_documents.WksTextlinewidth
+textsize               -> text_and_documents.WksTextsize
+bottom_margin          -> text_and_documents.WksBottomMargin
+left_margin            -> text_and_documents.WksLeftMargin
+right_margin           -> text_and_documents.WksRightMargin
+top_margin             -> text_and_documents.WksTopMargin
 ```
 
 ### zone_system.py - Zone and Copper Filling

@@ -18,7 +18,6 @@ from dataclasses import dataclass, field
 from typing import List
 
 from .base_element import KiCadObject, ParseStrictness
-from .base_types import Name
 
 
 @dataclass
@@ -37,8 +36,8 @@ class LibraryEntry(KiCadObject):
 
     __token_name__ = "lib"
 
-    name: Name = field(
-        default_factory=lambda: Name(value=""),
+    name: str = field(
+        default="",
         metadata={"description": "Library name/identifier"},
     )
     type: str = field(
@@ -92,7 +91,7 @@ class FpLibTable(KiCadObject):
         """
         if not file_path.endswith("fp-lib-table"):
             raise ValueError("Unsupported file extension. Expected: fp-lib-table")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)
 
@@ -138,6 +137,6 @@ class SymLibTable(KiCadObject):
         """
         if not file_path.endswith("sym-lib-table"):
             raise ValueError("Unsupported file extension. Expected: sym-lib-table")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)

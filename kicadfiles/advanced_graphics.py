@@ -86,25 +86,6 @@ class Precision(KiCadObject):
 
 
 @dataclass
-class SuppressZeros(KiCadObject):
-    """Suppress zeros definition token for dimension formatting.
-
-    The 'suppress_zeros' token defines zero suppression in the format::
-
-        (suppress_zeros yes | no)
-
-    Args:
-        suppress: Whether to suppress trailing zeros
-    """
-
-    __token_name__ = "suppress_zeros"
-
-    suppress: bool = field(
-        default=False, metadata={"description": "Whether to suppress trailing zeros"}
-    )
-
-
-@dataclass
 class RenderCache(KiCadObject):
     """Render cache definition token for text rendering optimization.
 
@@ -323,7 +304,7 @@ class GrTextBox(KiCadObject):
     __token_name__ = "gr_text_box"
 
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the text box can be moved",
             "required": False,
@@ -451,8 +432,8 @@ class Format(KiCadObject):
     override_value: Optional[OverrideValue] = field(
         default=None, metadata={"description": "Override text value", "required": False}
     )
-    suppress_zeros: Optional[SuppressZeros] = field(
-        default=None,
+    suppress_zeros: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("suppress_zeros"),
         metadata={
             "description": "Whether to suppress trailing zeros",
             "required": False,
@@ -497,7 +478,7 @@ class Dimension(KiCadObject):
     __token_name__ = "dimension"
 
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether dimension is locked", "required": False},
     )
     type: Type = field(
@@ -599,7 +580,7 @@ class FpArc(KiCadObject):
         metadata={"description": "Stroke definition (from version 7)"},
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the arc is locked", "required": False},
     )
     uuid: Uuid = field(
@@ -656,14 +637,12 @@ class FpCircle(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    # fill: Optional[Fill] = field(
-    #     default=None, metadata={"description": "Fill definition", "required": False}
-    # )
-    fill: Optional[bool] = field(
-        default=None, metadata={"description": "Fill definition", "required": False}
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+        metadata={"description": "Fill definition", "required": False},
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the circle is locked", "required": False},
     )
 
@@ -708,7 +687,7 @@ class FpCurve(KiCadObject):
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the curve is locked", "required": False},
     )
 
@@ -758,7 +737,7 @@ class FpLine(KiCadObject):
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the line is locked", "required": False},
     )
 
@@ -807,7 +786,7 @@ class FpPoly(KiCadObject):
         default=None, metadata={"description": "Fill definition", "required": False}
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether thepolygon is locked", "required": False},
     )
 
@@ -835,7 +814,7 @@ class FpRect(KiCadObject):
         layer: Layer definition
         width: Line width (prior to version 7) (optional)
         stroke: Stroke definition (from version 7) (optional)
-        fill: Whether the rectangle is filled (optional)
+        fill: Whether the rectangle is filled (yes/no) (optional)
         locked: Whether the rectangle cannot be edited (optional)
         uuid: Unique identifier
     """
@@ -864,16 +843,15 @@ class FpRect(KiCadObject):
             "required": False,
         },
     )
-    # fill: Optional[Fill] = field(
-    #     default=None,
-    #     metadata={"description": "Whether the rectangle is filled", "required": False},
-    # )
-    fill: Optional[bool] = field(
-        default=None,
-        metadata={"description": "Whether the rectangle is filled", "required": False},
+    fill: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+        metadata={
+            "description": "Whether the rectangle is filled (yes/no)",
+            "required": False,
+        },
     )
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the rectangle cannot be edited",
             "required": False,
@@ -982,7 +960,7 @@ class FpTextBox(KiCadObject):
     __token_name__ = "fp_text_box"
 
     locked: Optional[OptionalFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={
             "description": "Whether the text box can be moved",
             "required": False,

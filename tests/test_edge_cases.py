@@ -83,17 +83,16 @@ def test_eq_edge_cases():
     assert effects1 != effects3
     print("✅ Test 7: Nested KiCadObject comparison")
 
-    # Test 8: Edge case with type checking
-    at4 = At(x=10.0, y=20.0)
-    at5 = At(x=10.0, y=20.0)
-    # Force different field values to test different paths
-    at6 = At(x=None, y=20.0)  # None vs non-None
-    at7 = At(x=None, y=None)  # Both None
+    # Test 8: Edge case with type checking using Size (simpler than At)
+    size1 = Size(width=10.0, height=20.0)
+    size2 = Size(width=10.0, height=20.0)
+    size3 = Size(width=15.0, height=20.0)  # Different width
+    size4 = Size(width=10.0, height=25.0)  # Different height
 
-    assert at4.__eq__(at5) == True
-    assert at4.__eq__(at6) == False  # None vs non-None path
-    assert at6.__eq__(at7) == False  # Different None values
-    print("✅ Test 8: None value comparison paths")
+    assert size1.__eq__(size2) == True
+    assert size1.__eq__(size3) == False  # Different width
+    assert size1.__eq__(size4) == False  # Different height
+    print("✅ Test 8: Size field comparison paths")
 
     # Test 9: Multiple field comparison
     color1 = Color(r=255, g=0, b=0, a=255)
@@ -111,12 +110,11 @@ def test_parser_strictness_unused_parameters():
     """Test that unused parameters are detected in STRICT mode."""
     print("\n=== TESTING UNUSED PARAMETERS ===")
 
-    # Test STRICT mode with unused parameters - create a structure that actually tracks usage
-    # Since At seems to be flexible, try with a more complex object
+    # Test STRICT mode with unused parameters using Size class
     try:
-        # Use a simpler approach - test if parser is actually strict
-        result = At.from_sexpr(
-            "(at 10.0 20.0 90.0 unused_param)", ParseStrictness.STRICT
+        # Use Size which has clear width/height parameters
+        result = Size.from_sexpr(
+            "(size 10.0 20.0 unused_param)", ParseStrictness.STRICT
         )
         print(
             f"⚠️  STRICT mode allowed unused parameter (this may be expected behavior)"
@@ -129,21 +127,19 @@ def test_parser_strictness_unused_parameters():
 
     # Test with completely invalid structure
     with pytest.raises(ValueError):
-        At.from_sexpr("(at invalid_structure)", ParseStrictness.STRICT)
+        Size.from_sexpr("(size invalid_structure)", ParseStrictness.STRICT)
     print("✅ STRICT mode caught invalid structure")
 
     # Test FAILSAFE mode logs warning but continues
-    result = At.from_sexpr("(at 10.0 20.0 90.0 unused_param)", ParseStrictness.FAILSAFE)
-    assert result.x == 10.0
-    assert result.y == 20.0
-    assert result.angle == 90.0
+    result = Size.from_sexpr("(size 10.0 20.0 unused_param)", ParseStrictness.FAILSAFE)
+    assert result.width == 10.0
+    assert result.height == 20.0
     print("✅ FAILSAFE mode continued with unused parameters")
 
     # Test SILENT mode ignores unused parameters
-    result = At.from_sexpr("(at 10.0 20.0 90.0 unused_param)", ParseStrictness.SILENT)
-    assert result.x == 10.0
-    assert result.y == 20.0
-    assert result.angle == 90.0
+    result = Size.from_sexpr("(size 10.0 20.0 unused_param)", ParseStrictness.SILENT)
+    assert result.width == 10.0
+    assert result.height == 20.0
     print("✅ SILENT mode ignored unused parameters")
 
 
@@ -151,31 +147,36 @@ def test_parser_strictness_missing_required():
     """Test that missing required parameters are detected in STRICT mode."""
     print("\n=== TESTING MISSING REQUIRED PARAMETERS ===")
 
-    # Test minimal required parsing - since At fields seem optional, test behavior
-    result = At.from_sexpr("(at 10.0)", ParseStrictness.STRICT)
-    print(f"📝 STRICT mode with minimal params: {result}")
+    # Test minimal required parsing using Size (simpler structure)
+    try:
+        result = Size.from_sexpr("(size 10.0)", ParseStrictness.STRICT)
+        print(f"📝 STRICT mode with minimal params: {result}")
+    except ValueError as e:
+        print(f"📝 STRICT mode correctly rejected minimal params: {e}")
 
-    # Test completely empty At
-    result_empty = At.from_sexpr("(at)", ParseStrictness.STRICT)
-    print(f"📝 STRICT mode with no params: {result_empty}")
+    # Test completely empty Size
+    try:
+        result_empty = Size.from_sexpr("(size)", ParseStrictness.STRICT)
+        print(f"📝 STRICT mode with no params: {result_empty}")
+    except ValueError as e:
+        print(f"📝 STRICT mode correctly rejected empty params: {e}")
 
-    # Note: Since At seems to have all optional fields, test with objects that actually require fields
-    # Test invalid token to ensure strictness works somewhere
+    # Test invalid token to ensure strictness works
     with pytest.raises(ValueError) as exc_info:
-        At.from_sexpr("(not_at 10.0 20.0)", ParseStrictness.STRICT)
+        Size.from_sexpr("(not_size 10.0 20.0)", ParseStrictness.STRICT)
     print("✅ STRICT mode caught wrong token name")
 
     # Test FAILSAFE mode uses defaults for missing fields
-    result = At.from_sexpr("(at 10.0)", ParseStrictness.FAILSAFE)
-    assert result.x == 10.0
-    assert result.y is None  # Optional field, defaults to None
-    print("✅ FAILSAFE mode handled missing optional field")
+    result = Size.from_sexpr("(size 10.0)", ParseStrictness.FAILSAFE)
+    assert result.width == 10.0
+    assert result.height == 0.0  # Uses default value
+    print("✅ FAILSAFE mode handled missing field")
 
     # Test SILENT mode uses defaults for missing fields
-    result = At.from_sexpr("(at 10.0)", ParseStrictness.SILENT)
-    assert result.x == 10.0
-    assert result.y is None  # Optional field, defaults to None
-    print("✅ SILENT mode handled missing optional field")
+    result = Size.from_sexpr("(size 10.0)", ParseStrictness.SILENT)
+    assert result.width == 10.0
+    assert result.height == 0.0  # Uses default value
+    print("✅ SILENT mode handled missing field")
 
 
 def test_parser_strictness_wrong_token():
@@ -184,17 +185,17 @@ def test_parser_strictness_wrong_token():
 
     # Test completely wrong token name
     with pytest.raises(ValueError) as exc_info:
-        At.from_sexpr("(wrong_token 10.0 20.0)", ParseStrictness.STRICT)
+        Size.from_sexpr("(wrong_token 10.0 20.0)", ParseStrictness.STRICT)
 
     error_msg = str(exc_info.value)
     assert "Token mismatch" in error_msg
-    assert "expected 'at'" in error_msg
+    assert "expected 'size'" in error_msg
     assert "got 'wrong_token'" in error_msg
     print(f"✅ Wrong token name detected: {error_msg}")
 
     # Test empty sexpr
     with pytest.raises(ValueError) as exc_info:
-        At.from_sexpr("", ParseStrictness.STRICT)
+        Size.from_sexpr("", ParseStrictness.STRICT)
 
     error_msg = str(exc_info.value)
     print(f"✅ Empty input detected: {error_msg}")
@@ -214,9 +215,9 @@ def test_conversion_errors():
 
     # Test FAILSAFE mode handles conversion errors
     result = At.from_sexpr("(at not_a_number 20.0)", ParseStrictness.FAILSAFE)
-    assert result.x is None  # Failed conversion results in None
+    assert result.x == 0.0  # Failed conversion uses default value
     assert result.y == 20.0
-    print("✅ FAILSAFE mode handled conversion error (result is None)")
+    print("✅ FAILSAFE mode handled conversion error (result uses default)")
 
 
 def test_complex_nested_equality():

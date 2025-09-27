@@ -11,7 +11,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -20,11 +20,91 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
+
+    - name: Get version info
+      id: version_info
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          # Use release tag for version
+          NEW_TAG="${{ github.event.release.tag_name }}"
+
+          # Validate tag format
+          if [[ ! "$NEW_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid tag format: $NEW_TAG (expected: v1.2.3)"
+            exit 1
+          fi
+
+          NEW_VERSION="${NEW_TAG#v}"
+          echo "Using release tag: $NEW_TAG"
+        else
+          # Auto-increment for workflow_dispatch
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -r major minor patch <<< "$VERSION"
+          NEW_PATCH=$((patch + 1))
+          NEW_VERSION="$major.$minor.$NEW_PATCH"
+          NEW_TAG="v$NEW_VERSION"
+          echo "Auto-generated tag: $NEW_TAG"
+        fi
+
+        echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+        echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+        echo "Version: $NEW_VERSION"
+
+    - name: Update pyproject.toml version
+      run: |
+        NEW_VERSION="${{ steps.version_info.outputs.new_version }}"
+        sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
+        echo "Updated version to $NEW_VERSION in pyproject.toml"
+
+    - name: Create and push tag (workflow_dispatch only)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        NEW_TAG="${{ steps.version_info.outputs.new_tag }}"
+        NEW_VERSION="${{ steps.version_info.outputs.new_version }}"
+
+        # Check if tag already exists
+        if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
+          echo "❌ Tag $NEW_TAG already exists"
+          exit 1
+        fi
+
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Commit version update
+        git add pyproject.toml
+        if ! git commit -m "🏷️ Bump version to $NEW_VERSION"; then
+          echo "❌ Failed to commit version update"
+          exit 1
+        fi
+
+        # Create annotated tag
+        if ! git tag -a "$NEW_TAG" -m "🏷️ Auto-generated version $NEW_VERSION"; then
+          echo "❌ Failed to create tag"
+          exit 1
+        fi
+
+        # Push changes
+        if ! git push origin HEAD:${{ github.ref_name }}; then
+          echo "❌ Failed to push commit"
+          exit 1
+        fi
+
+        if ! git push origin "$NEW_TAG"; then
+          echo "❌ Failed to push tag"
+          exit 1
+        fi
+
+        echo "✅ Created and pushed tag: $NEW_TAG"
 
     - name: Build package
       run: |

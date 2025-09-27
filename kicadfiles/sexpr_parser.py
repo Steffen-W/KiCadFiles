@@ -33,12 +33,11 @@ def str_to_sexpr(content: str) -> SExpr:
         raise ValueError(f"Failed to parse S-expression: {e}") from e
 
 
-def sexpr_to_str(sexpr: SExpr, pretty_print: bool = True) -> str:
+def sexpr_to_str(sexpr: SExpr) -> str:
     """Convert S-expression to string representation.
 
     Args:
         sexpr: S-expression to serialize
-        pretty_print: Whether to format output for readability
 
     Returns:
         String representation of the S-expression
@@ -47,7 +46,7 @@ def sexpr_to_str(sexpr: SExpr, pretty_print: bool = True) -> str:
         ValueError: If sexpr cannot be serialized
     """
     try:
-        return dumps(sexpr, pretty_print=pretty_print)
+        return dumps(sexpr)
     except Exception as e:
         raise ValueError(f"Failed to serialize S-expression: {e}") from e
 

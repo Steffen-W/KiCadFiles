@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from .base_element import KiCadObject, OptionalFlag
 from .enums import FillType, PadShape, StrokeType
+from .sexpr_parser import SExpr
 
 
 @dataclass
@@ -110,6 +111,31 @@ class Pts(KiCadObject):
 
 
 @dataclass
+class AtXY(KiCadObject):
+    """Position identifier token for elements that only use X and Y coordinates.
+
+    The 'at' token defines positional coordinates in the format:
+        (at X Y)
+
+    Used for elements like junctions that don't have rotation.
+
+    Args:
+        x: Horizontal position of the object
+        y: Vertical position of the object
+    """
+
+    __token_name__ = "at"
+
+    x: float = field(
+        default=0.0,
+        metadata={"description": "Horizontal position of the object"},
+    )
+    y: float = field(
+        default=0.0, metadata={"description": "Vertical position of the object"}
+    )
+
+
+@dataclass
 class At(KiCadObject):
     """Position identifier token that defines positional coordinates and rotation of an object.
 
@@ -125,30 +151,25 @@ class At(KiCadObject):
         Symbol text ANGLEs are stored in tenth's of a degree. All other ANGLEs are stored in degrees.
 
     Args:
-        x: Horizontal position of the object (optional)
-        y: Vertical position of the object (optional)
-        angle: Optional rotational angle of the object (optional)
+        x: Horizontal position of the object
+        y: Vertical position of the object
+        angle: Rotational angle of the object
         xyz: 3D position coordinates (optional)
     """
 
     __token_name__ = "at"
 
-    x: Optional[float] = field(
-        default=None,
-        metadata={
-            "description": "Horizontal position of the object",
-            "required": False,
-        },
+    x: float = field(
+        default=0.0,
+        metadata={"description": "Horizontal position of the object"},
     )
-    y: Optional[float] = field(
-        default=None,
-        metadata={"description": "Vertical position of the object", "required": False},
+    y: float = field(
+        default=0.0, metadata={"description": "Vertical position of the object"}
     )
-    angle: Optional[float] = field(
-        default=None,
+    angle: float = field(
+        default=0.0,
         metadata={
-            "description": "Optional rotational angle of the object",
-            "required": False,
+            "description": "Rotational angle of the object",
         },
     )
     xyz: Optional[Xyz] = field(
@@ -209,7 +230,7 @@ class Color(KiCadObject):
         r: Red color component (0-255)
         g: Green color component (0-255)
         b: Blue color component (0-255)
-        a: Alpha transparency component (0-255)
+        a: Alpha component (0-255)
     """
 
     __token_name__ = "color"
@@ -217,9 +238,7 @@ class Color(KiCadObject):
     r: int = field(default=0, metadata={"description": "Red color component (0-255)"})
     g: int = field(default=0, metadata={"description": "Green color component (0-255)"})
     b: int = field(default=0, metadata={"description": "Blue color component (0-255)"})
-    a: int = field(
-        default=255, metadata={"description": "Alpha transparency component (0-255)"}
-    )
+    a: int = field(default=0, metadata={"description": "Alpha component (0-255)"})
 
 
 @dataclass
@@ -280,6 +299,10 @@ class Type(KiCadObject):
     __token_name__ = "type"
 
     value: str = field(default="", metadata={"description": "Type value"})
+
+    def to_sexpr(self) -> SExpr:
+        """Custom serialization to ensure type values are never quoted."""
+        return [self.__token_name__, self.value]
 
 
 @dataclass
@@ -729,6 +752,17 @@ class Uuid(KiCadObject):
 
     value: str = field(default="", metadata={"description": "UUID value"})
 
+    @classmethod
+    def new_id(cls) -> "Uuid":
+        """Generate a new UUID identifier.
+
+        Returns:
+            Uuid: New Uuid object with a generated UUID value
+        """
+        import uuid
+
+        return cls(value=str(uuid.uuid4()))
+
 
 @dataclass
 class Font(KiCadObject):
@@ -919,6 +953,23 @@ class Property(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Hide property flag", "required": False},
     )
+
+
+@dataclass
+class Length(KiCadObject):
+    """Length definition token.
+
+    The 'length' token defines a length value in the format::
+
+        (length VALUE)
+
+    Args:
+        value: Length value
+    """
+
+    __token_name__ = "length"
+
+    value: float = field(default=0.0, metadata={"description": "Length value"})
 
 
 @dataclass

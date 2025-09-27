@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, End, Font, Id, Name, Pos, Size, Start, Uuid, Xyz
+from .base_types import At, End, Font, Id, Justify, Name, Pos, Size, Start, Uuid, Xyz
 
 
 @dataclass
@@ -358,6 +358,49 @@ class RightMargin(KiCadObject):
 
 
 @dataclass
+class RepeatCount(KiCadObject):
+    """Repeat count definition token.
+
+    Args:
+        count: Repeat count
+    """
+
+    __token_name__ = "repeat"
+
+    count: int = field(default=1, metadata={"description": "Repeat count"})
+
+
+@dataclass
+class Incrx(KiCadObject):
+    """X increment definition token.
+
+    Args:
+        distance: X increment distance
+    """
+
+    __token_name__ = "incrx"
+
+    distance: float = field(
+        default=0.0, metadata={"description": "X increment distance"}
+    )
+
+
+@dataclass
+class Incry(KiCadObject):
+    """Y increment definition token.
+
+    Args:
+        distance: Y increment distance
+    """
+
+    __token_name__ = "incry"
+
+    distance: float = field(
+        default=0.0, metadata={"description": "Y increment distance"}
+    )
+
+
+@dataclass
 class Tbtext(KiCadObject):
     """Title block text definition token.
 
@@ -397,18 +440,18 @@ class Tbtext(KiCadObject):
     font: Optional[Font] = field(
         default=None, metadata={"description": "Font settings", "required": False}
     )
-    repeat: Optional[int] = field(
+    repeat: Optional[RepeatCount] = field(
         default=None,
         metadata={
             "description": "Repeat count for incremental text",
             "required": False,
         },
     )
-    incrx: Optional[float] = field(
+    incrx: Optional[Incrx] = field(
         default=None,
         metadata={"description": "Repeat distance on X axis", "required": False},
     )
-    incry: Optional[float] = field(
+    incry: Optional[Incry] = field(
         default=None,
         metadata={"description": "Repeat distance on Y axis", "required": False},
     )
@@ -748,6 +791,19 @@ class WksSetup(KiCadObject):
 
 
 @dataclass
+class WksComment(KiCadObject):
+    """Worksheet comment definition token.
+
+    Args:
+        value: Comment text
+    """
+
+    __token_name__ = "comment"
+
+    value: str = field(default="", metadata={"description": "Comment text"})
+
+
+@dataclass
 class WksRect(KiCadObject):
     """Worksheet rectangle definition token.
 
@@ -770,16 +826,16 @@ class WksRect(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    comment: Optional[str] = field(
+    comment: Optional[WksComment] = field(
         default=None, metadata={"description": "Comment", "required": False}
     )
-    repeat: Optional[int] = field(
+    repeat: Optional[RepeatCount] = field(
         default=None, metadata={"description": "Repeat count", "required": False}
     )
-    incrx: Optional[float] = field(
+    incrx: Optional[Incrx] = field(
         default=None, metadata={"description": "X increment", "required": False}
     )
-    incry: Optional[float] = field(
+    incry: Optional[Incry] = field(
         default=None, metadata={"description": "Y increment", "required": False}
     )
 
@@ -806,13 +862,13 @@ class WksLine(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    repeat: Optional[int] = field(
+    repeat: Optional[RepeatCount] = field(
         default=None, metadata={"description": "Repeat count", "required": False}
     )
-    incrx: Optional[float] = field(
+    incrx: Optional[Incrx] = field(
         default=None, metadata={"description": "X increment", "required": False}
     )
-    incry: Optional[float] = field(
+    incry: Optional[Incry] = field(
         default=None, metadata={"description": "Y increment", "required": False}
     )
 
@@ -823,7 +879,7 @@ class WksTbText(KiCadObject):
 
     Args:
         text: Text content
-        name: Text name
+        name: Text name (optional)
         pos: Text position
         font: Font settings (optional)
         justify: Text justification (optional)
@@ -836,26 +892,28 @@ class WksTbText(KiCadObject):
     __token_name__ = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
-    name: str = field(default="", metadata={"description": "Text name"})
+    name: Optional[Name] = field(
+        default=None, metadata={"description": "Text name", "required": False}
+    )
     pos: Pos = field(
         default_factory=lambda: Pos(), metadata={"description": "Text position"}
     )
     font: Optional[Font] = field(
         default=None, metadata={"description": "Font settings", "required": False}
     )
-    justify: Optional[str] = field(
+    justify: Optional[Justify] = field(
         default=None, metadata={"description": "Text justification", "required": False}
     )
-    repeat: Optional[int] = field(
+    repeat: Optional[RepeatCount] = field(
         default=None, metadata={"description": "Repeat count", "required": False}
     )
-    incrx: Optional[float] = field(
+    incrx: Optional[Incrx] = field(
         default=None, metadata={"description": "X increment", "required": False}
     )
-    incry: Optional[float] = field(
+    incry: Optional[Incry] = field(
         default=None, metadata={"description": "Y increment", "required": False}
     )
-    comment: Optional[str] = field(
+    comment: Optional[WksComment] = field(
         default=None, metadata={"description": "Comment", "required": False}
     )
 
@@ -946,7 +1004,7 @@ class KicadWks(KiCadObject):
         """
         if not file_path.endswith(".kicad_wks"):
             raise ValueError("Unsupported file extension. Expected: .kicad_wks")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)
 
@@ -991,14 +1049,14 @@ class Bitmap(KiCadObject):
     scale: Scale = field(
         default_factory=lambda: Scale(), metadata={"description": "Scale factor"}
     )
-    repeat: Optional[int] = field(
+    repeat: Optional[RepeatCount] = field(
         default=None, metadata={"description": "Repeat count", "required": False}
     )
-    incrx: Optional[float] = field(
+    incrx: Optional[Incrx] = field(
         default=None,
         metadata={"description": "X increment distance", "required": False},
     )
-    incry: Optional[float] = field(
+    incry: Optional[Incry] = field(
         default=None,
         metadata={"description": "Y increment distance", "required": False},
     )

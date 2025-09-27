@@ -4,50 +4,10 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, Effects, Property
+from .base_types import At, Effects, Length, Property
 from .enums import PinElectricalType, PinGraphicStyle
+from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle
 from .text_and_documents import Generator, GeneratorVersion, Version
-
-
-@dataclass
-class ExcludeFromSim(KiCadObject):
-    """Exclude from simulation flag definition token.
-
-    The 'exclude_from_sim' token defines whether a symbol is excluded from simulation in the format::
-
-        (exclude_from_sim yes)
-        (exclude_from_sim no)
-
-    Args:
-        excluded: Whether symbol is excluded from simulation
-    """
-
-    __token_name__ = "exclude_from_sim"
-
-    excluded: bool = field(
-        default=False,
-        metadata={"description": "Whether symbol is excluded from simulation"},
-    )
-
-
-@dataclass
-class EmbeddedFonts(KiCadObject):
-    """Embedded fonts flag definition token.
-
-    The 'embedded_fonts' token defines whether embedded fonts are used in the format::
-
-        (embedded_fonts yes)
-        (embedded_fonts no)
-
-    Args:
-        enabled: Whether embedded fonts are enabled
-    """
-
-    __token_name__ = "embedded_fonts"
-
-    enabled: bool = field(
-        default=False, metadata={"description": "Whether embedded fonts are enabled"}
-    )
 
 
 @dataclass
@@ -66,46 +26,6 @@ class Extends(KiCadObject):
 
     library_id: str = field(
         default="", metadata={"description": "Parent symbol library ID"}
-    )
-
-
-@dataclass
-class FieldsAutoplaced(KiCadObject):
-    """Fields autoplaced flag token.
-
-    The 'fields_autoplaced' token indicates that symbol fields were automatically placed in the format::
-
-        (fields_autoplaced)
-
-    This is a flag token that indicates fields were autoplaced when present.
-
-    Args:
-        value: Fields autoplaced flag
-    """
-
-    __token_name__ = "fields_autoplaced"
-
-    value: bool = field(
-        default=True, metadata={"description": "Fields autoplaced flag"}
-    )
-
-
-@dataclass
-class InBom(KiCadObject):
-    """In BOM flag definition token.
-
-    The 'in_bom' token defines whether a symbol appears in bill of materials in the format::
-
-        (in_bom yes | no)
-
-    Args:
-        value: Whether symbol appears in BOM
-    """
-
-    __token_name__ = "in_bom"
-
-    value: bool = field(
-        default=True, metadata={"description": "Whether symbol appears in BOM"}
     )
 
 
@@ -129,6 +49,27 @@ class Instances(KiCadObject):
 
     instances: List[Any] = field(
         default_factory=list, metadata={"description": "List of instance data"}
+    )
+
+
+@dataclass
+class PinName(KiCadObject):
+    """Pin name definition token.
+
+    The 'name' token defines a pin name with text effects in the format::
+
+        (name "NAME" TEXT_EFFECTS)
+
+    Args:
+        name: Pin name string
+        effects: Text effects (optional)
+    """
+
+    __token_name__ = "name"
+
+    name: str = field(default="", metadata={"description": "Pin name string"})
+    effects: Optional[Effects] = field(
+        default=None, metadata={"description": "Text effects", "required": False}
     )
 
 
@@ -174,9 +115,7 @@ class Pin(KiCadObject):
         at: Position and rotation
         length: Pin length
         name: Pin name (optional)
-        name_effects: Pin name text effects (optional)
         number: Pin number (optional)
-        number_effects: Pin number text effects (optional)
         hide: Whether pin is hidden (optional)
     """
 
@@ -192,20 +131,15 @@ class Pin(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    length: float = field(default=2.54, metadata={"description": "Pin length"})
-    name: Optional[str] = field(
-        default=None, metadata={"description": "Pin name", "required": False}
+    length: Length = field(
+        default_factory=lambda: Length(value=2.54),
+        metadata={"description": "Pin length"},
     )
-    name_effects: Optional[Effects] = field(
-        default=None,
-        metadata={"description": "Pin name text effects", "required": False},
+    name: Optional[PinName] = field(
+        default=None, metadata={"description": "Pin name", "required": False}
     )
     number: Optional[Number] = field(
         default=None, metadata={"description": "Pin number", "required": False}
-    )
-    number_effects: Optional[Effects] = field(
-        default=None,
-        metadata={"description": "Pin number text effects", "required": False},
     )
     hide: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
@@ -356,11 +290,18 @@ class Symbol(KiCadObject):
         pin_numbers: Pin numbers visibility settings (optional)
         pin_names: Pin names attributes (optional)
         in_bom: Whether symbol appears in BOM (optional)
-        on_board: Whether symbol is exported to PCB (optional)
+        on_board: Whether symbol is exported to PCB (yes/no) (optional)
         exclude_from_sim: Whether symbol is excluded from simulation (optional)
         embedded_fonts: Whether embedded fonts are used (optional)
+        power: Whether symbol is a power symbol (optional)
         properties: List of symbol properties (optional)
-        graphic_items: List of graphical items (optional)
+        arcs: List of arc graphical items (optional)
+        beziers: List of bezier graphical items (optional)
+        circles: List of circle graphical items (optional)
+        lines: List of line graphical items (optional)
+        polygons: List of polygon graphical items (optional)
+        polylines: List of polyline graphical items (optional)
+        rectangles: List of rectangle graphical items (optional)
         pins: List of symbol pins (optional)
         units: List of child symbol units (optional)
         unit_name: Display name for subunits (optional)
@@ -386,28 +327,35 @@ class Symbol(KiCadObject):
         default=None,
         metadata={"description": "Pin names attributes", "required": False},
     )
-    in_bom: Optional[bool] = field(
-        default=None,
+    in_bom: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("in_bom"),
         metadata={"description": "Whether symbol appears in BOM", "required": False},
     )
-    on_board: Optional[bool] = field(
-        default=None,
+    on_board: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("on_board"),
         metadata={
-            "description": "Whether symbol is exported to PCB",
+            "description": "Whether symbol is exported to PCB (yes/no)",
             "required": False,
         },
     )
-    exclude_from_sim: Optional[ExcludeFromSim] = field(
-        default=None,
+    exclude_from_sim: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
         metadata={
             "description": "Whether symbol is excluded from simulation",
             "required": False,
         },
     )
-    embedded_fonts: Optional[EmbeddedFonts] = field(
-        default=None,
+    embedded_fonts: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
         metadata={
             "description": "Whether embedded fonts are used",
+            "required": False,
+        },
+    )
+    power: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("power"),
+        metadata={
+            "description": "Whether symbol is a power symbol",
             "required": False,
         },
     )
@@ -415,9 +363,42 @@ class Symbol(KiCadObject):
         default_factory=list,
         metadata={"description": "List of symbol properties", "required": False},
     )
-    graphic_items: Optional[List[Any]] = field(
+    # graphic_items: Optional[
+    #     List[Union[Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle]]
+    # ] = field(
+    #     default_factory=list,
+    #     metadata={"description": "List of graphical items", "required": False},
+    # )
+    arcs: Optional[List[Arc]] = field(
         default_factory=list,
-        metadata={"description": "List of graphical items", "required": False},
+        metadata={"description": "List of arc graphical items", "required": False},
+    )
+    beziers: Optional[List[Bezier]] = field(
+        default_factory=list,
+        metadata={"description": "List of bezier graphical items", "required": False},
+    )
+    circles: Optional[List[Circle]] = field(
+        default_factory=list,
+        metadata={"description": "List of circle graphical items", "required": False},
+    )
+    lines: Optional[List[Line]] = field(
+        default_factory=list,
+        metadata={"description": "List of line graphical items", "required": False},
+    )
+    polygons: Optional[List[Polygon]] = field(
+        default_factory=list,
+        metadata={"description": "List of polygon graphical items", "required": False},
+    )
+    polylines: Optional[List[Polyline]] = field(
+        default_factory=list,
+        metadata={"description": "List of polyline graphical items", "required": False},
+    )
+    rectangles: Optional[List[Rectangle]] = field(
+        default_factory=list,
+        metadata={
+            "description": "List of rectangle graphical items",
+            "required": False,
+        },
     )
     pins: Optional[List[Pin]] = field(
         default_factory=list,
@@ -515,6 +496,6 @@ class KicadSymbolLib(KiCadObject):
         """
         if not file_path.endswith(".kicad_sym"):
             raise ValueError("Unsupported file extension. Expected: .kicad_sym")
-        content = self.to_sexpr_str(pretty_print=True)
+        content = self.to_sexpr_str()
         with open(file_path, "w", encoding=encoding) as f:
             f.write(content)

@@ -89,7 +89,7 @@ Basic Usage
    at_obj = At.from_sexpr("(at 10.0 20.0 90.0)", ParseStrictness.STRICT)
 
    # Convert back to S-expression string
-   sexpr_str = at_obj.to_sexpr_str(pretty_print=False)
+   sexpr_str = at_obj.to_sexpr_str()
    print(sexpr_str)  # Output: (at 10.0 20.0 90.0)
 
 Parsing with Different Strictness Modes
@@ -107,7 +107,7 @@ Parsing with Different Strictness Modes
 
    # FAILSAFE mode: Logs warnings and uses defaults for missing fields
    at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
-   print(f"Angle defaulted to: {at_obj.angle}")  # Output: None
+   print(f"Angle defaulted to: {at_obj.angle}")  # Output: 0.0
 
    # SILENT mode: Silently uses defaults for missing fields
    at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.SILENT)
@@ -142,7 +142,7 @@ Working with Complex Objects
    )
 
    # Convert to S-expression
-   sexpr = footprint.to_sexpr_str(pretty_print=True)
+   sexpr = footprint.to_sexpr_str()
    print(sexpr)
 
 .. toctree::

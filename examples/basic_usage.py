@@ -7,10 +7,21 @@ including creating objects, parsing S-expressions, and handling different
 strictness modes.
 """
 
-from kicadfiles import At, Footprint, KicadPcb, Layer, Pad, ParseStrictness, Size
+from kicadfiles import (
+    At,
+    AtXY,
+    Footprint,
+    KicadPcb,
+    Layer,
+    Pad,
+    PadShape,
+    PadType,
+    ParseStrictness,
+    Size,
+)
 
 
-def basic_object_creation():
+def basic_object_creation() -> None:
     """Demonstrate basic object creation."""
     print("=== Basic Object Creation ===")
 
@@ -25,7 +36,7 @@ def basic_object_creation():
     print()
 
 
-def sexpr_parsing():
+def sexpr_parsing() -> None:
     """Demonstrate S-expression parsing."""
     print("=== S-Expression Parsing ===")
 
@@ -40,7 +51,7 @@ def sexpr_parsing():
     print()
 
 
-def strictness_modes():
+def strictness_modes() -> None:
     """Demonstrate different parser strictness modes."""
     print("=== Parser Strictness Modes ===")
 
@@ -68,7 +79,7 @@ def strictness_modes():
     print()
 
 
-def complex_object_example():
+def complex_object_example() -> None:
     """Demonstrate working with complex nested objects."""
     print("=== Complex Object Example ===")
 
@@ -79,31 +90,31 @@ def complex_object_example():
         pads=[
             Pad(
                 number="1",
-                type="smd",
-                shape="roundrect",
-                at=At(x=-0.8, y=0.0),
+                type=PadType.SMD,
+                shape=PadShape.ROUNDRECT,
+                at=AtXY(x=-0.8, y=0.0),
                 size=Size(width=0.7, height=0.9),
             ),
             Pad(
                 number="2",
-                type="smd",
-                shape="roundrect",
-                at=At(x=0.8, y=0.0),
+                type=PadType.SMD,
+                shape=PadShape.ROUNDRECT,
+                at=AtXY(x=0.8, y=0.0),
                 size=Size(width=0.7, height=0.9),
             ),
         ],
     )
 
-    print(f"Created footprint with {len(footprint.pads)} pads")
+    print(f"Created footprint with {len(footprint.pads or [])} pads")
 
     # Convert to S-expression with pretty printing
-    sexpr_str = footprint.to_sexpr_str(pretty_print=True)
+    sexpr_str = footprint.to_sexpr_str()
     print("S-expression representation:")
     print(sexpr_str)
     print()
 
 
-def file_loading_example():
+def file_loading_example() -> None:
     """Demonstrate loading KiCad files like in the documentation."""
     print("=== File Loading Example ===")
 
@@ -129,7 +140,7 @@ def file_loading_example():
     print()
 
 
-def main():
+def main() -> None:
     """Run all examples."""
     print("KiCadFiles Library - Basic Usage Examples")
     print("=" * 50)

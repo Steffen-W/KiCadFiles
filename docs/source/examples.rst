@@ -70,7 +70,7 @@ Creating Objects Programmatically
    print(f"Size: {size}")
 
    # Convert simple objects to S-expression
-   position_sexpr = position.to_sexpr_str(pretty_print=False)
+   position_sexpr = position.to_sexpr_str()
    print(f"Position S-expression: {position_sexpr}")
 
    # Parse from S-expression
@@ -139,20 +139,41 @@ Working with Symbols
 
    # Examine all symbols in the library
    for i, symbol in enumerate(lib.symbols):
-       print(f"Symbol {i+1}: {len(symbol.pins)} pins")
+       pin_count = len(symbol.pins) if symbol.pins else 0
+       print(f"Symbol {i+1}: {pin_count} pins")
 
        # List first few pins (to avoid too much output)
-       for j, pin in enumerate(symbol.pins[:3]):
-           print(f"  Pin {pin.number}: {pin.name} at ({pin.at.x}, {pin.at.y})")
-       if len(symbol.pins) > 3:
-           print(f"  ... and {len(symbol.pins) - 3} more pins")
+       if symbol.pins:
+           for j, pin in enumerate(symbol.pins[:3]):
+               pin_name = pin.name.name if pin.name else "unnamed"
+               pin_number = pin.number.number if pin.number else "?"
+               print(f"  Pin {pin_number}: {pin_name} at ({pin.at.x}, {pin.at.y})")
+           if len(symbol.pins) > 3:
+               print(f"  ... and {len(symbol.pins) - 3} more pins")
 
    # Create a new symbol
+   from kicadfiles import Number, PinName
+   from kicadfiles.enums import PinElectricalType, PinGraphicStyle
+
    new_symbol = Symbol(
-       library_link="my_new_component",
+       library_id="my_new_component",
        pins=[
-           Pin(number="1", name="VCC", at=At(x=0, y=2.54)),
-           Pin(number="2", name="GND", at=At(x=0, y=-2.54))
+           Pin(
+               at=At(x=0, y=2.54),
+               electrical_type=PinElectricalType.POWER_IN,
+               graphic_style=PinGraphicStyle.LINE,
+               length=2.54,
+               number=Number(number="1"),
+               name=PinName(name="VCC")
+           ),
+           Pin(
+               at=At(x=0, y=-2.54),
+               electrical_type=PinElectricalType.POWER_IN,
+               graphic_style=PinGraphicStyle.LINE,
+               length=2.54,
+               number=Number(number="2"),
+               name=PinName(name="GND")
+           )
        ]
    )
 
@@ -175,10 +196,10 @@ Batch Processing
 
    for footprint_file in footprint_dir.glob("*.kicad_mod"):
        try:
-           footprint = Footprint.from_file(footprint_file, ParseStrictness.STRICT)
+           footprint = Footprint.from_file(str(footprint_file), ParseStrictness.STRICT)
 
            # Analyze footprint
-           pad_count = len(footprint.pads)
+           pad_count = len(footprint.pads) if footprint.pads else 0
            print(f"{footprint_file.name}: {pad_count} pads")
 
            # Example: Add metadata
@@ -204,7 +225,7 @@ Round-trip Verification
    original_pcb = KicadPcb.from_file("tests/fixtures/pcb/minimal.kicad_pcb", ParseStrictness.STRICT)
 
    # Convert to S-expression string
-   sexpr_string = original_pcb.to_sexpr_str(pretty_print=True)
+   sexpr_string = original_pcb.to_sexpr_str()
 
    # Parse the S-expression back to object
    reconstructed_pcb = KicadPcb.from_sexpr(sexpr_string, ParseStrictness.STRICT)

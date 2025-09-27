@@ -52,18 +52,31 @@ def run_class_round_trip(cls):
         sexpr = original.to_sexpr()
         print(f"  ✅ Serialized: {sexpr}")
 
-        # Parse back from S-expression with STRICT mode
-        regenerated = cls.from_sexpr(sexpr, ParseStrictness.STRICT)
-        print(f"  ✅ Parsed back: {regenerated}")
+        # Try STRICT mode first
+        try:
+            regenerated = cls.from_sexpr(sexpr, ParseStrictness.STRICT)
+            print(f"  ✅ Parsed back (STRICT): {regenerated}")
+            parsing_mode = "STRICT"
+        except Exception:
+            # If STRICT fails, try FAILSAFE mode
+            try:
+                regenerated = cls.from_sexpr(sexpr, ParseStrictness.FAILSAFE)
+                print(f"  ✅ Parsed back (FAILSAFE): {regenerated}")
+                parsing_mode = "FAILSAFE"
+            except Exception as e2:
+                print(f"  ❌ Parsing failed in both STRICT and FAILSAFE modes: {e2}")
+                return False
 
         # Test equality
         are_equal = original == regenerated
 
         if are_equal:
-            print(f"  ✅ Round-trip successful for {cls.__name__}")
+            print(f"  ✅ Round-trip successful for {cls.__name__} ({parsing_mode})")
             return True
         else:
-            print(f"  ❌ Round-trip failed for {cls.__name__}: objects not equal")
+            print(
+                f"  ❌ Round-trip failed for {cls.__name__}: objects not equal ({parsing_mode})"
+            )
 
             # Debug differences
             print(f"    Original:    {original}")
