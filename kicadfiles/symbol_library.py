@@ -1,7 +1,7 @@
 """Symbol library elements for KiCad S-expressions - schematic symbol definitions."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import At, Effects, Length, Property, Text
@@ -295,13 +295,7 @@ class Symbol(KiCadObject):
         embedded_fonts: Whether embedded fonts are used (optional)
         power: Whether symbol is a power symbol (optional)
         properties: List of symbol properties (optional)
-        arcs: List of arc graphical items (optional)
-        beziers: List of bezier graphical items (optional)
-        circles: List of circle graphical items (optional)
-        lines: List of line graphical items (optional)
-        polygons: List of polygon graphical items (optional)
-        polylines: List of polyline graphical items (optional)
-        rectangles: List of rectangle graphical items (optional)
+        graphic_items: List of graphical items (optional)
         text: List of text elements (optional)
         pins: List of symbol pins (optional)
         units: List of child symbol units (optional)
@@ -364,42 +358,11 @@ class Symbol(KiCadObject):
         default_factory=list,
         metadata={"description": "List of symbol properties", "required": False},
     )
-    # graphic_items: Optional[
-    #     List[Union[Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle]]
-    # ] = field(
-    #     default_factory=list,
-    #     metadata={"description": "List of graphical items", "required": False},
-    # )
-    arcs: Optional[List[Arc]] = field(
+    graphic_items: Optional[
+        List[Union[Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle]]
+    ] = field(
         default_factory=list,
-        metadata={"description": "List of arc graphical items", "required": False},
-    )
-    beziers: Optional[List[Bezier]] = field(
-        default_factory=list,
-        metadata={"description": "List of bezier graphical items", "required": False},
-    )
-    circles: Optional[List[Circle]] = field(
-        default_factory=list,
-        metadata={"description": "List of circle graphical items", "required": False},
-    )
-    lines: Optional[List[Line]] = field(
-        default_factory=list,
-        metadata={"description": "List of line graphical items", "required": False},
-    )
-    polygons: Optional[List[Polygon]] = field(
-        default_factory=list,
-        metadata={"description": "List of polygon graphical items", "required": False},
-    )
-    polylines: Optional[List[Polyline]] = field(
-        default_factory=list,
-        metadata={"description": "List of polyline graphical items", "required": False},
-    )
-    rectangles: Optional[List[Rectangle]] = field(
-        default_factory=list,
-        metadata={
-            "description": "List of rectangle graphical items",
-            "required": False,
-        },
+        metadata={"description": "List of graphical items", "required": False},
     )
     text: Optional[List[Text]] = field(
         default_factory=list,

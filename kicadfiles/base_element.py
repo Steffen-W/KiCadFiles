@@ -249,6 +249,18 @@ class KiCadObject(ABC):
         # Lists are ALWAYS treated equally - Optional[List] = List
         if get_origin(inner_type) in (list, List):
             list_element_type = get_args(inner_type)[0] if get_args(inner_type) else str
+
+            # Handle Union types in lists (e.g., List[Union[Arc, Circle, ...]])
+            if get_origin(list_element_type) is Union:
+                # For Union types, we'll use a special marker to indicate multi-token parsing
+                return FieldInfo(
+                    name=name,
+                    field_type=FieldType.LIST,
+                    inner_type=list_element_type,
+                    position_index=position,
+                    token_name="__UNION__",  # Special marker for union types
+                )
+
             return FieldInfo(
                 name=name,
                 field_type=FieldType.LIST,  # Always LIST, never optional
@@ -353,18 +365,44 @@ class KiCadObject(ABC):
         _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
 
         if field_info.token_name:  # List of KiCadObjects
-            for token_idx, item in enumerate(cursor.sexpr[1:], 1):
-                if (
-                    isinstance(item, list)
-                    and item
-                    and str(item[0]) == field_info.token_name
-                ):
-                    cursor.parser.mark_used(token_idx)  # Mark in main parser
-                    item_cursor = cursor.enter(
-                        item, f"{field_info.token_name}[{len(result)}]"
-                    )
-                    parsed_item = field_info.inner_type._parse_recursive(item_cursor)
-                    result.append(parsed_item)
+            if field_info.token_name == "__UNION__":  # Special handling for Union types
+                # Get all possible types from the Union
+                union_types = get_args(field_info.inner_type)
+                # Create a mapping from token_name to type
+                token_to_type = {}
+                for union_type in union_types:
+                    if hasattr(union_type, "__token_name__"):
+                        token_to_type[union_type.__token_name__] = union_type
+
+                # Parse items by matching their token names
+                for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+                    if isinstance(item, list) and item:
+                        item_token = str(item[0])
+                        if item_token in token_to_type:
+                            cursor.parser.mark_used(token_idx)
+                            item_cursor = cursor.enter(
+                                item, f"{item_token}[{len(result)}]"
+                            )
+                            parsed_item = token_to_type[item_token]._parse_recursive(
+                                item_cursor
+                            )
+                            result.append(parsed_item)
+            else:
+                # Original single-type parsing
+                for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+                    if (
+                        isinstance(item, list)
+                        and item
+                        and str(item[0]) == field_info.token_name
+                    ):
+                        cursor.parser.mark_used(token_idx)  # Mark in main parser
+                        item_cursor = cursor.enter(
+                            item, f"{field_info.token_name}[{len(result)}]"
+                        )
+                        parsed_item = field_info.inner_type._parse_recursive(
+                            item_cursor
+                        )
+                        result.append(parsed_item)
         else:  # List of primitives
             list_fields = [
                 fi for fi in cls._classify_fields() if fi.field_type == FieldType.LIST
@@ -706,8 +744,8 @@ class KiCadObject(ABC):
             # Check if this is a boolean-like token value (yes/no) - don't quote these
             if value in ("yes", "no"):
                 return value
-            # Escape any quotes within the string value
-            escaped_value = value.replace('"', '\\"')
+            # Escape backslashes first, then quotes (order is important!)
+            escaped_value = value.replace("\\", "\\\\").replace('"', '\\"')
             return f'"{escaped_value}"'  # Regular strings are quoted
         else:
             return str(value)  # Numbers and other values as-is

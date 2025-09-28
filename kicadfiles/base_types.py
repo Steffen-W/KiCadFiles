@@ -801,13 +801,30 @@ class Uuid(KiCadObject):
 
 
 @dataclass
+class Face(KiCadObject):
+    """Font face definition token.
+
+    The 'face' token defines a font face name in the format:
+    (face "FONT_NAME")
+
+    Args:
+        value: Font face name
+    """
+
+    __token_name__ = "face"
+
+    value: str = field(default="", metadata={"description": "Font face name"})
+
+
+@dataclass
 class Font(KiCadObject):
     """Font definition token.
 
     The 'font' token defines font properties in the format:
-    (font [size WIDTH HEIGHT] [thickness THICKNESS] [bold] [italic])
+    (font [face "FONT_NAME"] [size WIDTH HEIGHT] [thickness THICKNESS] [bold] [italic])
 
     Args:
+        face: Font face specification (optional)
         size: Font size (optional)
         thickness: Font thickness (optional)
         bold: Bold flag (optional)
@@ -817,6 +834,10 @@ class Font(KiCadObject):
 
     __token_name__ = "font"
 
+    face: Optional[Face] = field(
+        default=None,
+        metadata={"description": "Font face specification", "required": False},
+    )
     size: Optional[Size] = field(
         default=None, metadata={"description": "Font size", "required": False}
     )

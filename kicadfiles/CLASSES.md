@@ -45,44 +45,45 @@ token_preference       -> base_element.TokenPreference
 ### base_types.py - Fundamental Types
 
 ```python
-anchor                 -> base_types.Anchor
-angle                  -> base_types.Angle
+anchor                 -> base_types.Anchor                 # PadShape
+angle                  -> base_types.Angle                  # float
 at                     -> base_types.At
 at                     -> base_types.AtXY
 center                 -> base_types.Center
-clearance              -> base_types.Clearance
+clearance              -> base_types.Clearance              # float
 color                  -> base_types.Color
-diameter               -> base_types.Diameter
+diameter               -> base_types.Diameter               # float
 effects                -> base_types.Effects
 end                    -> base_types.End
+face                   -> base_types.Face                   # str
 fill                   -> base_types.Fill
 font                   -> base_types.Font
-height                 -> base_types.Height
-id                     -> base_types.Id
+height                 -> base_types.Height                 # float
+id                     -> base_types.Id                     # str
 justify                -> base_types.Justify
 layer                  -> base_types.Layer
 layers                 -> base_types.Layers
-length                 -> base_types.Length
-linewidth              -> base_types.Linewidth
-name                   -> base_types.Name
+length                 -> base_types.Length                 # float
+linewidth              -> base_types.Linewidth              # float
+name                   -> base_types.Name                   # str
 offset                 -> base_types.Offset
 pos                    -> base_types.Pos
 property               -> base_types.Property
 pts                    -> base_types.Pts
-radius                 -> base_types.Radius
+radius                 -> base_types.Radius                 # float
 rotate                 -> base_types.Rotate
 size                   -> base_types.Size
 start                  -> base_types.Start
 stroke                 -> base_types.Stroke
-style                  -> base_types.Style
+style                  -> base_types.Style                  # str
 text                   -> base_types.Text
-thickness              -> base_types.Thickness
-title                  -> base_types.Title
-tstamp                 -> base_types.Tstamp
-type                   -> base_types.Type
-units                  -> base_types.Units
+thickness              -> base_types.Thickness              # float
+title                  -> base_types.Title                  # str
+tstamp                 -> base_types.Tstamp                 # str
+type                   -> base_types.Type                   # str
+units                  -> base_types.Units                  # str
 uuid                   -> base_types.Uuid
-width                  -> base_types.Width
+width                  -> base_types.Width                  # float
 xy                     -> base_types.Xy
 xyz                    -> base_types.Xyz
 ```
@@ -282,8 +283,8 @@ circle                 -> symbol_library.Circle
 exclude_from_sim       -> symbol_library.ExcludeFromSim
 extends                -> symbol_library.Extends
 fields_autoplaced      -> symbol_library.FieldsAutoplaced
-generator              -> symbol_library.Generator
-generator_version      -> symbol_library.GeneratorVersion
+generator              -> symbol_library.Generator          # str
+generator_version      -> symbol_library.GeneratorVersion   # str
 in_bom                 -> symbol_library.InBom
 instances              -> symbol_library.Instances
 kicad_symbol_lib       -> symbol_library.KicadSymbolLib
@@ -311,12 +312,12 @@ version                -> symbol_library.Version
 bitmap                 -> text_and_documents.Bitmap
 bottom_margin          -> text_and_documents.BottomMargin
 comment                -> text_and_documents.Comment
-company                -> text_and_documents.Company
+company                -> text_and_documents.Company        # str
 data                   -> text_and_documents.Data
-date                   -> text_and_documents.Date
-descr                  -> text_and_documents.Descr
-generator              -> text_and_documents.Generator
-generator_version      -> text_and_documents.GeneratorVersion
+date                   -> text_and_documents.Date           # str
+descr                  -> text_and_documents.Descr          # str
+generator              -> text_and_documents.Generator      # str
+generator_version      -> text_and_documents.GeneratorVersion # str
 group                  -> text_and_documents.Group
 image                  -> text_and_documents.Image
 kicad_wks              -> text_and_documents.KicadWks
@@ -346,10 +347,6 @@ setup                  -> text_and_documents.WksSetup
 tbtext                 -> text_and_documents.WksTbText
 textlinewidth          -> text_and_documents.WksTextlinewidth
 textsize               -> text_and_documents.WksTextsize
-bottom_margin          -> text_and_documents.WksBottomMargin
-left_margin            -> text_and_documents.WksLeftMargin
-right_margin           -> text_and_documents.WksRightMargin
-top_margin             -> text_and_documents.WksTopMargin
 ```
 
 ### zone_system.py - Zone and Copper Filling

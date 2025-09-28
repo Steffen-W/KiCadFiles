@@ -327,12 +327,12 @@ class BottomMargin(KiCadObject):
         (bottom_margin DISTANCE)
 
     Args:
-        margin: Bottom margin value
+        value: Bottom margin value
     """
 
     __token_name__ = "bottom_margin"
 
-    margin: float = field(default=0.0, metadata={"description": "Bottom margin value"})
+    value: float = field(default=0.0, metadata={"description": "Bottom margin value"})
 
 
 @dataclass
@@ -344,12 +344,12 @@ class LeftMargin(KiCadObject):
         (left_margin DISTANCE)
 
     Args:
-        margin: Left margin value
+        value: Left margin value
     """
 
     __token_name__ = "left_margin"
 
-    margin: float = field(default=0.0, metadata={"description": "Left margin value"})
+    value: float = field(default=0.0, metadata={"description": "Left margin value"})
 
 
 @dataclass
@@ -361,12 +361,12 @@ class RightMargin(KiCadObject):
         (right_margin DISTANCE)
 
     Args:
-        margin: Right margin value
+        value: Right margin value
     """
 
     __token_name__ = "right_margin"
 
-    margin: float = field(default=0.0, metadata={"description": "Right margin value"})
+    value: float = field(default=0.0, metadata={"description": "Right margin value"})
 
 
 @dataclass
@@ -519,12 +519,12 @@ class TopMargin(KiCadObject):
         (top_margin DISTANCE)
 
     Args:
-        margin: Top margin value
+        value: Top margin value
     """
 
     __token_name__ = "top_margin"
 
-    margin: float = field(default=0.0, metadata={"description": "Top margin value"})
+    value: float = field(default=0.0, metadata={"description": "Top margin value"})
 
 
 @dataclass
@@ -685,70 +685,6 @@ class WksMargin(KiCadObject):
 
 
 @dataclass
-class WksLeftMargin(KiCadObject):
-    """Worksheet left margin definition token.
-
-    Args:
-        value: Left margin distance value
-    """
-
-    __token_name__ = "left_margin"
-
-    value: float = field(
-        default=10.0,
-        metadata={"description": "Left margin distance value"},
-    )
-
-
-@dataclass
-class WksRightMargin(KiCadObject):
-    """Worksheet right margin definition token.
-
-    Args:
-        value: Right margin distance value
-    """
-
-    __token_name__ = "right_margin"
-
-    value: float = field(
-        default=10.0,
-        metadata={"description": "Right margin distance value"},
-    )
-
-
-@dataclass
-class WksTopMargin(KiCadObject):
-    """Worksheet top margin definition token.
-
-    Args:
-        value: Top margin distance value
-    """
-
-    __token_name__ = "top_margin"
-
-    value: float = field(
-        default=10.0,
-        metadata={"description": "Top margin distance value"},
-    )
-
-
-@dataclass
-class WksBottomMargin(KiCadObject):
-    """Worksheet bottom margin definition token.
-
-    Args:
-        value: Bottom margin distance value
-    """
-
-    __token_name__ = "bottom_margin"
-
-    value: float = field(
-        default=10.0,
-        metadata={"description": "Bottom margin distance value"},
-    )
-
-
-@dataclass
 class WksSetup(KiCadObject):
     """Worksheet setup definition token.
 
@@ -776,19 +712,19 @@ class WksSetup(KiCadObject):
         default=None,
         metadata={"description": "Text line width", "required": False},
     )
-    left_margin: Optional[WksLeftMargin] = field(
+    left_margin: Optional[LeftMargin] = field(
         default=None,
         metadata={"description": "Left margin", "required": False},
     )
-    right_margin: Optional[WksRightMargin] = field(
+    right_margin: Optional[RightMargin] = field(
         default=None,
         metadata={"description": "Right margin", "required": False},
     )
-    top_margin: Optional[WksTopMargin] = field(
+    top_margin: Optional[TopMargin] = field(
         default=None,
         metadata={"description": "Top margin", "required": False},
     )
-    bottom_margin: Optional[WksBottomMargin] = field(
+    bottom_margin: Optional[BottomMargin] = field(
         default=None,
         metadata={"description": "Bottom margin", "required": False},
     )

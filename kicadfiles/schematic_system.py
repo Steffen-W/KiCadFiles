@@ -1,7 +1,7 @@
 """Schematic system elements for KiCad S-expressions - schematic drawing and connectivity."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from .base_element import KiCadObject, OptionalFlag, ParseStrictness
 from .base_types import (
@@ -19,7 +19,7 @@ from .base_types import (
     Uuid,
 )
 from .enums import LabelShape
-from .primitive_graphics import Polyline, Rectangle
+from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle
 from .symbol_library import LibSymbols
 from .text_and_documents import (
     Generator,
@@ -30,47 +30,6 @@ from .text_and_documents import (
     TitleBlock,
     Version,
 )
-
-
-@dataclass
-class SchematicBezier(KiCadObject):
-    """Bezier curve definition token for schematics.
-
-    The 'bezier' token defines a graphic Cubic Bezier curve in schematics in the format::
-
-        (bezier
-            COORDINATE_POINT_LIST
-            STROKE_DEFINITION
-            FILL_DEFINITION
-        )
-
-    Args:
-        pts: List of X/Y coordinates of the four points of the curve
-        stroke: Stroke definition for outline (optional)
-        fill: Fill definition for filling (optional)
-        uuid: Unique identifier (optional)
-    """
-
-    __token_name__ = "bezier"
-
-    pts: Pts = field(
-        default_factory=lambda: Pts(),
-        metadata={
-            "description": "List of X/Y coordinates of the four points of the curve"
-        },
-    )
-    stroke: Optional[Stroke] = field(
-        default=None,
-        metadata={"description": "Stroke definition for outline", "required": False},
-    )
-    fill: Optional[Fill] = field(
-        default=None,
-        metadata={"description": "Fill definition for filling", "required": False},
-    )
-    uuid: Optional[Uuid] = field(
-        default=None,
-        metadata={"description": "Unique identifier", "required": False},
-    )
 
 
 @dataclass
@@ -1145,6 +1104,8 @@ class Mirror(KiCadObject):
 class SchematicSymbol(KiCadObject):
     """Schematic symbol instance definition token.
 
+    References a symbol definition via lib_id and adds instance-specific properties.
+
     The 'symbol' token in schematics defines symbol instances in the format::
         (symbol
             (lib_id "LIBRARY:SYMBOL")
@@ -1163,7 +1124,7 @@ class SchematicSymbol(KiCadObject):
 
     Args:
         lib_name: Library name (optional)
-        lib_id: Library identifier (optional)
+        lib_id: Library identifier referencing symbol definition (optional)
         at: Position and rotation (optional)
         mirror: Mirror transformation (optional)
         unit: Unit number (optional)
@@ -1187,7 +1148,10 @@ class SchematicSymbol(KiCadObject):
     )
     lib_id: Optional[LibId] = field(
         default=None,
-        metadata={"description": "Library identifier", "required": False},
+        metadata={
+            "description": "Library identifier referencing symbol definition",
+            "required": False,
+        },
     )
     at: Optional[At] = field(
         default=None,
@@ -1279,15 +1243,13 @@ class KicadSch(KiCadObject):
         global_labels: List of global labels (optional)
         sheets: List of hierarchical sheets (optional)
         instances: List of symbol instances (optional)
-        beziers: List of bezier curves (optional)
-        polylines: List of polylines (optional)
+        graphic_items: List of graphical items (optional)
         tables: List of tables (optional)
         hierarchical_labels: List of hierarchical labels (optional)
         rule_areas: List of rule areas (optional)
         netclass_flags: List of netclass flags (optional)
         symbols: List of symbol instances (optional)
         text: List of text elements (optional)
-        rectangles: List of rectangle graphical items (optional)
         images: List of image elements (optional)
     """
 
@@ -1365,13 +1327,11 @@ class KicadSch(KiCadObject):
         default_factory=list,
         metadata={"description": "List of symbol instances", "required": False},
     )
-    beziers: Optional[List[SchematicBezier]] = field(
+    graphic_items: Optional[
+        List[Union[Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle]]
+    ] = field(
         default_factory=list,
-        metadata={"description": "List of bezier curves", "required": False},
-    )
-    polylines: Optional[List[Polyline]] = field(
-        default_factory=list,
-        metadata={"description": "List of polylines", "required": False},
+        metadata={"description": "List of graphical items", "required": False},
     )
     tables: Optional[List[Table]] = field(
         default_factory=list,
@@ -1396,13 +1356,6 @@ class KicadSch(KiCadObject):
     text: Optional[List[Text]] = field(
         default_factory=list,
         metadata={"description": "List of text elements", "required": False},
-    )
-    rectangles: Optional[List[Rectangle]] = field(
-        default_factory=list,
-        metadata={
-            "description": "List of rectangle graphical items",
-            "required": False,
-        },
     )
     images: Optional[List[Image]] = field(
         default_factory=list,

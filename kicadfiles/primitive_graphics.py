@@ -8,7 +8,6 @@ from .base_types import (
     Center,
     End,
     Fill,
-    Layer,
     Mid,
     Pts,
     Radius,
@@ -31,6 +30,7 @@ class Arc(KiCadObject):
             (end X Y)
             STROKE_DEFINITION
             FILL_DEFINITION
+            (uuid UUID)
         )
 
     Args:
@@ -39,6 +39,7 @@ class Arc(KiCadObject):
         end: End point of the arc
         stroke: Stroke definition for outline
         fill: Fill definition for filling
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "arc"
@@ -62,6 +63,10 @@ class Arc(KiCadObject):
         default_factory=lambda: Fill(),
         metadata={"description": "Fill definition for filling"},
     )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
+    )
 
 
 @dataclass
@@ -79,9 +84,10 @@ class Bezier(KiCadObject):
 
     Args:
         pts: List of X/Y coordinates of the four points of the curve
-        layer: Layer the curve resides on
-        width: Line width of the curve
-        uuid: Unique identifier of the curve object
+        stroke: Stroke definition for outline (optional)
+        fill: Fill definition for filling (optional)
+        width: Line width of the curve (optional)
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "bezier"
@@ -92,17 +98,24 @@ class Bezier(KiCadObject):
             "description": "List of X/Y coordinates of the four points of the curve"
         },
     )
-    layer: Layer = field(
-        default_factory=lambda: Layer(),
-        metadata={"description": "Layer the curve resides on"},
+    stroke: Optional[Stroke] = field(
+        default=None,
+        metadata={"description": "Stroke definition for outline", "required": False},
     )
-    width: Width = field(
-        default_factory=lambda: Width(),
-        metadata={"description": "Line width of the curve"},
+    fill: Optional[Fill] = field(
+        default=None,
+        metadata={"description": "Fill definition for filling", "required": False},
     )
-    uuid: Uuid = field(
-        default_factory=lambda: Uuid(),
-        metadata={"description": "Unique identifier of the curve object"},
+    width: Optional[Width] = field(
+        default=None,
+        metadata={"description": "Line width of the curve", "required": False},
+    )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={
+            "description": "Unique identifier",
+            "required": False,
+        },
     )
 
 
@@ -124,6 +137,7 @@ class Circle(KiCadObject):
         radius: Radius length of the circle
         stroke: Stroke definition for outline
         fill: Fill definition for filling
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "circle"
@@ -144,6 +158,10 @@ class Circle(KiCadObject):
         default_factory=lambda: Fill(),
         metadata={"description": "Fill definition for filling"},
     )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
+    )
 
 
 @dataclass
@@ -152,11 +170,12 @@ class Line(KiCadObject):
 
     The 'line' token defines a basic line geometry in the format::
 
-        (line (start X Y) (end X Y))
+        (line (start X Y) (end X Y) (uuid UUID))
 
     Args:
         start: Start point of the line
         end: End point of the line
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "line"
@@ -168,6 +187,10 @@ class Line(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point of the line"}
     )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
+    )
 
 
 @dataclass
@@ -176,16 +199,21 @@ class Polygon(KiCadObject):
 
     The 'polygon' token defines a polygon with multiple points in the format::
 
-        (polygon (pts (xy X Y) (xy X Y) ...))
+        (polygon (pts (xy X Y) (xy X Y) ...) (uuid UUID))
 
     Args:
         pts: Polygon vertex points
+        uuid: Unique identifier (optional)
     """
 
     __token_name__ = "polygon"
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon vertex points"}
+    )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 
