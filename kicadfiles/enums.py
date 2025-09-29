@@ -115,6 +115,7 @@ class LayerType(Enum):
     POWER = "power"
     MIXED = "mixed"
     JUMPER = "jumper"
+    USER = "user"
 
 
 class ViaType(Enum):

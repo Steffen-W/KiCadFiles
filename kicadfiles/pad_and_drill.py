@@ -1,83 +1,12 @@
 """Pad and drill related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import List, Optional, Union
 
-from .base_element import KiCadObject, OptionalFlag
-from .base_types import Anchor, AtXY, Clearance, Layers, Offset, Size, Uuid, Width
+from .advanced_graphics import GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect
+from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
+from .base_types import Anchor, AtXY, Layers, Offset, Size, Uuid
 from .enums import PadShape, PadType, ZoneConnection
-
-
-@dataclass
-class BestLengthRatio(KiCadObject):
-    """Best length ratio definition token for teardrops.
-
-    The 'best_length_ratio' token defines the best length ratio in the format::
-
-        (best_length_ratio RATIO)
-
-    Args:
-        ratio: Best length ratio value
-    """
-
-    __token_name__ = "best_length_ratio"
-
-    ratio: float = field(
-        default=0.5, metadata={"description": "Best length ratio value"}
-    )
-
-
-@dataclass
-class MaxLength(KiCadObject):
-    """Max length definition token for teardrops.
-
-    The 'max_length' token defines the maximum length in the format::
-
-        (max_length LENGTH)
-
-    Args:
-        length: Maximum length value
-    """
-
-    __token_name__ = "max_length"
-
-    length: float = field(default=1.0, metadata={"description": "Maximum length value"})
-
-
-@dataclass
-class BestWidthRatio(KiCadObject):
-    """Best width ratio definition token for teardrops.
-
-    The 'best_width_ratio' token defines the best width ratio in the format::
-
-        (best_width_ratio RATIO)
-
-    Args:
-        ratio: Best width ratio value
-    """
-
-    __token_name__ = "best_width_ratio"
-
-    ratio: float = field(
-        default=1.0, metadata={"description": "Best width ratio value"}
-    )
-
-
-@dataclass
-class MaxWidth(KiCadObject):
-    """Max width definition token for teardrops.
-
-    The 'max_width' token defines the maximum width in the format::
-
-        (max_width WIDTH)
-
-    Args:
-        width: Maximum width value
-    """
-
-    __token_name__ = "max_width"
-
-    width: float = field(default=2.0, metadata={"description": "Maximum width value"})
 
 
 @dataclass
@@ -97,23 +26,6 @@ class CurvedEdges(KiCadObject):
     value: bool = field(
         default=False, metadata={"description": "Whether edges are curved"}
     )
-
-
-@dataclass
-class FilterRatio(KiCadObject):
-    """Filter ratio definition token for teardrops.
-
-    The 'filter_ratio' token defines the filter ratio in the format::
-
-        (filter_ratio RATIO)
-
-    Args:
-        ratio: Filter ratio value
-    """
-
-    __token_name__ = "filter_ratio"
-
-    ratio: float = field(default=0.9, metadata={"description": "Filter ratio value"})
 
 
 @dataclass
@@ -205,28 +117,28 @@ class Teardrops(KiCadObject):
 
     __token_name__ = "teardrops"
 
-    best_length_ratio: BestLengthRatio = field(
-        default_factory=lambda: BestLengthRatio(),
+    best_length_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("best_length_ratio", 0.0),
         metadata={"description": "Best length ratio setting"},
     )
-    max_length: MaxLength = field(
-        default_factory=lambda: MaxLength(),
+    max_length: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("max_length", 0.0),
         metadata={"description": "Maximum length setting"},
     )
-    best_width_ratio: BestWidthRatio = field(
-        default_factory=lambda: BestWidthRatio(),
+    best_width_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("best_width_ratio", 0.0),
         metadata={"description": "Best width ratio setting"},
     )
-    max_width: MaxWidth = field(
-        default_factory=lambda: MaxWidth(),
+    max_width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("max_width", 0.0),
         metadata={"description": "Maximum width setting"},
     )
     curved_edges: CurvedEdges = field(
         default_factory=lambda: CurvedEdges(),
         metadata={"description": "Curved edges setting"},
     )
-    filter_ratio: FilterRatio = field(
-        default_factory=lambda: FilterRatio(),
+    filter_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("filter_ratio", 0.0),
         metadata={"description": "Filter ratio setting"},
     )
     enabled: Enabled = field(
@@ -265,44 +177,6 @@ class Chamfer(KiCadObject):
 
 
 @dataclass
-class ChamferRatio(KiCadObject):
-    """Chamfer ratio definition token for pads.
-
-    The 'chamfer_ratio' token defines the scaling factor of the pad to chamfer size in the format::
-
-        (chamfer_ratio RATIO)
-
-    The scaling factor is a number between 0 and 1.
-
-    Args:
-        ratio: Chamfer scaling factor (0-1)
-    """
-
-    __token_name__ = "chamfer_ratio"
-
-    ratio: float = field(
-        default=0.0, metadata={"description": "Chamfer scaling factor (0-1)"}
-    )
-
-
-@dataclass
-class Free(KiCadObject):
-    """Free via/pad connection definition token.
-
-    The 'free' token indicates that a via is free to be moved outside its assigned net in the format::
-
-        (free)
-
-    This is a flag token with no parameters.
-
-    Args:
-        None - This is a flag token
-    """
-
-    __token_name__ = "free"
-
-
-@dataclass
 class Options(KiCadObject):
     """Custom pad options definition token.
 
@@ -323,8 +197,8 @@ class Options(KiCadObject):
 
     __token_name__ = "options"
 
-    clearance: Optional[Clearance] = field(
-        default=None,
+    clearance: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("clearance", "", required=False),
         metadata={
             "description": "Clearance type for custom pad",
             "required": False,
@@ -333,28 +207,6 @@ class Options(KiCadObject):
     anchor: Optional[Anchor] = field(
         default=None,
         metadata={"description": "Anchor pad shape", "required": False},
-    )
-
-
-@dataclass
-class RoundrectRratio(KiCadObject):
-    """Round rectangle ratio definition token for pads.
-
-    The 'roundrect_rratio' token defines the scaling factor of the pad to corner radius
-    for rounded rectangular and chamfered corner rectangular pads in the format::
-
-        (roundrect_rratio RATIO)
-
-    The scaling factor is a number between 0 and 1.
-
-    Args:
-        ratio: Corner radius scaling factor (0-1)
-    """
-
-    __token_name__ = "roundrect_rratio"
-
-    ratio: float = field(
-        default=0.0, metadata={"description": "Corner radius scaling factor (0-1)"}
     )
 
 
@@ -376,83 +228,6 @@ class Shape(KiCadObject):
 
     shape: PadShape = field(
         default=PadShape.CIRCLE, metadata={"description": "Pad shape type"}
-    )
-
-
-@dataclass
-class SolderPasteRatio(KiCadObject):
-    """Solder paste ratio definition token.
-
-    The 'solder_paste_ratio' token defines the percentage of the pad size used to define
-    the solder paste in the format::
-
-        (solder_paste_ratio RATIO)
-
-    Args:
-        ratio: Solder paste ratio value
-    """
-
-    __token_name__ = "solder_paste_ratio"
-
-    ratio: float = field(
-        default=0.0, metadata={"description": "Solder paste ratio value"}
-    )
-
-
-@dataclass
-class ThermalBridgeWidth(KiCadObject):
-    """Thermal bridge width definition token.
-
-    The 'thermal_bridge_width' token defines the width of thermal bridges in the format::
-
-        (thermal_bridge_width WIDTH)
-
-    Args:
-        width: Thermal bridge width
-    """
-
-    __token_name__ = "thermal_bridge_width"
-
-    width: float = field(default=0.0, metadata={"description": "Thermal bridge width"})
-
-
-@dataclass
-class ThermalGap(KiCadObject):
-    """Thermal gap definition token.
-
-    The 'thermal_gap' token defines the distance from the pad to the zone of thermal relief
-    connections in the format::
-
-        (thermal_gap DISTANCE)
-
-    Args:
-        distance: Thermal gap distance
-    """
-
-    __token_name__ = "thermal_gap"
-
-    distance: float = field(
-        default=0.0, metadata={"description": "Thermal gap distance"}
-    )
-
-
-@dataclass
-class ThermalWidth(KiCadObject):
-    """Thermal width definition token.
-
-    The 'thermal_width' token defines the thermal relief spoke width used for zone
-    connections in the format::
-
-        (thermal_width WIDTH)
-
-    Args:
-        width: Thermal relief spoke width
-    """
-
-    __token_name__ = "thermal_width"
-
-    width: float = field(
-        default=0.0, metadata={"description": "Thermal relief spoke width"}
     )
 
 
@@ -553,25 +328,35 @@ class Primitives(KiCadObject):
     The 'primitives' token defines drawing objects for custom pads in the format::
 
         (primitives
-            GRAPHIC_ITEMS...
-            (width WIDTH)
-            [(fill yes)]
+            (gr_poly ...)
+            (gr_line ...)
+            (gr_circle ...)
+            (gr_arc ...)
+            (gr_rect ...)
+            (gr_curve ...)
+            ...
         )
 
     Args:
-        elements: List of primitive elements
-        width: Line width of graphical items
+        elements: List of primitive graphical elements (optional)
+        width: Line width of graphical items (optional)
         fill: Whether geometry should be filled (optional)
     """
 
     __token_name__ = "primitives"
 
-    elements: List[Any] = field(
-        default_factory=list, metadata={"description": "List of primitive elements"}
+    elements: Optional[
+        List[Union[GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect]]
+    ] = field(
+        default_factory=list,
+        metadata={
+            "description": "List of primitive graphical elements",
+            "required": False,
+        },
     )
-    width: Width = field(
-        default_factory=lambda: Width(),
-        metadata={"description": "Line width of graphical items"},
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Line width of graphical items", "required": False},
     )
     fill: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
@@ -580,24 +365,6 @@ class Primitives(KiCadObject):
             "required": False,
         },
     )
-
-
-@dataclass
-class DieLength(KiCadObject):
-    """Die length definition token.
-
-    The 'die_length' token defines the die length between the component pad and
-    physical chip inside the component package in the format::
-
-        (die_length LENGTH)
-
-    Args:
-        length: Die length value
-    """
-
-    __token_name__ = "die_length"
-
-    length: float = field(default=0.0, metadata={"description": "Die length value"})
 
 
 @dataclass
@@ -693,8 +460,8 @@ class Pad(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    roundrect_rratio: Optional[RoundrectRratio] = field(
-        default=None,
+    roundrect_rratio: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("roundrect_rratio", 0.0, required=False),
         metadata={"description": "Round rectangle corner ratio", "required": False},
     )
     chamfer_ratio: Optional[float] = field(

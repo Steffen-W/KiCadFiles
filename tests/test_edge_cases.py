@@ -8,13 +8,12 @@ from kicadfiles import (
     Color,
     Effects,
     Font,
+    KiCadFloat,
     Layer,
     ParseStrictness,
     Size,
     Stroke,
-    Width,
 )
-from kicadfiles.base_element import KiCadObject
 
 
 def test_eq_edge_cases():
@@ -59,7 +58,7 @@ def test_eq_edge_cases():
     # Test 5: Objects with None vs non-None fields - explicitly call __eq__
     font1 = Font(size=Size(width=1.0, height=1.0))
     font2 = Font(
-        size=Size(width=1.0, height=1.0), thickness=Width(value=0.1)
+        size=Size(width=1.0, height=1.0), thickness=KiCadFloat("thickness", 0.1)
     )  # has optional thickness
     assert font1.__eq__(font2) == False
     assert font1 != font2
@@ -225,16 +224,16 @@ def test_complex_nested_equality():
     print("\n=== TESTING COMPLEX NESTED EQUALITY ===")
 
     # Create complex nested structures
-    stroke1 = Stroke(width=Width(value=0.15), type="solid")
-    stroke2 = Stroke(width=Width(value=0.15), type="solid")
-    stroke3 = Stroke(width=Width(value=0.20), type="solid")  # Different width
+    stroke1 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
+    stroke2 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
+    stroke3 = Stroke(width=KiCadFloat("width", 0.20), type="solid")  # Different width
 
     assert stroke1 == stroke2
     assert stroke1 != stroke3
     print("✅ Complex nested object equality works")
 
     # Test with None nested objects
-    stroke4 = Stroke(width=Width(value=0.15), type="solid")
+    stroke4 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
     # Assuming Stroke has optional color field
     assert stroke1 == stroke4  # Both should have None for optional fields
     print("✅ Objects with None optional nested fields are equal")

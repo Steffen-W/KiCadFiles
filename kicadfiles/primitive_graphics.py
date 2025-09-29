@@ -3,18 +3,16 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .base_element import KiCadObject, OptionalFlag
+from .base_element import KiCadFloat, KiCadObject, OptionalFlag
 from .base_types import (
     Center,
     End,
     Fill,
     Mid,
     Pts,
-    Radius,
     Start,
     Stroke,
     Uuid,
-    Width,
 )
 
 
@@ -106,8 +104,8 @@ class Bezier(KiCadObject):
         default=None,
         metadata={"description": "Fill definition for filling", "required": False},
     )
-    width: Optional[Width] = field(
-        default=None,
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width of the curve", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -146,8 +144,8 @@ class Circle(KiCadObject):
         default_factory=lambda: Center(),
         metadata={"description": "Center point of the circle"},
     )
-    radius: Radius = field(
-        default_factory=lambda: Radius(),
+    radius: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("radius", 0.0),
         metadata={"description": "Radius length of the circle"},
     )
     stroke: Stroke = field(

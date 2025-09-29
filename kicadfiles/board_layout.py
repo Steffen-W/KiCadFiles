@@ -4,60 +4,26 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
 from .advanced_graphics import GrText
-from .base_element import KiCadObject, OptionalFlag, ParseStrictness
+from .base_element import (
+    KiCadFloat,
+    KiCadInt,
+    KiCadObject,
+    KiCadStr,
+    OptionalFlag,
+    ParseStrictness,
+)
 from .base_types import (
     At,
-    Diameter,
     End,
     Layer,
     Layers,
     Property,
     Start,
-    Tstamp,
-    Width,
+    Uuid,
 )
 from .footprint_library import Footprint
 from .pad_and_drill import Net
-from .text_and_documents import Generator, GeneratorVersion, Page, Version
 from .zone_system import Zone
-
-
-@dataclass
-class ViaSize(KiCadObject):
-    """Via size definition token.
-
-    The 'size' token for via defines a diameter value in the format::
-
-        (size DIAMETER)
-
-    Args:
-        diameter: Via diameter value
-    """
-
-    __token_name__ = "size"
-
-    diameter: float = field(default=0.0, metadata={"description": "Via diameter value"})
-
-
-@dataclass
-class General(KiCadObject):
-    """General board settings definition token.
-
-    The 'general' token defines general information about the board in the format::
-
-        (general
-            (thickness THICKNESS)
-        )
-
-    Args:
-        thickness: Overall board thickness
-    """
-
-    __token_name__ = "general"
-
-    thickness: float = field(
-        default=1.6, metadata={"description": "Overall board thickness"}
-    )
 
 
 @dataclass
@@ -125,7 +91,8 @@ class Segment(KiCadObject):
         layer: Layer the track segment resides on
         locked: Whether the line cannot be edited (optional)
         net: Net ordinal number from net section
-        tstamp: Unique identifier of the line object
+        tstamp: Unique identifier of the line object (optional)
+        uuid: Unique identifier
     """
 
     __token_name__ = "segment"
@@ -138,8 +105,9 @@ class Segment(KiCadObject):
         default_factory=lambda: End(),
         metadata={"description": "Coordinates of the end of the line"},
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Line width"},
     )
     layer: Layer = field(
         default_factory=lambda: Layer(),
@@ -155,10 +123,16 @@ class Segment(KiCadObject):
     net: int = field(
         default=0, metadata={"description": "Net ordinal number from net section"}
     )
-    tstamp: Tstamp = field(
-        default_factory=lambda: Tstamp(),
-        metadata={"description": "Unique identifier of the line object"},
-    )
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={
+            "description": "Unique identifier of the line object",
+            "required": False,
+        },
+    )  # NEW Variant
+    uuid: Optional[Uuid] = field(
+        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    )  # Old Variant
 
 
 @dataclass
@@ -226,6 +200,37 @@ class Setup(KiCadObject):
 
 
 @dataclass
+class General(KiCadObject):
+    """General board settings definition token.
+
+    The 'general' token defines general board settings in the format::
+
+        (general
+            (thickness THICKNESS)
+            [(legacy_teardrops yes|no)]
+        )
+
+    Args:
+        thickness: Board thickness
+        legacy_teardrops: Whether to use legacy teardrops (optional)
+    """
+
+    __token_name__ = "general"
+
+    thickness: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("thickness", 1.6),
+        metadata={"description": "Board thickness"},
+    )
+    legacy_teardrops: Optional[OptionalFlag] = field(
+        default_factory=lambda: OptionalFlag.create_bool_flag("legacy_teardrops"),
+        metadata={
+            "description": "Whether to use legacy teardrops",
+            "required": False,
+        },
+    )
+
+
+@dataclass
 class Tracks(KiCadObject):
     """Tracks container definition token.
 
@@ -278,7 +283,8 @@ class Via(KiCadObject):
         keep_end_layers: Keep end layers flag (optional)
         free: Whether via is free to move outside assigned net (optional)
         net: Net ordinal number from net section
-        tstamp: Unique identifier of the line object
+        tstamp: Unique identifier of the line object (optional)
+        uuid: Unique identifier
     """
 
     __token_name__ = "via"
@@ -298,12 +304,12 @@ class Via(KiCadObject):
         default_factory=lambda: At(),
         metadata={"description": "Coordinates of the center of the via"},
     )
-    size: ViaSize = field(
-        default_factory=lambda: ViaSize(),
+    size: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("size", 0.0),
         metadata={"description": "Diameter of the via annular ring"},
     )
-    drill: Diameter = field(
-        default_factory=lambda: Diameter(),
+    drill: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("drill", 0.0),
         metadata={"description": "Drill diameter of the via"},
     )
     layers: Layers = field(
@@ -328,10 +334,16 @@ class Via(KiCadObject):
     net: int = field(
         default=0, metadata={"description": "Net ordinal number from net section"}
     )
-    tstamp: Tstamp = field(
-        default_factory=lambda: Tstamp(),
-        metadata={"description": "Unique identifier of the line object"},
-    )
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={
+            "description": "Unique identifier of the line object",
+            "required": False,
+        },
+    )  # NEW Variant
+    uuid: Optional[Uuid] = field(
+        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    )  # Old Variant
 
 
 @dataclass
@@ -357,59 +369,6 @@ class Vias(KiCadObject):
 
 
 @dataclass
-class NetName(KiCadObject):
-    """Net name definition token.
-
-    The 'net_name' token defines a net name in the format::
-
-        (net_name "NAME")
-
-    Args:
-        name: Net name
-    """
-
-    __token_name__ = "net_name"
-
-    name: str = field(default="", metadata={"description": "Net name"})
-
-
-@dataclass
-class Orientation(KiCadObject):
-    """Orientation definition token.
-
-    The 'orientation' token defines an orientation angle in the format::
-
-        (orientation ANGLE)
-
-    Args:
-        angle: Orientation angle in degrees
-    """
-
-    __token_name__ = "orientation"
-
-    angle: float = field(
-        default=0.0, metadata={"description": "Orientation angle in degrees"}
-    )
-
-
-@dataclass
-class Path(KiCadObject):
-    """Hierarchical path definition token.
-
-    The 'path' token defines a hierarchical path in the format::
-
-        (path "PATH_STRING")
-
-    Args:
-        path: Hierarchical path string
-    """
-
-    __token_name__ = "path"
-
-    path: str = field(default="", metadata={"description": "Hierarchical path string"})
-
-
-@dataclass
 class KicadPcb(KiCadObject):
     """KiCad PCB board file definition.
 
@@ -419,6 +378,7 @@ class KicadPcb(KiCadObject):
             (version VERSION)
             (generator GENERATOR)
             (general ...)
+            (paper "SIZE")
             (page ...)
             (layers ...)
             (setup ...)
@@ -437,6 +397,7 @@ class KicadPcb(KiCadObject):
         generator_version: Generator version (optional)
         general: General board settings (optional)
         page: Page settings (optional)
+        paper: Paper size specification (optional)
         layers: Layer definitions (optional)
         setup: Board setup (optional)
         properties: Board properties
@@ -451,16 +412,16 @@ class KicadPcb(KiCadObject):
     __token_name__ = "kicad_pcb"
 
     # Required header fields
-    version: Version = field(
-        default_factory=lambda: Version(),
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: Generator = field(
-        default_factory=lambda: Generator(),
+    generator: KiCadStr = field(
+        default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application"},
     )
-    generator_version: Optional[GeneratorVersion] = field(
-        default=None,
+    generator_version: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
 
@@ -470,8 +431,13 @@ class KicadPcb(KiCadObject):
         metadata={"description": "General board settings", "required": False},
     )
 
-    page: Optional[Page] = field(
-        default=None, metadata={"description": "Page settings", "required": False}
+    page: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("page", "", required=False),
+        metadata={"description": "Page settings", "required": False},
+    )
+    paper: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("paper", "A4", required=False),
+        metadata={"description": "Paper size specification", "required": False},
     )
     layers: Optional[Layers] = field(
         default=None, metadata={"description": "Layer definitions", "required": False}

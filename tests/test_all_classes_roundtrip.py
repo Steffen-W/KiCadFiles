@@ -2,8 +2,6 @@
 """Comprehensive round-trip test for all KiCad classes."""
 
 import inspect
-from dataclasses import fields
-from typing import get_args, get_origin
 
 import kicadfiles
 from kicadfiles.base_element import KiCadObject, ParseStrictness
@@ -130,18 +128,17 @@ def test_all_classes():
     print("=" * 60)
 
     print(f"\n✅ PASSED ({len(passed)}):")
-    for name in passed:
-        print(f"  - {name}")
+    if passed:
+        print("  " + ", ".join(passed))
 
     if failed:
         print(f"\n❌ FAILED ({len(failed)}):")
-        for name in failed:
-            print(f"  - {name}")
+        print("  " + ", ".join(failed))
 
     if skipped:
         print(f"\n⚠️  SKIPPED ({len(skipped)}):")
-        for name, reason in skipped:
-            print(f"  - {name}: {reason}")
+        skipped_names = [f"{name} ({reason})" for name, reason in skipped]
+        print("  " + ", ".join(skipped_names))
 
     print(f"\nTotal: {len(classes)} classes")
     print(
@@ -159,15 +156,12 @@ def test_all_classes():
 
 
 def test_specific_classes():
-    """Test specific classes that are commonly used."""
+    """Test specific classes that are not covered by automatic discovery."""
     print("\n=== TESTING SPECIFIC IMPORTANT CLASSES ===")
+    from kicadfiles.base_element import KiCadFloat, KiCadInt, KiCadStr
 
-    # Import specific classes for targeted testing
-    from kicadfiles.base_types import At, Layer, Size, Xy
-    from kicadfiles.pad_and_drill import Net
-    from kicadfiles.text_and_documents import Generator, Version
-
-    important_classes = [At, Layer, Size, Xy, Version, Generator, Net]
+    # Only test classes not covered by get_all_kicad_classes()
+    important_classes = [KiCadFloat, KiCadInt, KiCadStr]
 
     for cls in important_classes:
         run_class_round_trip(cls)

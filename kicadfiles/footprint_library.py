@@ -1,47 +1,19 @@
 """Footprint library elements for KiCad S-expressions - footprint management and properties."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from .advanced_graphics import FpArc, FpCircle, FpLine, FpPoly, FpRect, FpText
-from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, Clearance, Layer, Property, Uuid, Width, Xyz
+from .advanced_graphics import FpArc, FpCircle, FpCurve, FpLine, FpPoly, FpRect, FpText
+from .base_element import (
+    KiCadFloat,
+    KiCadInt,
+    KiCadObject,
+    KiCadStr,
+    OptionalFlag,
+    ParseStrictness,
+)
+from .base_types import At, Layer, Property, Uuid, Xyz
 from .pad_and_drill import Pad
-from .text_and_documents import Descr, Generator, GeneratorVersion, Tedit, Version
-
-
-@dataclass
-class FileName(KiCadObject):
-    """Name definition token for embedded files.
-
-    The 'name' token defines a file name in the format::
-
-        (name "FILENAME")
-
-    Args:
-        value: File name string
-    """
-
-    __token_name__ = "name"
-
-    value: str = field(default="", metadata={"description": "File name string"})
-
-
-@dataclass
-class FileType(KiCadObject):
-    """Type definition token for embedded files.
-
-    The 'type' token defines a file type in the format::
-
-        (type TYPE)
-
-    Args:
-        value: File type string
-    """
-
-    __token_name__ = "type"
-
-    value: str = field(default="", metadata={"description": "File type string"})
 
 
 @dataclass
@@ -67,23 +39,6 @@ class FileData(KiCadObject):
 
 
 @dataclass
-class FileChecksum(KiCadObject):
-    """Checksum definition token for embedded files.
-
-    The 'checksum' token defines a file checksum in the format::
-
-        (checksum "CHECKSUM")
-
-    Args:
-        value: File checksum string
-    """
-
-    __token_name__ = "checksum"
-
-    value: str = field(default="", metadata={"description": "File checksum string"})
-
-
-@dataclass
 class EmbeddedFile(KiCadObject):
     """Embedded file definition token.
 
@@ -105,18 +60,21 @@ class EmbeddedFile(KiCadObject):
 
     __token_name__ = "file"
 
-    name: FileName = field(
-        default_factory=lambda: FileName(), metadata={"description": "File name token"}
+    name: KiCadStr = field(
+        default_factory=lambda: KiCadStr("name", ""),
+        metadata={"description": "File name token"},
     )
-    type: FileType = field(
-        default_factory=lambda: FileType(), metadata={"description": "File type token"}
+    type: KiCadStr = field(
+        default_factory=lambda: KiCadStr("type", ""),
+        metadata={"description": "File type token"},
     )
     data: Optional[FileData] = field(
         default=None,
         metadata={"description": "Base64 encoded file data token", "required": False},
     )
-    checksum: Optional[FileChecksum] = field(
-        default=None, metadata={"description": "File checksum token", "required": False}
+    checksum: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("checksum", "", required=False),
+        metadata={"description": "File checksum token", "required": False},
     )
 
 
@@ -207,80 +165,6 @@ class NetTiePadGroups(KiCadObject):
     groups: List[str] = field(
         default_factory=list, metadata={"description": "List of pad group strings"}
     )
-
-
-@dataclass
-class SolderMaskMargin(KiCadObject):
-    """Solder mask margin definition token.
-
-    The 'solder_mask_margin' token defines the solder mask distance from all pads in the format::
-
-        (solder_mask_margin MARGIN)
-
-    Args:
-        margin: Solder mask margin value
-    """
-
-    __token_name__ = "solder_mask_margin"
-
-    margin: float = field(
-        default=0.0, metadata={"description": "Solder mask margin value"}
-    )
-
-
-@dataclass
-class SolderPasteMargin(KiCadObject):
-    """Solder paste margin definition token.
-
-    The 'solder_paste_margin' token defines the solder paste distance from all pads in the format::
-
-        (solder_paste_margin MARGIN)
-
-    Args:
-        margin: Solder paste margin value
-    """
-
-    __token_name__ = "solder_paste_margin"
-
-    margin: float = field(
-        default=0.0, metadata={"description": "Solder paste margin value"}
-    )
-
-
-@dataclass
-class SolderPasteMarginRatio(KiCadObject):
-    """Solder paste margin ratio definition token.
-
-    The 'solder_paste_margin_ratio' token defines the percentage of pad size for solder paste in the format::
-
-        (solder_paste_margin_ratio RATIO)
-
-    Args:
-        ratio: Solder paste margin ratio
-    """
-
-    __token_name__ = "solder_paste_margin_ratio"
-
-    ratio: float = field(
-        default=0.0, metadata={"description": "Solder paste margin ratio"}
-    )
-
-
-@dataclass
-class Tags(KiCadObject):
-    """Tags definition token.
-
-    The 'tags' token defines search tags for the footprint in the format::
-
-        (tags "TAG_STRING")
-
-    Args:
-        tags: Tag string
-    """
-
-    __token_name__ = "tags"
-
-    tags: str = field(default="", metadata={"description": "Tag string"})
 
 
 @dataclass
@@ -478,12 +362,7 @@ class Footprint(KiCadObject):
         net_tie_pad_groups: Net tie pad groups (optional)
         pads: List of pads (optional)
         models: List of 3D models (optional)
-        fp_rects: List of footprint rectangles (optional)
-        fp_circles: List of footprint circles (optional)
-        fp_texts: List of footprint texts (optional)
-        fp_lines: List of footprint lines (optional)
-        fp_arcs: List of footprint arcs (optional)
-        fp_polys: List of footprint polygons (optional)
+        fp_elements: List of footprint graphical elements (optional)
         embedded_fonts: Embedded fonts settings (optional)
         embedded_files: Embedded files container (optional)
     """
@@ -495,15 +374,17 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Link to footprint library", "required": False},
     )
-    version: Optional[Version] = field(
-        default=None, metadata={"description": "File format version", "required": False}
+    version: Optional[KiCadInt] = field(
+        default_factory=lambda: KiCadInt("version", 0, required=False),
+        metadata={"description": "File format version", "required": False},
     )
-    generator: Optional[Generator] = field(
-        default=None,
+    generator: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("generator", "", required=False),
         metadata={"description": "Generator application", "required": False},
     )
-    generator_version: Optional[GeneratorVersion] = field(
-        default=None, metadata={"description": "Generator version", "required": False}
+    generator_version: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("generator_version", "", required=False),
+        metadata={"description": "Generator version", "required": False},
     )
     locked: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
@@ -523,8 +404,9 @@ class Footprint(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the footprint is placed on"},
     )
-    tedit: Optional[Tedit] = field(
-        default=None, metadata={"description": "Last edit timestamp", "required": False}
+    tedit: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tedit", "0", required=False),
+        metadata={"description": "Last edit timestamp", "required": False},
     )
     uuid: Optional[Uuid] = field(
         default=None,
@@ -540,12 +422,12 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    descr: Optional[Descr] = field(
-        default=None,
+    descr: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("descr", "", required=False),
         metadata={"description": "Description of the footprint", "required": False},
     )
-    tags: Optional[Tags] = field(
-        default=None,
+    tags: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tags", "", required=False),
         metadata={"description": "Search tags for the footprint", "required": False},
     )
     properties: Optional[List[Property]] = field(
@@ -592,8 +474,8 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    clearance: Optional[Clearance] = field(
-        default=None,
+    clearance: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("clearance", 0.0, required=False),
         metadata={
             "description": "Clearance to board copper objects",
             "required": False,
@@ -603,12 +485,12 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "How pads connect to filled zones", "required": False},
     )
-    thermal_width: Optional[Width] = field(
-        default=None,
+    thermal_width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("thermal_width", 0.0, required=False),
         metadata={"description": "Thermal relief spoke width", "required": False},
     )
-    thermal_gap: Optional[Clearance] = field(
-        default=None,
+    thermal_gap: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("thermal_gap", 0.0, required=False),
         metadata={
             "description": "Distance from pad to zone for thermal relief",
             "required": False,
@@ -629,29 +511,14 @@ class Footprint(KiCadObject):
         default_factory=list,
         metadata={"description": "List of 3D models", "required": False},
     )
-    fp_rects: Optional[List[FpRect]] = field(
+    fp_elements: Optional[
+        List[Union[FpArc, FpCircle, FpCurve, FpLine, FpPoly, FpRect, FpText]]
+    ] = field(
         default_factory=list,
-        metadata={"description": "List of footprint rectangles", "required": False},
-    )
-    fp_circles: Optional[List[FpCircle]] = field(
-        default_factory=list,
-        metadata={"description": "List of footprint circles", "required": False},
-    )
-    fp_texts: Optional[List[FpText]] = field(
-        default_factory=list,
-        metadata={"description": "List of footprint texts", "required": False},
-    )
-    fp_lines: Optional[List[FpLine]] = field(
-        default_factory=list,
-        metadata={"description": "List of footprint lines", "required": False},
-    )
-    fp_arcs: Optional[List[FpArc]] = field(
-        default_factory=list,
-        metadata={"description": "List of footprint arcs", "required": False},
-    )
-    fp_polys: Optional[List[FpPoly]] = field(
-        default_factory=list,
-        metadata={"description": "List of footprint polygons", "required": False},
+        metadata={
+            "description": "List of footprint graphical elements",
+            "required": False,
+        },
     )
     embedded_fonts: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
@@ -710,37 +577,3 @@ class Footprints(KiCadObject):
     footprints: List[Footprint] = field(
         default_factory=list, metadata={"description": "List of footprints"}
     )
-
-
-@dataclass
-class AutoplaceCost180(KiCadObject):
-    """Autoplace cost 180 definition token.
-
-    The 'autoplace_cost180' token defines the horizontal cost for automatic placement in the format::
-
-        (autoplace_cost180 COST)
-
-    Args:
-        cost: 180 degree rotation cost
-    """
-
-    __token_name__ = "autoplace_cost180"
-
-    cost: int = field(default=0, metadata={"description": "180 degree rotation cost"})
-
-
-@dataclass
-class AutoplaceCost90(KiCadObject):
-    """Autoplace cost 90 definition token.
-
-    The 'autoplace_cost90' token defines the vertical cost for automatic placement in the format::
-
-        (autoplace_cost90 COST)
-
-    Args:
-        cost: 90 degree rotation cost
-    """
-
-    __token_name__ = "autoplace_cost90"
-
-    cost: int = field(default=0, metadata={"description": "90 degree rotation cost"})

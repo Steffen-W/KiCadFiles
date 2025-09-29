@@ -3,61 +3,9 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from .base_element import KiCadObject, ParseStrictness
+from .base_element import KiCadInt, KiCadObject, KiCadStr, ParseStrictness
 from .enums import ConstraintType, SeverityLevel
 from .sexpr_parser import sexpr_to_str
-from .text_and_documents import Version
-
-
-@dataclass
-class ConstraintMin(KiCadObject):
-    """Minimum constraint value token.
-
-    The 'min' token defines a minimum value in the format::
-
-        (min VALUE)
-
-    Args:
-        value: Minimum value
-    """
-
-    __token_name__ = "min"
-
-    value: str = field(default="0.0", metadata={"description": "Minimum value"})
-
-
-@dataclass
-class ConstraintMax(KiCadObject):
-    """Maximum constraint value token.
-
-    The 'max' token defines a maximum value in the format::
-
-        (max VALUE)
-
-    Args:
-        value: Maximum value
-    """
-
-    __token_name__ = "max"
-
-    value: str = field(default="0.0", metadata={"description": "Maximum value"})
-
-
-@dataclass
-class ConstraintOpt(KiCadObject):
-    """Optimal constraint value token.
-
-    The 'opt' token defines an optimal value in the format::
-
-        (opt VALUE)
-
-    Args:
-        value: Optimal value
-    """
-
-    __token_name__ = "opt"
-
-    value: str = field(default="0.0", metadata={"description": "Optimal value"})
 
 
 @dataclass
@@ -82,61 +30,21 @@ class DesignRuleConstraint(KiCadObject):
     constraint_type: ConstraintType = field(
         default=ConstraintType.CLEARANCE, metadata={"description": "Type of constraint"}
     )
-    min_constraint: Optional[ConstraintMin] = field(
-        default=None,
+    min_constraint: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("min", "0.0", required=False),
         metadata={"description": "Minimum value constraint", "required": False},
     )
-    opt_constraint: Optional[ConstraintOpt] = field(
-        default=None,
+    opt_constraint: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("opt", "0.0", required=False),
         metadata={"description": "Optimal value constraint", "required": False},
     )
-    max_constraint: Optional[ConstraintMax] = field(
-        default=None,
+    max_constraint: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("max", "0.0", required=False),
         metadata={"description": "Maximum value constraint", "required": False},
     )
     disallow_item: Optional[str] = field(
         default=None,
         metadata={"description": "Item type to disallow", "required": False},
-    )
-
-
-@dataclass
-class DesignRuleLayer(KiCadObject):
-    """Design rule layer specification token.
-
-    The 'layer' token defines which layer(s) a rule applies to in the format::
-
-        (layer LAYER_NAME)
-        (layer outer)
-        (layer inner)
-
-    Args:
-        layer_name: Name of the layer or special layer group
-    """
-
-    __token_name__ = "layer"
-
-    layer_name: str = field(
-        default="", metadata={"description": "Name of the layer or special layer group"}
-    )
-
-
-@dataclass
-class DesignRuleCondition(KiCadObject):
-    """Design rule condition token.
-
-    The 'condition' token defines a conditional expression for when the rule applies in the format::
-
-        (condition "EXPRESSION")
-
-    Args:
-        expression: Conditional expression
-    """
-
-    __token_name__ = "condition"
-
-    expression: str = field(
-        default="", metadata={"description": "Conditional expression"}
     )
 
 
@@ -156,26 +64,6 @@ class DesignRuleSeverity(KiCadObject):
 
     level: SeverityLevel = field(
         default=SeverityLevel.ERROR, metadata={"description": "Severity level"}
-    )
-
-
-@dataclass
-class DesignRulePriority(KiCadObject):
-    """Design rule priority token.
-
-    The 'priority' token defines the priority of a rule in the format::
-
-        (priority PRIORITY_NUMBER)
-
-    Args:
-        priority: Priority number (higher = higher priority)
-    """
-
-    __token_name__ = "priority"
-
-    priority: int = field(
-        default=0,
-        metadata={"description": "Priority number (higher = higher priority)"},
     )
 
 
@@ -209,15 +97,17 @@ class DesignRule(KiCadObject):
     severity: Optional[DesignRuleSeverity] = field(
         default=None, metadata={"description": "Severity level", "required": False}
     )
-    layer: Optional[DesignRuleLayer] = field(
-        default=None, metadata={"description": "Layer specification", "required": False}
+    layer: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("layer", "", required=False),
+        metadata={"description": "Layer specification", "required": False},
     )
-    condition: Optional[DesignRuleCondition] = field(
-        default=None,
+    condition: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("condition", "", required=False),
         metadata={"description": "Conditional expression", "required": False},
     )
-    priority: Optional[DesignRulePriority] = field(
-        default=None, metadata={"description": "Rule priority", "required": False}
+    priority: Optional[KiCadInt] = field(
+        default_factory=lambda: KiCadInt("priority", 0, required=False),
+        metadata={"description": "Rule priority", "required": False},
     )
     constraints: List[DesignRuleConstraint] = field(
         default_factory=list,
@@ -246,8 +136,8 @@ class KiCadDesignRules(KiCadObject):
         "kicad_dru"  # Using this as placeholder, but file format is different
     )
 
-    version: Version = field(
-        default_factory=lambda: Version(),
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt("version", 1),
         metadata={"description": "File format version"},
     )
     rules: Optional[List[DesignRule]] = field(
@@ -329,7 +219,7 @@ class KiCadDesignRules(KiCadObject):
         lines = []
 
         # Add version
-        version_sexpr = ["version", self.version.version]
+        version_sexpr = ["version", self.version.value]
         lines.append(sexpr_to_str(version_sexpr))
 
         # Add rules

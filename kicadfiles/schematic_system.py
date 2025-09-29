@@ -3,12 +3,18 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
 
-from .base_element import KiCadObject, OptionalFlag, ParseStrictness
+from .base_element import (
+    KiCadFloat,
+    KiCadInt,
+    KiCadObject,
+    KiCadStr,
+    OptionalFlag,
+    ParseStrictness,
+)
 from .base_types import (
     At,
     AtXY,
     Color,
-    Diameter,
     Effects,
     Fill,
     Property,
@@ -22,13 +28,9 @@ from .enums import LabelShape
 from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle
 from .symbol_library import LibSymbols
 from .text_and_documents import (
-    Generator,
-    GeneratorVersion,
     Image,
-    Page,
     Paper,
     TitleBlock,
-    Version,
 )
 
 
@@ -559,8 +561,8 @@ class Junction(KiCadObject):
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
     )
-    diameter: Diameter = field(
-        default_factory=lambda: Diameter(),
+    diameter: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("diameter", 0.0),
         metadata={"description": "Junction diameter"},
     )
     color: Optional[Color] = field(
@@ -799,57 +801,6 @@ class Wire(KiCadObject):
 
 
 @dataclass
-class Incrx(KiCadObject):
-    """Increment X definition token.
-
-    The 'incrx' token defines X increment value in the format::
-
-        (incrx VALUE)
-
-    Args:
-        value: X increment value
-    """
-
-    __token_name__ = "incrx"
-
-    value: float = field(default=0.0, metadata={"description": "X increment value"})
-
-
-@dataclass
-class Incry(KiCadObject):
-    """Increment Y definition token.
-
-    The 'incry' token defines Y increment value in the format::
-
-        (incry VALUE)
-
-    Args:
-        value: Y increment value
-    """
-
-    __token_name__ = "incry"
-
-    value: float = field(default=0.0, metadata={"description": "Y increment value"})
-
-
-@dataclass
-class SchematicRepeat(KiCadObject):
-    """Repeat definition token.
-
-    The 'repeat' token defines repeat settings in the format::
-
-        (repeat VALUE)
-
-    Args:
-        value: Repeat value
-    """
-
-    __token_name__ = "repeat"
-
-    value: int = field(default=1, metadata={"description": "Repeat value"})
-
-
-@dataclass
 class SheetInstance(KiCadObject):
     """Sheet instance definition token.
 
@@ -867,8 +818,8 @@ class SheetInstance(KiCadObject):
     __token_name__ = "path"
 
     path: str = field(default="", metadata={"description": "Hierarchical path string"})
-    page: Page = field(
-        default_factory=lambda: Page(),
+    page: KiCadStr = field(
+        default_factory=lambda: KiCadStr("page", ""),
         metadata={"description": "Page object"},
     )
 
@@ -921,40 +872,6 @@ class SheetInstances(KiCadObject):
 
 
 @dataclass
-class LibId(KiCadObject):
-    """Library identifier definition token.
-
-    The 'lib_id' token defines a library identifier in the format::
-        (lib_id "LIBRARY:SYMBOL")
-
-    Args:
-        value: Library identifier string
-    """
-
-    __token_name__ = "lib_id"
-
-    value: str = field(
-        default="", metadata={"description": "Library identifier string"}
-    )
-
-
-@dataclass
-class Unit(KiCadObject):
-    """Unit definition token.
-
-    The 'unit' token defines a unit number in the format::
-        (unit NUMBER)
-
-    Args:
-        value: Unit number
-    """
-
-    __token_name__ = "unit"
-
-    value: int = field(default=1, metadata={"description": "Unit number"})
-
-
-@dataclass
 class PinRef(KiCadObject):
     """Pin reference definition token for schematic symbols.
 
@@ -978,22 +895,6 @@ class PinRef(KiCadObject):
 
 
 @dataclass
-class Reference(KiCadObject):
-    """Reference definition token.
-
-    The 'reference' token defines a component reference in the format::
-        (reference "REF")
-
-    Args:
-        value: Reference value
-    """
-
-    __token_name__ = "reference"
-
-    value: str = field(default="", metadata={"description": "Reference value"})
-
-
-@dataclass
 class Path(KiCadObject):
     """Path definition token.
 
@@ -1013,16 +914,16 @@ class Path(KiCadObject):
     __token_name__ = "path"
 
     value: str = field(default="", metadata={"description": "Path value"})
-    reference: Optional[Reference] = field(
-        default=None,
+    reference: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("reference", "", required=False),
         metadata={"description": "Component reference", "required": False},
     )
-    unit: Optional[Unit] = field(
-        default=None,
+    unit: Optional[KiCadInt] = field(
+        default_factory=lambda: KiCadInt("unit", 0, required=False),
         metadata={"description": "Unit number", "required": False},
     )
-    page: Optional[Page] = field(
-        default=None,
+    page: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("page", "", required=False),
         metadata={"description": "Page number", "required": False},
     )
 
@@ -1080,27 +981,6 @@ class SymbolInstances(KiCadObject):
 
 
 @dataclass
-class Mirror(KiCadObject):
-    """Mirror transformation definition token.
-
-    The 'mirror' token defines symbol mirroring in the format::
-
-        (mirror DIRECTION)
-
-    Where DIRECTION can be: x, y
-
-    Args:
-        direction: Mirror direction (x or y)
-    """
-
-    __token_name__ = "mirror"
-
-    direction: str = field(
-        default="x", metadata={"description": "Mirror direction (x or y)"}
-    )
-
-
-@dataclass
 class SchematicSymbol(KiCadObject):
     """Schematic symbol instance definition token.
 
@@ -1146,8 +1026,8 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Library name", "required": False},
     )
-    lib_id: Optional[LibId] = field(
-        default=None,
+    lib_id: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("lib_id", "", required=False),
         metadata={
             "description": "Library identifier referencing symbol definition",
             "required": False,
@@ -1157,12 +1037,12 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Position and rotation", "required": False},
     )
-    mirror: Optional[Mirror] = field(
-        default=None,
+    mirror: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("mirror", "x", required=False),
         metadata={"description": "Mirror transformation", "required": False},
     )
-    unit: Optional[Unit] = field(
-        default=None,
+    unit: Optional[KiCadInt] = field(
+        default_factory=lambda: KiCadInt("unit", 0, required=False),
         metadata={"description": "Unit number", "required": False},
     )
     exclude_from_sim: Optional[OptionalFlag] = field(
@@ -1255,16 +1135,16 @@ class KicadSch(KiCadObject):
 
     __token_name__ = "kicad_sch"
 
-    version: Version = field(
-        default_factory=lambda: Version(),
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: Generator = field(
-        default_factory=lambda: Generator(),
+    generator: KiCadStr = field(
+        default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: Optional[GeneratorVersion] = field(
-        default=None,
+    generator_version: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
     uuid: Uuid = field(

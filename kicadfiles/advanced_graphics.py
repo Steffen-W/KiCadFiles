@@ -3,104 +3,20 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from . import text_and_documents
-from .base_element import KiCadObject, OptionalFlag
+from .base_element import KiCadFloat, KiCadInt, KiCadObject, KiCadStr, OptionalFlag
 from .base_types import (
-    Angle,
     At,
     Center,
     Effects,
     End,
-    Height,
     Layer,
     Pos,
     Pts,
     Start,
     Stroke,
-    Style,
-    Tstamp,
     Type,
-    Units,
     Uuid,
-    Width,
 )
-
-
-@dataclass
-class LeaderLength(KiCadObject):
-    """Leader length definition token for radial dimensions.
-
-    The 'leader_length' token defines leader line length in the format::
-
-        (leader_length LENGTH)
-
-    Args:
-        length: Length value for leader line
-    """
-
-    __token_name__ = "leader_length"
-
-    length: float = field(
-        default=0.0, metadata={"description": "Length value for leader line"}
-    )
-
-
-@dataclass
-class UnitsFormat(KiCadObject):
-    """Units format definition token for dimensions.
-
-    The 'units_format' token defines units display format in the format::
-
-        (units_format FORMAT)
-
-    Args:
-        format: Units format (0=no suffix, 1=bare, 2=parenthesis)
-    """
-
-    __token_name__ = "units_format"
-
-    format: int = field(
-        default=1,
-        metadata={"description": "Units format (0=no suffix, 1=bare, 2=parenthesis)"},
-    )
-
-
-@dataclass
-class Precision(KiCadObject):
-    """Precision definition token for dimension formatting.
-
-    The 'precision' token defines decimal precision in the format::
-
-        (precision DIGITS)
-
-    Args:
-        digits: Number of decimal places to display
-    """
-
-    __token_name__ = "precision"
-
-    digits: int = field(
-        default=2, metadata={"description": "Number of decimal places to display"}
-    )
-
-
-@dataclass
-class RenderCache(KiCadObject):
-    """Render cache definition token for text rendering optimization.
-
-    The 'render_cache' token defines cached text rendering data in the format::
-
-        (render_cache "CACHE_DATA")
-
-    Args:
-        data: Cached rendering data for TrueType fonts
-    """
-
-    __token_name__ = "render_cache"
-
-    data: str = field(
-        default="", metadata={"description": "Cached rendering data for TrueType fonts"}
-    )
 
 
 @dataclass
@@ -142,8 +58,9 @@ class GrArc(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Line width"},
     )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
@@ -215,8 +132,9 @@ class GrCircle(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Line width"},
     )
     fill: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
@@ -332,8 +250,8 @@ class GrTextBox(KiCadObject):
             "required": False,
         },
     )
-    angle: Optional[Angle] = field(
-        default=None,
+    angle: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={
             "description": "Rotation of the text box in degrees",
             "required": False,
@@ -355,30 +273,13 @@ class GrTextBox(KiCadObject):
             "required": False,
         },
     )
-    render_cache: Optional[RenderCache] = field(
-        default=None,
+    render_cache: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("render_cache", "", required=False),
         metadata={
             "description": "Text rendering cache for TrueType fonts",
             "required": False,
         },
     )
-
-
-@dataclass
-class OverrideValue(KiCadObject):
-    """Override value definition token.
-
-    The 'override_value' token defines an override value in the format::
-
-        (override_value "VALUE")
-
-    Args:
-        value: Override value string
-    """
-
-    __token_name__ = "override_value"
-
-    value: str = field(default="", metadata={"description": "Override value string"})
 
 
 @dataclass
@@ -440,28 +341,29 @@ class Format(KiCadObject):
 
     __token_name__ = "format"
 
-    prefix: Optional[text_and_documents.Suffix] = (
-        field(  # Using Suffix as prefix implementation
-            default=None, metadata={"description": "Text prefix", "required": False}
-        )
+    prefix: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("prefix", "", required=False),
+        metadata={"description": "Text prefix", "required": False},
     )
-    suffix: Optional[text_and_documents.Suffix] = field(
-        default=None, metadata={"description": "Text suffix", "required": False}
+    suffix: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("suffix", "", required=False),
+        metadata={"description": "Text suffix", "required": False},
     )
-    units: Units = field(
-        default_factory=lambda: Units(),
+    units: KiCadStr = field(
+        default_factory=lambda: KiCadStr("units", "mm"),
         metadata={"description": "Units type (0=inches, 1=mils, 2=mm, 3=auto)"},
     )
-    units_format: UnitsFormat = field(
-        default_factory=lambda: UnitsFormat(),
+    units_format: KiCadInt = field(
+        default_factory=lambda: KiCadInt("units_format", 0),
         metadata={"description": "Units format (0=no suffix, 1=bare, 2=parenthesis)"},
     )
-    precision: Precision = field(
-        default_factory=lambda: Precision(),
+    precision: KiCadInt = field(
+        default_factory=lambda: KiCadInt("precision", 2),
         metadata={"description": "Precision digits"},
     )
-    override_value: Optional[OverrideValue] = field(
-        default=None, metadata={"description": "Override text value", "required": False}
+    override_value: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("override_value", "", required=False),
+        metadata={"description": "Override text value", "required": False},
     )
     suppress_zeros: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("suppress_zeros"),
@@ -527,19 +429,19 @@ class Dimension(KiCadObject):
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Dimension points"}
     )
-    height: Optional[Height] = field(
-        default=None,
+    height: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("height", 0.0, required=False),
         metadata={"description": "Height for aligned dimensions", "required": False},
     )
-    orientation: Optional[Angle] = field(
-        default=None,
+    orientation: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("orientation", 0.0, required=False),
         metadata={
             "description": "Orientation angle for orthogonal dimensions",
             "required": False,
         },
     )  # todo: use orientation
-    leader_length: Optional[LeaderLength] = field(
-        default=None,
+    leader_length: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("leader_length", 0.0, required=False),
         metadata={
             "description": "Leader length for radial dimensions",
             "required": False,
@@ -551,8 +453,9 @@ class Dimension(KiCadObject):
     format: Optional[Format] = field(
         default=None, metadata={"description": "Dimension format", "required": False}
     )
-    style: Style = field(
-        default_factory=lambda: Style(), metadata={"description": "Dimension style"}
+    style: KiCadStr = field(
+        default_factory=lambda: KiCadStr("style", ""),
+        metadata={"description": "Dimension style"},
     )
 
 
@@ -590,6 +493,7 @@ class FpArc(KiCadObject):
     """
 
     __token_name__ = "fp_arc"
+    __legacy_token_names__ = ["gr_arc"]
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -602,11 +506,11 @@ class FpArc(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point coordinates"}
     )
-    layer: Layer = field(
+    layer: Optional[Layer] = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(),
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width (prior to version 7)"},
     )
     stroke: Optional[Stroke] = field(
@@ -620,8 +524,8 @@ class FpArc(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
         metadata={"description": "Whether the arc is locked", "required": False},
     )
-    angle: Optional[Angle] = field(
-        default=None,
+    angle: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={"description": "Arc angle in degrees", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -656,6 +560,7 @@ class FpCircle(KiCadObject):
     """
 
     __token_name__ = "fp_circle"
+    __legacy_token_names__ = ["gr_circle"]
 
     center: Center = field(
         default_factory=lambda: Center(), metadata={"description": "Center point"}
@@ -666,11 +571,13 @@ class FpCircle(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[Width] = field(
-        default=None, metadata={"description": "Line width", "required": False}
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[Tstamp] = field(
-        default=None, metadata={"description": "Timestamp UUID", "required": False}
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={"description": "Timestamp UUID", "required": False},
     )
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
@@ -711,6 +618,7 @@ class FpCurve(KiCadObject):
     """
 
     __token_name__ = "fp_curve"
+    __legacy_token_names__ = ["gr_curve"]
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Control points"}
@@ -718,11 +626,13 @@ class FpCurve(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Width = field(
-        default_factory=lambda: Width(), metadata={"description": "Line width"}
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Line width"},
     )
-    tstamp: Optional[Tstamp] = field(
-        default=None, metadata={"description": "Timestamp UUID", "required": False}
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={"description": "Timestamp UUID", "required": False},
     )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
@@ -759,6 +669,7 @@ class FpLine(KiCadObject):
     """
 
     __token_name__ = "fp_line"
+    __legacy_token_names__ = ["gr_line"]
 
     start: Start = field(
         default_factory=lambda: Start(), metadata={"description": "Start point"}
@@ -769,11 +680,13 @@ class FpLine(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[Width] = field(
-        default=None, metadata={"description": "Line width", "required": False}
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[Tstamp] = field(
-        default=None, metadata={"description": "Timestamp UUID", "required": False}
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={"description": "Timestamp UUID", "required": False},
     )
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
@@ -812,6 +725,7 @@ class FpPoly(KiCadObject):
     """
 
     __token_name__ = "fp_poly"
+    __legacy_token_names__ = ["gr_poly"]
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon points"}
@@ -819,11 +733,13 @@ class FpPoly(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[Width] = field(
-        default=None, metadata={"description": "Line width", "required": False}
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[Tstamp] = field(
-        default=None, metadata={"description": "Timestamp UUID", "required": False}
+    tstamp: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        metadata={"description": "Timestamp UUID", "required": False},
     )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
@@ -870,6 +786,7 @@ class FpRect(KiCadObject):
     """
 
     __token_name__ = "fp_rect"
+    __legacy_token_names__ = ["gr_rect"]
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -882,8 +799,8 @@ class FpRect(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[Width] = field(
-        default=None,
+    width: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width (prior to version 7)", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -941,6 +858,7 @@ class FpText(KiCadObject):
     """
 
     __token_name__ = "fp_text"
+    __legacy_token_names__ = ["gr_text"]
 
     type: str = field(
         default="",
@@ -1008,6 +926,7 @@ class FpTextBox(KiCadObject):
     """
 
     __token_name__ = "fp_text_box"
+    __legacy_token_names__ = ["gr_text_box"]
 
     locked: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
@@ -1038,8 +957,8 @@ class FpTextBox(KiCadObject):
             "required": False,
         },
     )
-    angle: Optional[Angle] = field(
-        default=None,
+    angle: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={
             "description": "Rotation of the text box in degrees",
             "required": False,
@@ -1061,10 +980,54 @@ class FpTextBox(KiCadObject):
             "required": False,
         },
     )
-    render_cache: Optional[RenderCache] = field(
-        default=None,
+    render_cache: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("render_cache", "", required=False),
         metadata={
             "description": "Text rendering cache for TrueType fonts",
             "required": False,
         },
     )
+
+
+# Graphics (Gr*) classes derived from Footprint (Fp*) classes
+# These share the same structure but use different token names
+
+
+@dataclass
+class GrLine(FpLine):
+    """Graphical line derived from footprint line.
+
+    Inherits all fields from FpLine but uses 'gr_line' token.
+    """
+
+    __token_name__ = "gr_line"
+
+
+@dataclass
+class GrRect(FpRect):
+    """Graphical rectangle derived from footprint rectangle.
+
+    Inherits all fields from FpRect but uses 'gr_rect' token.
+    """
+
+    __token_name__ = "gr_rect"
+
+
+@dataclass
+class GrPoly(FpPoly):
+    """Graphical polygon derived from footprint polygon.
+
+    Inherits all fields from FpPoly but uses 'gr_poly' token.
+    """
+
+    __token_name__ = "gr_poly"
+
+
+@dataclass
+class GrCurve(FpCurve):
+    """Graphical curve derived from footprint curve.
+
+    Inherits all fields from FpCurve but uses 'gr_curve' token.
+    """
+
+    __token_name__ = "gr_curve"

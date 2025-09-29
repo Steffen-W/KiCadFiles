@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from .base_element import KiCadObject, OptionalFlag
+from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
 from .enums import PadShape, StrokeType
 from .sexpr_parser import SExpr
 
@@ -25,25 +25,6 @@ class Anchor(KiCadObject):
     pad_shape: PadShape = field(
         default=PadShape.RECT,
         metadata={"description": "Anchor pad shape (rect or circle)"},
-    )
-
-
-@dataclass
-class Angle(KiCadObject):
-    """Angle definition token.
-
-    The 'angle' token defines a rotational angle in the format::
-
-        (angle VALUE)
-
-    Args:
-        value: Angle value in degrees
-    """
-
-    __token_name__ = "angle"
-
-    value: float = field(
-        default=0.0, metadata={"description": "Angle value in degrees"}
     )
 
 
@@ -161,7 +142,7 @@ class At(KiCadObject):
     y: float = field(
         default=0.0, metadata={"description": "Vertical position of the object"}
     )
-    angle: float = field(
+    angle: Optional[float] = field(
         default=0.0,
         metadata={"description": "Rotational angle of the object"},
     )
@@ -191,23 +172,6 @@ class Center(KiCadObject):
 
 
 @dataclass
-class Clearance(KiCadObject):
-    """Clearance definition token.
-
-    The 'clearance' token defines a clearance value in the format::
-
-        (clearance VALUE)
-
-    Args:
-        value: Clearance value
-    """
-
-    __token_name__ = "clearance"
-
-    value: float = field(default=0.0, metadata={"description": "Clearance value"})
-
-
-@dataclass
 class Color(KiCadObject):
     """Color definition token.
 
@@ -228,23 +192,6 @@ class Color(KiCadObject):
     g: int = field(default=0, metadata={"description": "Green color component (0-255)"})
     b: int = field(default=0, metadata={"description": "Blue color component (0-255)"})
     a: int = field(default=0, metadata={"description": "Alpha component (0-255)"})
-
-
-@dataclass
-class Diameter(KiCadObject):
-    """Diameter definition token.
-
-    The 'diameter' token defines a diameter value in the format::
-
-        (diameter VALUE)
-
-    Args:
-        value: Diameter value
-    """
-
-    __token_name__ = "diameter"
-
-    value: float = field(default=0.0, metadata={"description": "Diameter value"})
 
 
 @dataclass
@@ -347,39 +294,6 @@ class Fill(KiCadObject):
 
 
 @dataclass
-class Height(KiCadObject):
-    """Height definition token.
-
-    The 'height' token defines a height value in the format:
-    (height VALUE)
-
-    Args:
-        value: Height value
-    """
-
-    __token_name__ = "height"
-
-    value: float = field(default=0.0, metadata={"description": "Height value"})
-
-
-@dataclass
-class Id(KiCadObject):
-    """Identifier definition token.
-
-    The 'id' token defines an identifier in the format::
-
-        (id VALUE)
-
-    Args:
-        value: Identifier value
-    """
-
-    __token_name__ = "id"
-
-    value: str = field(default="", metadata={"description": "Identifier value"})
-
-
-@dataclass
 class Layer(KiCadObject):
     """Layer definition token.
 
@@ -428,46 +342,12 @@ class Layer(KiCadObject):
         default=None, metadata={"description": "Material name", "required": False}
     )
     epsilon_r: Optional[float] = field(
-        default=None,
+        default=None,  # 4,5 nomally
         metadata={"description": "Dielectric constant value", "required": False},
     )
     loss_tangent: Optional[float] = field(
         default=None, metadata={"description": "Loss tangent value", "required": False}
     )
-
-
-@dataclass
-class Linewidth(KiCadObject):
-    """Line width definition token.
-
-    The 'linewidth' token defines a line width value in the format::
-
-        (linewidth VALUE)
-
-    Args:
-        value: Line width value
-    """
-
-    __token_name__ = "linewidth"
-
-    value: float = field(default=0.0, metadata={"description": "Line width value"})
-
-
-@dataclass
-class Name(KiCadObject):
-    """Name definition token.
-
-    The 'name' token defines a name in the format::
-
-        (name "NAME_VALUE")
-
-    Args:
-        value: Name value
-    """
-
-    __token_name__ = "name"
-
-    value: str = field(default="", metadata={"description": "Name value"})
 
 
 @dataclass
@@ -519,43 +399,6 @@ class Pos(KiCadObject):
 
 
 @dataclass
-class Radius(KiCadObject):
-    """Radius definition token.
-
-    The 'radius' token defines a radius value in the format:
-    (radius VALUE)
-
-    Args:
-        value: Radius value
-    """
-
-    __token_name__ = "radius"
-
-    value: float = field(default=0.0, metadata={"description": "Radius value"})
-
-
-@dataclass
-class Rotate(KiCadObject):
-    """Rotation definition token for 2D elements.
-
-    The 'rotate' token defines rotation angle in the format:
-        (rotate ANGLE)
-
-    For 3D model rotation, use ModelRotate class which supports (rotate (xyz X Y Z)) format.
-
-    Args:
-        angle: Rotation angle in degrees
-    """
-
-    __token_name__ = "rotate"
-
-    angle: float = field(
-        default=0.0,
-        metadata={"description": "Rotation angle in degrees"},
-    )
-
-
-@dataclass
 class Size(KiCadObject):
     """Size definition token.
 
@@ -600,22 +443,6 @@ class Start(KiCadObject):
 
 
 @dataclass
-class Width(KiCadObject):
-    """Width definition token.
-
-    The 'width' token defines a width value in the format:
-    (width VALUE)
-
-    Args:
-        value: Width value
-    """
-
-    __token_name__ = "width"
-
-    value: float = field(default=0.0, metadata={"description": "Width value"})
-
-
-@dataclass
 class Stroke(KiCadObject):
     """Stroke definition token.
 
@@ -636,8 +463,8 @@ class Stroke(KiCadObject):
 
     __token_name__ = "stroke"
 
-    width: Width = field(
-        default_factory=lambda: Width(),
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width specification"},
     )
     type: Type = field(
@@ -648,22 +475,6 @@ class Stroke(KiCadObject):
         default=None,
         metadata={"description": "Line color specification", "required": False},
     )
-
-
-@dataclass
-class Style(KiCadObject):
-    """Style definition token.
-
-    The 'style' token defines a style value in the format:
-    (style VALUE)
-
-    Args:
-        value: Style value
-    """
-
-    __token_name__ = "style"
-
-    value: str = field(default="", metadata={"description": "Style value"})
 
 
 @dataclass
@@ -708,72 +519,6 @@ class Text(KiCadObject):
 
 
 @dataclass
-class Thickness(KiCadObject):
-    """Thickness definition token.
-
-    The 'thickness' token defines a thickness value in the format:
-    (thickness VALUE)
-
-    Args:
-        value: Thickness value
-    """
-
-    __token_name__ = "thickness"
-
-    value: float = field(default=0.0, metadata={"description": "Thickness value"})
-
-
-@dataclass
-class Title(KiCadObject):
-    """Title definition token.
-
-    The 'title' token defines a title in the format:
-    (title "TITLE_VALUE")
-
-    Args:
-        value: Title value
-    """
-
-    __token_name__ = "title"
-
-    value: str = field(default="", metadata={"description": "Title value"})
-
-
-@dataclass
-class Tstamp(KiCadObject):
-    """Timestamp identifier token.
-
-    The 'tstamp' token defines a timestamp identifier in the format:
-    (tstamp UUID)
-
-    Args:
-        value: Timestamp UUID
-    """
-
-    __token_name__ = "tstamp"
-
-    value: str = field(default="", metadata={"description": "Timestamp UUID"})
-
-
-@dataclass
-class Units(KiCadObject):
-    """Units definition token.
-
-    The 'units' token defines measurement units in the format:
-    (units VALUE)
-
-    Args:
-        value: Units value (mm | inches)
-    """
-
-    __token_name__ = "units"
-
-    value: str = field(
-        default="mm", metadata={"description": "Units value (mm | inches)"}
-    )
-
-
-@dataclass
 class Uuid(KiCadObject):
     """UUID identifier token.
 
@@ -801,22 +546,6 @@ class Uuid(KiCadObject):
 
 
 @dataclass
-class Face(KiCadObject):
-    """Font face definition token.
-
-    The 'face' token defines a font face name in the format:
-    (face "FONT_NAME")
-
-    Args:
-        value: Font face name
-    """
-
-    __token_name__ = "face"
-
-    value: str = field(default="", metadata={"description": "Font face name"})
-
-
-@dataclass
 class Font(KiCadObject):
     """Font definition token.
 
@@ -834,15 +563,16 @@ class Font(KiCadObject):
 
     __token_name__ = "font"
 
-    face: Optional[Face] = field(
-        default=None,
+    face: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("face", "", required=False),
         metadata={"description": "Font face specification", "required": False},
     )
     size: Optional[Size] = field(
         default=None, metadata={"description": "Font size", "required": False}
     )
-    thickness: Optional[Thickness] = field(
-        default=None, metadata={"description": "Font thickness", "required": False}
+    thickness: Optional[KiCadFloat] = field(
+        default_factory=lambda: KiCadFloat("thickness", 0.0, required=False),
+        metadata={"description": "Font thickness", "required": False},
     )
     bold: Optional[OptionalFlag] = field(
         default_factory=lambda: OptionalFlag.create_bool_flag("bold"),
@@ -923,23 +653,6 @@ class Justify(KiCadObject):
 
 
 @dataclass
-class Href(KiCadObject):
-    """Hyperlink reference definition token.
-
-    The 'href' token defines a hyperlink reference in the format::
-
-        (href "URL")
-
-    Args:
-        url: The hyperlink URL
-    """
-
-    __token_name__ = "href"
-
-    url: str = field(default="", metadata={"description": "The hyperlink URL"})
-
-
-@dataclass
 class Effects(KiCadObject):
     """Text effects definition token.
 
@@ -971,8 +684,8 @@ class Effects(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
-    href: Optional[Href] = field(
-        default=None,
+    href: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("href", "", required=False),
         metadata={"description": "Hyperlink reference", "required": False},
     )
 
@@ -1013,8 +726,9 @@ class Property(KiCadObject):
         default="", metadata={"description": "Property key name (must be unique)"}
     )
     value: str = field(default="", metadata={"description": "Property value"})
-    id: Optional[Id] = field(
-        default=None, metadata={"description": "Property ID", "required": False}
+    id: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("id", "", required=False),
+        metadata={"description": "Property ID", "required": False},
     )
     at: Optional[At] = field(
         default=None,
@@ -1037,23 +751,6 @@ class Property(KiCadObject):
         default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
         metadata={"description": "Hide property flag", "required": False},
     )
-
-
-@dataclass
-class Length(KiCadObject):
-    """Length definition token.
-
-    The 'length' token defines a length value in the format::
-
-        (length VALUE)
-
-    Args:
-        value: Length value
-    """
-
-    __token_name__ = "length"
-
-    value: float = field(default=0.0, metadata={"description": "Length value"})
 
 
 @dataclass

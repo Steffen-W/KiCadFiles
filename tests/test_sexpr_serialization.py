@@ -92,14 +92,12 @@ def test_minimal_schematic_data_preservation():
         schematic2 = KicadSch.from_file(tmp_path, ParseStrictness.STRICT)
 
         # Compare key data fields
+        assert schematic1.version.value == schematic2.version.value, "Version mismatch"
         assert (
-            schematic1.version.version == schematic2.version.version
-        ), "Version mismatch"
-        assert (
-            schematic1.generator.name == schematic2.generator.name
+            schematic1.generator.value == schematic2.generator.value
         ), "Generator mismatch"
         assert (
-            schematic1.generator_version.version == schematic2.generator_version.version
+            schematic1.generator_version.value == schematic2.generator_version.value
         ), "Generator version mismatch"
         assert str(schematic1.uuid) == str(schematic2.uuid), "UUID mismatch"
         assert schematic1.paper.size == schematic2.paper.size, "Paper size mismatch"
@@ -170,14 +168,14 @@ def test_minimal_schematic_structural_integrity():
 
     # Verify structure
     assert (
-        schematic.version.version == 20250114
-    ), f"Expected version 20250114, got {schematic.version.version}"
+        schematic.version.value == 20250114
+    ), f"Expected version 20250114, got {schematic.version.value}"
     assert (
-        schematic.generator.name == "eeschema"
-    ), f"Expected generator 'eeschema', got {schematic.generator.name}"
+        schematic.generator.value == "eeschema"
+    ), f"Expected generator 'eeschema', got {schematic.generator.value}"
     assert (
-        schematic.generator_version.version == "9.0"
-    ), f"Expected version '9.0', got {schematic.generator_version.version}"
+        schematic.generator_version.value == "9.0"
+    ), f"Expected version '9.0', got {schematic.generator_version.value}"
     assert (
         schematic.uuid.value == "5815112a-4879-4f74-9c21-8154c8b30eb2"
     ), f"UUID mismatch: {schematic.uuid}"
@@ -197,7 +195,7 @@ def test_minimal_schematic_structural_integrity():
     sheet_instance = schematic.sheet_instances.sheet_instances[0]
     assert sheet_instance.path == "/", f"Expected path '/', got {sheet_instance.path}"
     assert (
-        sheet_instance.page.number == "1"
+        sheet_instance.page.value == "1"
     ), f"Expected page '1', got {sheet_instance.page}"
 
     # Check embedded_fonts

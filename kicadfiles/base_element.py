@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
-from dataclasses import MISSING, dataclass, fields
+from dataclasses import MISSING, dataclass, field, fields
 from enum import Enum
 from typing import (
     Any,
@@ -21,9 +21,95 @@ from typing import (
     get_type_hints,
 )
 
+from .sexpdata import Symbol
 from .sexpr_parser import SExpr, SExprParser, str_to_sexpr
 
 T = TypeVar("T", bound="KiCadObject")
+
+
+@dataclass(eq=False)
+class KiCadPrimitive(ABC):
+    """Base class for KiCad primitive values - simplified like OptionalFlag."""
+
+    base_type: ClassVar[type] = object  # To be overridden in subclasses
+
+    token_name: str
+    value: Any = None
+    required: bool = True
+    __found__: bool = field(default=False, init=False)
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    def __repr__(self) -> str:
+        """Developer-friendly representation."""
+        parts = [repr(self.value)]
+        if self.token_name:
+            parts.append(f"token={repr(self.token_name)}")
+        parts.append(f"found={self.__found__}")
+        return f"{self.__class__.__name__}({', '.join(parts)})"
+
+    def __bool__(self) -> bool:
+        """Boolean conversion - returns True if found and has truthy value."""
+        return self.__found__
+
+    def __call__(self, value: Any) -> "KiCadPrimitive":
+        """Set value using function call syntax: primitive(new_value)."""
+        self.value = value
+        self.__found__ = True
+        return self
+
+    def to_sexpr(self) -> Optional[List[Any]]:
+        """Convert to S-expression format."""
+        if not self.__found__ and not self.required:
+            return None
+
+        return [self.token_name, self.value]
+
+    def __eq__(self, other: object) -> bool:
+        """Equality comparison excluding __found__ field."""
+        if not isinstance(other, KiCadPrimitive):
+            return False
+
+        return (
+            self.__class__ == other.__class__
+            and self.token_name == other.token_name
+            and self.value == other.value
+            and self.required == other.required
+        )
+
+
+@dataclass(eq=False)
+class KiCadStr(KiCadPrimitive):
+    """String wrapper for KiCad values."""
+
+    base_type: ClassVar[type] = str
+
+    token_name: str = ""
+    value: str = ""
+    required: bool = True
+
+
+@dataclass(eq=False)
+class KiCadInt(KiCadPrimitive):
+    """Integer wrapper for KiCad values."""
+
+    base_type: ClassVar[type] = int
+
+    token_name: str = ""
+    value: int = 0
+    required: bool = True
+
+
+@dataclass(eq=False)
+class KiCadFloat(KiCadPrimitive):
+    """Float wrapper for KiCad values."""
+
+    base_type: ClassVar[type] = float
+
+    token_name: str = ""
+    value: float = 0.0
+    required: bool = True
 
 
 @dataclass
@@ -63,6 +149,10 @@ class FieldType(Enum):
 
     PRIMITIVE = "primitive"  # str, int, float (required)
     OPTIONAL_PRIMITIVE = "optional_primitive"  # Optional[str], etc. (optional)
+    KICAD_PRIMITIVE = "kicad_primitive"  # KiCadStr, KiCadInt, KiCadFloat (required)
+    OPTIONAL_KICAD_PRIMITIVE = (
+        "optional_kicad_primitive"  # Optional[KiCadStr], etc. (optional)
+    )
     LIST = "list"  # List[T] AND Optional[List[T]] - both treated equally!
     KICAD_OBJECT = "kicad_object"  # KiCadObject (required)
     OPTIONAL_KICAD_OBJECT = "optional_kicad_object"  # Optional[KiCadObject] (optional)
@@ -209,12 +299,14 @@ class KiCadObject(ABC):
             field_infos: List[FieldInfo] = []
             position_index = 0
 
-            for field in fields(cls):
-                if field.name.startswith("_"):
+            for dataclass_field in fields(cls):
+                if dataclass_field.name.startswith("_"):
                     continue
 
-                field_type = field_types[field.name]
-                field_info = cls._classify_field(field.name, field_type, position_index)
+                field_type = field_types[dataclass_field.name]
+                field_info = cls._classify_field(
+                    dataclass_field.name, field_type, position_index
+                )
                 field_infos.append(field_info)
                 position_index += 1
 
@@ -226,9 +318,14 @@ class KiCadObject(ABC):
     def _get_field_defaults(cls) -> Dict[str, Any]:
         """Get field defaults with caching."""
         if not hasattr(cls, "_field_defaults_cache"):
-            cls._field_defaults_cache = {
-                f.name: f.default for f in fields(cls) if f.default != MISSING
-            }
+            result = {}
+            for f in fields(cls):
+                if f.default != MISSING:
+                    result[f.name] = f.default
+                elif f.default_factory != MISSING:  # type: ignore
+                    # Call default_factory to get the actual default instance
+                    result[f.name] = f.default_factory()  # type: ignore
+            cls._field_defaults_cache = result
         return cls._field_defaults_cache
 
     @classmethod
@@ -281,6 +378,24 @@ class KiCadObject(ABC):
                     field_type=FieldType.OPTIONAL_FLAG,
                     inner_type=inner_type,
                     position_index=position,
+                )
+        except TypeError:
+            pass
+
+        # KiCadPrimitive
+        try:
+            if isinstance(inner_type, type) and issubclass(inner_type, KiCadPrimitive):
+                field_type_enum = (
+                    FieldType.OPTIONAL_KICAD_PRIMITIVE
+                    if is_optional
+                    else FieldType.KICAD_PRIMITIVE
+                )
+                return FieldInfo(
+                    name=name,
+                    field_type=field_type_enum,
+                    inner_type=inner_type,
+                    position_index=position,
+                    token_name=name,  # Use field name as token name by default
                 )
         except TypeError:
             pass
@@ -341,6 +456,24 @@ class KiCadObject(ABC):
                     f"{cursor.get_path_str()}: Required object '{field_info.name}' not found",
                 )
             return result
+
+        elif field_info.field_type in (
+            FieldType.KICAD_PRIMITIVE,
+            FieldType.OPTIONAL_KICAD_PRIMITIVE,
+        ):
+            primitive_result = cls._parse_kicad_primitive_with_cursor(
+                field_info, cursor, field_defaults
+            )
+            # Validation: Required KiCad primitives must be found
+            if (
+                primitive_result is None
+                and field_info.field_type == FieldType.KICAD_PRIMITIVE
+            ):
+                cls._log_parse_issue(
+                    cursor,
+                    f"{cursor.get_path_str()}: Required KiCad primitive '{field_info.name}' not found",
+                )
+            return primitive_result
 
         else:  # PRIMITIVE or OPTIONAL_PRIMITIVE
             result = cls._parse_primitive_with_cursor(
@@ -477,6 +610,75 @@ class KiCadObject(ABC):
         return None
 
     @classmethod
+    def _parse_kicad_primitive_with_cursor(
+        cls,
+        field_info: FieldInfo,
+        cursor: ParseCursor,
+        field_defaults: Dict[str, Any],
+    ) -> Optional[KiCadPrimitive]:
+        """Parse KiCad primitive value."""
+        is_required = field_info.field_type == FieldType.KICAD_PRIMITIVE
+
+        def create_instance(
+            raw_value: Any, token_name: str, found: bool = True
+        ) -> KiCadPrimitive:
+            """Helper to create and configure KiCadPrimitive instance."""
+            instance = field_info.inner_type(token_name, raw_value, is_required)
+            instance.__found__ = found
+            return cast(KiCadPrimitive, instance)
+
+        # Determine the token name to search for
+        # If there's a default value with a token_name, use that
+        # Otherwise use the field name
+        search_token_name = field_info.name
+        default_value = field_defaults.get(field_info.name)
+        if default_value is not None and isinstance(default_value, KiCadPrimitive):
+            if default_value.token_name:
+                search_token_name = default_value.token_name
+
+        # Search for field in S-expression
+        for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+            # Named form: (token_name value)
+            if (
+                isinstance(item, list)
+                and len(item) >= 2
+                and str(item[0]) == search_token_name
+            ):
+                cursor.parser.mark_used(token_idx)
+                raw_value = cls._convert_value(item[1], field_info.inner_type.base_type)
+                return create_instance(raw_value, search_token_name)
+
+            # Positional form: plain value at expected position
+            # Skip Symbol objects as they should be handled by OptionalFlag parsing
+            if (
+                not isinstance(item, list)
+                and not isinstance(item, Symbol)
+                and field_info.position_index == (token_idx - 1)
+            ):
+                cursor.parser.mark_used(token_idx)
+                raw_value = cls._convert_value(item, field_info.inner_type.base_type)
+                return create_instance(raw_value, "")
+
+        # Field not found - handle defaults and missing values
+        default_value = field_defaults.get(field_info.name)
+        if default_value is not None:
+            if is_required:
+                cls._log_parse_issue(
+                    cursor,
+                    f"{cursor.get_path_str()}: Missing required field '{field_info.name}', using default",
+                )
+            return cast(Optional[KiCadPrimitive], default_value)
+
+        # No default value available
+        if is_required:
+            cls._log_parse_issue(
+                cursor,
+                f"{cursor.get_path_str()}: Required KiCad primitive field '{field_info.name}' not found",
+            )
+
+        return None
+
+    @classmethod
     def _parse_primitive_with_cursor(
         cls,
         field_info: FieldInfo,
@@ -595,6 +797,7 @@ class KiCadObject(ABC):
                 is_optional_field = field_info.field_type in (
                     FieldType.OPTIONAL_PRIMITIVE,
                     FieldType.OPTIONAL_KICAD_OBJECT,
+                    FieldType.OPTIONAL_KICAD_PRIMITIVE,
                     FieldType.OPTIONAL_FLAG,
                 )
                 has_default = field_info.name in field_defaults
@@ -610,6 +813,13 @@ class KiCadObject(ABC):
                 # Normal serialization for primitives/objects
                 if isinstance(value, KiCadObject):
                     result.append(value.to_sexpr())
+                elif isinstance(value, KiCadPrimitive):
+                    # Serialize KiCad primitives using their to_sexpr method
+                    # Only serialize if the primitive was actually found in parsing
+                    if value.__found__:
+                        sexpr = value.to_sexpr()
+                        if sexpr is not None:
+                            result.append(sexpr)
                 elif isinstance(value, OptionalFlag):
                     # Only add the flag to the result if it was found
                     if value.__found__:
@@ -764,6 +974,7 @@ class KiCadObject(ABC):
             is_optional_field = field_info.field_type in (
                 FieldType.OPTIONAL_PRIMITIVE,
                 FieldType.OPTIONAL_KICAD_OBJECT,
+                FieldType.OPTIONAL_KICAD_PRIMITIVE,
                 FieldType.OPTIONAL_FLAG,
             )
             has_default = field_info.name in field_defaults
@@ -790,6 +1001,9 @@ class KiCadObject(ABC):
                 elif isinstance(value, KiCadObject):
                     # Use the custom __str__ for nested KiCadObjects
                     display_value = str(value)
+                elif isinstance(value, KiCadPrimitive):
+                    # Show KiCad primitive value with type info
+                    display_value = f"{value.__class__.__name__}({value.value!r})"
                 elif isinstance(value, list):
                     # Handle lists of KiCadObjects recursively
                     if value and isinstance(value[0], KiCadObject):

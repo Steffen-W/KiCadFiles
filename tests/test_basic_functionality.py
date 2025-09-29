@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Basic functionality tests for KiCadFiles library."""
 
-import pytest
 
 from kicadfiles import (
     At,

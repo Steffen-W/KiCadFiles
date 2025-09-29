@@ -3,30 +3,17 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
 
-from .base_element import KiCadObject, OptionalFlag, ParseStrictness
-from .base_types import At, Effects, Length, Property, Text
+from .base_element import (
+    KiCadFloat,
+    KiCadInt,
+    KiCadObject,
+    KiCadStr,
+    OptionalFlag,
+    ParseStrictness,
+)
+from .base_types import At, Effects, Property, Text
 from .enums import PinElectricalType, PinGraphicStyle
 from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Rectangle
-from .text_and_documents import Generator, GeneratorVersion, Version
-
-
-@dataclass
-class Extends(KiCadObject):
-    """Symbol extension definition token.
-
-    The 'extends' token defines inheritance from another symbol in the format::
-
-        (extends "LIBRARY_ID")
-
-    Args:
-        library_id: Parent symbol library ID
-    """
-
-    __token_name__ = "extends"
-
-    library_id: str = field(
-        default="", metadata={"description": "Parent symbol library ID"}
-    )
 
 
 @dataclass
@@ -131,8 +118,8 @@ class Pin(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    length: Length = field(
-        default_factory=lambda: Length(value=2.54),
+    length: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("length", 2.54),
         metadata={"description": "Pin length"},
     )
     name: Optional[PinName] = field(
@@ -192,23 +179,6 @@ class PinNumbers(KiCadObject):
 
 
 @dataclass
-class Pinfunction(KiCadObject):
-    """Pin function definition token.
-
-    The 'pinfunction' token defines the function name for a pin in the format::
-
-        (pinfunction "FUNCTION_NAME")
-
-    Args:
-        function: Pin function name
-    """
-
-    __token_name__ = "pinfunction"
-
-    function: str = field(default="", metadata={"description": "Pin function name"})
-
-
-@dataclass
 class Pintype(KiCadObject):
     """Pin type definition token.
 
@@ -229,40 +199,6 @@ class Pintype(KiCadObject):
         default=PinElectricalType.PASSIVE,
         metadata={"description": "Pin electrical type"},
     )
-
-
-@dataclass
-class Prefix(KiCadObject):
-    """Reference prefix definition token.
-
-    The 'prefix' token defines the reference prefix for a symbol in the format::
-
-        (prefix "PREFIX")
-
-    Args:
-        prefix: Reference prefix string
-    """
-
-    __token_name__ = "prefix"
-
-    prefix: str = field(default="", metadata={"description": "Reference prefix string"})
-
-
-@dataclass
-class UnitName(KiCadObject):
-    """Unit name definition token.
-
-    The 'unit_name' token defines the display name for a symbol subunit in the format::
-
-        (unit_name "NAME")
-
-    Args:
-        name: Unit display name
-    """
-
-    __token_name__ = "unit_name"
-
-    name: str = field(default="", metadata={"description": "Unit display name"})
 
 
 @dataclass
@@ -424,16 +360,16 @@ class KicadSymbolLib(KiCadObject):
 
     __token_name__ = "kicad_symbol_lib"
 
-    version: Version = field(
-        default_factory=lambda: Version(),
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: Generator = field(
-        default_factory=lambda: Generator(),
+    generator: KiCadStr = field(
+        default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: Optional[GeneratorVersion] = field(
-        default=None,
+    generator_version: Optional[KiCadStr] = field(
+        default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
     symbols: Optional[List[Symbol]] = field(

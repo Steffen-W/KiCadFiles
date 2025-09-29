@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .base_element import KiCadObject, OptionalFlag
-from .base_types import Angle, Clearance, Fill, Pts, Uuid
+from .base_element import KiCadFloat, KiCadObject, OptionalFlag
+from .base_types import Fill, Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
 
@@ -31,8 +31,8 @@ class ConnectPads(KiCadObject):
             "required": False,
         },
     )
-    clearance: Clearance = field(
-        default_factory=lambda: Clearance(),
+    clearance: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("clearance", 0.0),
         metadata={"description": "Pad clearance"},
     )
 
@@ -56,25 +56,6 @@ class Copperpour(KiCadObject):
     value: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
         metadata={"description": "Copper pour setting"},
-    )
-
-
-@dataclass
-class EpsilonR(KiCadObject):
-    """Dielectric constant definition token.
-
-    The 'epsilon_r' token defines the relative dielectric constant in the format::
-
-        (epsilon_r VALUE)
-
-    Args:
-        value: Relative dielectric constant
-    """
-
-    __token_name__ = "epsilon_r"
-
-    value: float = field(
-        default=4.5, metadata={"description": "Relative dielectric constant"}
     )
 
 
@@ -178,64 +159,6 @@ class Hatch(KiCadObject):
 
 
 @dataclass
-class HatchBorderAlgorithm(KiCadObject):
-    """Hatch border algorithm definition token.
-
-    The 'hatch_border_algorithm' token defines the border thickness algorithm in the format::
-
-        (hatch_border_algorithm TYPE)
-
-    Args:
-        algorithm: Border algorithm type (0=zone thickness, 1=hatch thickness)
-    """
-
-    __token_name__ = "hatch_border_algorithm"
-
-    algorithm: int = field(
-        default=0,
-        metadata={
-            "description": "Border algorithm type (0=zone thickness, 1=hatch thickness)"
-        },
-    )
-
-
-@dataclass
-class HatchGap(KiCadObject):
-    """Hatch gap definition token.
-
-    The 'hatch_gap' token defines the gap between hatch lines in the format::
-
-        (hatch_gap GAP)
-
-    Args:
-        gap: Gap distance between hatch lines
-    """
-
-    __token_name__ = "hatch_gap"
-
-    gap: float = field(
-        default=0.5, metadata={"description": "Gap distance between hatch lines"}
-    )
-
-
-@dataclass
-class HatchMinHoleArea(KiCadObject):
-    """Hatch minimum hole area definition token.
-
-    The 'hatch_min_hole_area' token defines the minimum area for hatch holes in the format::
-
-        (hatch_min_hole_area AREA)
-
-    Args:
-        area: Minimum hole area
-    """
-
-    __token_name__ = "hatch_min_hole_area"
-
-    area: float = field(default=0.0, metadata={"description": "Minimum hole area"})
-
-
-@dataclass
 class HatchOrientation(KiCadObject):
     """Hatch orientation definition token.
 
@@ -249,111 +172,9 @@ class HatchOrientation(KiCadObject):
 
     __token_name__ = "hatch_orientation"
 
-    angle: Angle = field(
-        default_factory=lambda: Angle(),
+    angle: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("angle", 0.0),
         metadata={"description": "Hatch line angle in degrees"},
-    )
-
-
-@dataclass
-class HatchSmoothingLevel(KiCadObject):
-    """Hatch smoothing level definition token.
-
-    The 'hatch_smoothing_level' token defines how hatch outlines are smoothed in the format::
-
-        (hatch_smoothing_level LEVEL)
-
-    Args:
-        level: Smoothing level (0=none, 1=fillet, 2=arc min, 3=arc max)
-    """
-
-    __token_name__ = "hatch_smoothing_level"
-
-    level: int = field(
-        default=0,
-        metadata={
-            "description": "Smoothing level (0=none, 1=fillet, 2=arc min, 3=arc max)"
-        },
-    )
-
-
-@dataclass
-class HatchSmoothingValue(KiCadObject):
-    """Hatch smoothing value definition token.
-
-    The 'hatch_smoothing_value' token defines the smoothing ratio in the format::
-
-        (hatch_smoothing_value VALUE)
-
-    Args:
-        value: Smoothing ratio between hole and chamfer/fillet size
-    """
-
-    __token_name__ = "hatch_smoothing_value"
-
-    value: float = field(
-        default=0.1,
-        metadata={
-            "description": "Smoothing ratio between hole and chamfer/fillet size"
-        },
-    )
-
-
-@dataclass
-class HatchThickness(KiCadObject):
-    """Hatch thickness definition token.
-
-    The 'hatch_thickness' token defines the thickness for hatched fills in the format::
-
-        (hatch_thickness THICKNESS)
-
-    Args:
-        thickness: Hatch line thickness
-    """
-
-    __token_name__ = "hatch_thickness"
-
-    thickness: float = field(
-        default=0.1, metadata={"description": "Hatch line thickness"}
-    )
-
-
-@dataclass
-class IslandAreaMin(KiCadObject):
-    """Island minimum area definition token.
-
-    The 'island_area_min' token defines the minimum allowable zone island area in the format::
-
-        (island_area_min AREA)
-
-    Args:
-        area: Minimum island area
-    """
-
-    __token_name__ = "island_area_min"
-
-    area: float = field(default=10.0, metadata={"description": "Minimum island area"})
-
-
-@dataclass
-class IslandRemovalMode(KiCadObject):
-    """Island removal mode definition token.
-
-    The 'island_removal_mode' token defines how islands are removed in the format::
-
-        (island_removal_mode MODE)
-
-    Args:
-        mode: Island removal mode (0=always, 1=never, 2=minimum area)
-    """
-
-    __token_name__ = "island_removal_mode"
-
-    mode: int = field(
-        default=0,
-        metadata={
-            "description": "Island removal mode (0=always, 1=never, 2=minimum area)"
-        },
     )
 
 
@@ -417,61 +238,6 @@ class Keepout(KiCadObject):
 
 
 @dataclass
-class LossTangent(KiCadObject):
-    """Loss tangent definition token.
-
-    The 'loss_tangent' token defines the dielectric loss tangent in the format::
-
-        (loss_tangent VALUE)
-
-    Args:
-        value: Dielectric loss tangent value
-    """
-
-    __token_name__ = "loss_tangent"
-
-    value: float = field(
-        default=0.02, metadata={"description": "Dielectric loss tangent value"}
-    )
-
-
-@dataclass
-class Material(KiCadObject):
-    """Material definition token.
-
-    The 'material' token defines the material properties in the format::
-
-        (material "MATERIAL_NAME")
-
-    Args:
-        name: Material name
-    """
-
-    __token_name__ = "material"
-
-    name: str = field(default="", metadata={"description": "Material name"})
-
-
-@dataclass
-class MinThickness(KiCadObject):
-    """Minimum thickness definition token.
-
-    The 'min_thickness' token defines the minimum fill thickness in the format::
-
-        (min_thickness THICKNESS)
-
-    Args:
-        thickness: Minimum thickness value
-    """
-
-    __token_name__ = "min_thickness"
-
-    thickness: float = field(
-        default=0.1, metadata={"description": "Minimum thickness value"}
-    )
-
-
-@dataclass
 class Mode(KiCadObject):
     """Fill mode definition token.
 
@@ -488,23 +254,6 @@ class Mode(KiCadObject):
     mode: ZoneFillMode = field(
         default=ZoneFillMode.SOLID, metadata={"description": "Fill mode"}
     )
-
-
-@dataclass
-class Priority(KiCadObject):
-    """Zone priority definition token.
-
-    The 'priority' token defines the zone priority in the format::
-
-        (priority PRIORITY_VALUE)
-
-    Args:
-        priority: Zone priority value
-    """
-
-    __token_name__ = "priority"
-
-    priority: int = field(default=0, metadata={"description": "Zone priority value"})
 
 
 @dataclass
