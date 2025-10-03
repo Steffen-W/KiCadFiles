@@ -14,6 +14,7 @@ from .base_element import (
 )
 from .base_types import (
     At,
+    BoardLayers,
     End,
     Layer,
     Layers,
@@ -113,8 +114,8 @@ class Segment(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the track segment resides on"},
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
@@ -123,7 +124,7 @@ class Segment(KiCadObject):
     net: int = field(
         default=0, metadata={"description": "Net ordinal number from net section"}
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={
             "description": "Unique identifier of the line object",
@@ -133,6 +134,233 @@ class Segment(KiCadObject):
     uuid: Optional[Uuid] = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
     )  # Old Variant
+
+
+@dataclass
+class Tenting(KiCadObject):
+    """Tenting configuration for front/back sides.
+
+    Args:
+        sides: List of sides (front/back)
+    """
+
+    __token_name__ = "tenting"
+
+    sides: List[str] = field(
+        default_factory=list, metadata={"description": "List of sides (front/back)"}
+    )
+
+
+@dataclass
+class PcbPlotParams(KiCadObject):
+    """PCB plot parameters - stores all plotting settings.
+
+    Args:
+        layerselection: Layer selection hex mask (optional)
+        plot_on_all_layers_selection: Plot on all layers selection (optional)
+        disableapertmacros: Disable aperture macros (optional)
+        usegerberextensions: Use gerber extensions (optional)
+        usegerberattributes: Use gerber attributes (optional)
+        usegerberadvancedattributes: Use gerber advanced attributes (optional)
+        creategerberjobfile: Create gerber job file (optional)
+        dashed_line_dash_ratio: Dashed line dash ratio (optional)
+        dashed_line_gap_ratio: Dashed line gap ratio (optional)
+        svgprecision: SVG precision (optional)
+        plotframeref: Plot frame reference (optional)
+        mode: Plot mode (optional)
+        useauxorigin: Use auxiliary origin (optional)
+        hpglpennumber: HPGL pen number (optional)
+        hpglpenspeed: HPGL pen speed (optional)
+        hpglpendiameter: HPGL pen diameter (optional)
+        pdf_front_fp_property_popups: PDF front footprint property popups (optional)
+        pdf_back_fp_property_popups: PDF back footprint property popups (optional)
+        pdf_metadata: PDF metadata (optional)
+        pdf_single_document: PDF single document (optional)
+        dxfpolygonmode: DXF polygon mode (optional)
+        dxfimperialunits: DXF imperial units (optional)
+        dxfusepcbnewfont: DXF use pcbnew font (optional)
+        psnegative: PS negative (optional)
+        psa4output: PS A4 output (optional)
+        plot_black_and_white: Plot black and white (optional)
+        sketchpadsonfab: Sketch pads on fab (optional)
+        plotpadnumbers: Plot pad numbers (optional)
+        hidednponfab: Hide DNP on fab (optional)
+        sketchdnponfab: Sketch DNP on fab (optional)
+        crossoutdnponfab: Cross out DNP on fab (optional)
+        subtractmaskfromsilk: Subtract mask from silk (optional)
+        outputformat: Output format (optional)
+        mirror: Mirror (optional)
+        drillshape: Drill shape (optional)
+        scaleselection: Scale selection (optional)
+        outputdirectory: Output directory (optional)
+    """
+
+    __token_name__ = "pcbplotparams"
+
+    layerselection: KiCadStr = field(
+        default_factory=lambda: KiCadStr(
+            "layerselection", "0x00000000_00000000_55555555_5755f5ff", required=False
+        ),
+        metadata={"description": "Layer selection hex mask", "required": False},
+    )
+    plot_on_all_layers_selection: KiCadStr = field(
+        default_factory=lambda: KiCadStr(
+            "plot_on_all_layers_selection",
+            "0x00000000_00000000_00000000_00000000",
+            required=False,
+        ),
+        metadata={"description": "Plot on all layers selection", "required": False},
+    )
+    disableapertmacros: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("disableapertmacros", "no"),
+        metadata={"description": "Disable aperture macros", "required": False},
+    )
+    usegerberextensions: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("usegerberextensions", "no"),
+        metadata={"description": "Use gerber extensions", "required": False},
+    )
+    usegerberattributes: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("usegerberattributes", "yes"),
+        metadata={"description": "Use gerber attributes", "required": False},
+    )
+    usegerberadvancedattributes: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("usegerberadvancedattributes", "yes"),
+        metadata={"description": "Use gerber advanced attributes", "required": False},
+    )
+    creategerberjobfile: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("creategerberjobfile", "yes"),
+        metadata={"description": "Create gerber job file", "required": False},
+    )
+    dashed_line_dash_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat(
+            "dashed_line_dash_ratio", 12.0, required=False
+        ),
+        metadata={"description": "Dashed line dash ratio", "required": False},
+    )
+    dashed_line_gap_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat(
+            "dashed_line_gap_ratio", 3.0, required=False
+        ),
+        metadata={"description": "Dashed line gap ratio", "required": False},
+    )
+    svgprecision: KiCadInt = field(
+        default_factory=lambda: KiCadInt("svgprecision", 4, required=False),
+        metadata={"description": "SVG precision", "required": False},
+    )
+    plotframeref: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("plotframeref", "no"),
+        metadata={"description": "Plot frame reference", "required": False},
+    )
+    mode: KiCadInt = field(
+        default_factory=lambda: KiCadInt("mode", 1, required=False),
+        metadata={"description": "Plot mode", "required": False},
+    )
+    useauxorigin: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("useauxorigin", "no"),
+        metadata={"description": "Use auxiliary origin", "required": False},
+    )
+    hpglpennumber: KiCadInt = field(
+        default_factory=lambda: KiCadInt("hpglpennumber", 1, required=False),
+        metadata={"description": "HPGL pen number", "required": False},
+    )
+    hpglpenspeed: KiCadInt = field(
+        default_factory=lambda: KiCadInt("hpglpenspeed", 20, required=False),
+        metadata={"description": "HPGL pen speed", "required": False},
+    )
+    hpglpendiameter: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("hpglpendiameter", 15.0, required=False),
+        metadata={"description": "HPGL pen diameter", "required": False},
+    )
+    pdf_front_fp_property_popups: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("pdf_front_fp_property_popups", "yes"),
+        metadata={
+            "description": "PDF front footprint property popups",
+            "required": False,
+        },
+    )
+    pdf_back_fp_property_popups: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("pdf_back_fp_property_popups", "yes"),
+        metadata={
+            "description": "PDF back footprint property popups",
+            "required": False,
+        },
+    )
+    pdf_metadata: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("pdf_metadata", "yes"),
+        metadata={"description": "PDF metadata", "required": False},
+    )
+    pdf_single_document: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("pdf_single_document", "no"),
+        metadata={"description": "PDF single document", "required": False},
+    )
+    dxfpolygonmode: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dxfpolygonmode", "yes"),
+        metadata={"description": "DXF polygon mode", "required": False},
+    )
+    dxfimperialunits: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dxfimperialunits", "yes"),
+        metadata={"description": "DXF imperial units", "required": False},
+    )
+    dxfusepcbnewfont: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dxfusepcbnewfont", "yes"),
+        metadata={"description": "DXF use pcbnew font", "required": False},
+    )
+    psnegative: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("psnegative", "no"),
+        metadata={"description": "PS negative", "required": False},
+    )
+    psa4output: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("psa4output", "no"),
+        metadata={"description": "PS A4 output", "required": False},
+    )
+    plot_black_and_white: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("plot_black_and_white", "yes"),
+        metadata={"description": "Plot black and white", "required": False},
+    )
+    sketchpadsonfab: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("sketchpadsonfab", "no"),
+        metadata={"description": "Sketch pads on fab", "required": False},
+    )
+    plotpadnumbers: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("plotpadnumbers", "no"),
+        metadata={"description": "Plot pad numbers", "required": False},
+    )
+    hidednponfab: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hidednponfab", "no"),
+        metadata={"description": "Hide DNP on fab", "required": False},
+    )
+    sketchdnponfab: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("sketchdnponfab", "yes"),
+        metadata={"description": "Sketch DNP on fab", "required": False},
+    )
+    crossoutdnponfab: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("crossoutdnponfab", "yes"),
+        metadata={"description": "Cross out DNP on fab", "required": False},
+    )
+    subtractmaskfromsilk: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("subtractmaskfromsilk", "no"),
+        metadata={"description": "Subtract mask from silk", "required": False},
+    )
+    outputformat: KiCadInt = field(
+        default_factory=lambda: KiCadInt("outputformat", 1, required=False),
+        metadata={"description": "Output format", "required": False},
+    )
+    mirror: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("mirror", "no"),
+        metadata={"description": "Mirror", "required": False},
+    )
+    drillshape: KiCadInt = field(
+        default_factory=lambda: KiCadInt("drillshape", 1, required=False),
+        metadata={"description": "Drill shape", "required": False},
+    )
+    scaleselection: KiCadInt = field(
+        default_factory=lambda: KiCadInt("scaleselection", 1, required=False),
+        metadata={"description": "Scale selection", "required": False},
+    )
+    outputdirectory: KiCadStr = field(
+        default_factory=lambda: KiCadStr("outputdirectory", "", required=False),
+        metadata={"description": "Output directory", "required": False},
+    )
 
 
 @dataclass
@@ -153,49 +381,36 @@ class Setup(KiCadObject):
         )
 
     Args:
-        stackup: Stackup definition (optional)
-        pad_to_mask_clearance: Pad to mask clearance
-        solder_mask_min_width: Minimum solder mask width (optional)
-        pad_to_paste_clearance: Pad to paste clearance (optional)
-        pad_to_paste_clearance_ratio: Pad to paste clearance ratio (0-100%) (optional)
-        aux_axis_origin: Auxiliary axis origin (X, Y) (optional)
-        grid_origin: Grid origin (X, Y) (optional)
-        plot_settings: Plot settings (optional)
+        pad_to_mask_clearance: Pad to mask clearance (optional)
+        allow_soldermask_bridges_in_footprints: Allow soldermask bridges in footprints (optional)
+        tenting: Tenting configuration (optional)
+        pcbplotparams: PCB plot parameters (optional)
     """
 
     __token_name__ = "setup"
 
-    stackup: Optional[dict[Any, Any]] = field(
-        default=None, metadata={"description": "Stackup definition", "required": False}
+    pad_to_mask_clearance: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat(
+            "pad_to_mask_clearance", 0.0, required=False
+        ),
+        metadata={"description": "Pad to mask clearance", "required": False},
     )
-    pad_to_mask_clearance: float = field(
-        default=0.0, metadata={"description": "Pad to mask clearance"}
-    )
-    solder_mask_min_width: Optional[float] = field(
-        default=None,
-        metadata={"description": "Minimum solder mask width", "required": False},
-    )
-    pad_to_paste_clearance: Optional[float] = field(
-        default=None,
-        metadata={"description": "Pad to paste clearance", "required": False},
-    )
-    pad_to_paste_clearance_ratio: Optional[float] = field(
-        default=None,
+    allow_soldermask_bridges_in_footprints: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag(
+            "allow_soldermask_bridges_in_footprints", "no"
+        ),
         metadata={
-            "description": "Pad to paste clearance ratio (0-100%)",
+            "description": "Allow soldermask bridges in footprints",
             "required": False,
         },
     )
-    aux_axis_origin: Optional[tuple[float, float]] = field(
+    tenting: Optional[Tenting] = field(
         default=None,
-        metadata={"description": "Auxiliary axis origin (X, Y)", "required": False},
+        metadata={"description": "Tenting configuration", "required": False},
     )
-    grid_origin: Optional[tuple[float, float]] = field(
+    pcbplotparams: Optional[PcbPlotParams] = field(
         default=None,
-        metadata={"description": "Grid origin (X, Y)", "required": False},
-    )
-    plot_settings: Optional[dict[Any, Any]] = field(
-        default=None, metadata={"description": "Plot settings", "required": False}
+        metadata={"description": "PCB plot parameters", "required": False},
     )
 
 
@@ -221,8 +436,8 @@ class General(KiCadObject):
         default_factory=lambda: KiCadFloat("thickness", 1.6),
         metadata={"description": "Board thickness"},
     )
-    legacy_teardrops: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("legacy_teardrops"),
+    legacy_teardrops: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("legacy_teardrops"),
         metadata={
             "description": "Whether to use legacy teardrops",
             "required": False,
@@ -293,8 +508,8 @@ class Via(KiCadObject):
         default=None,
         metadata={"description": "Via type (blind | micro)", "required": False},
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
@@ -316,16 +531,16 @@ class Via(KiCadObject):
         default_factory=lambda: Layers(),
         metadata={"description": "Layer set the via connects"},
     )
-    remove_unused_layers: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("remove_unused_layers"),
+    remove_unused_layers: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("remove_unused_layers"),
         metadata={"description": "Remove unused layers flag", "required": False},
     )
-    keep_end_layers: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("keep_end_layers"),
+    keep_end_layers: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    free: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("free"),
+    free: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("free"),
         metadata={
             "description": "Whether via is free to move outside assigned net",
             "required": False,
@@ -334,7 +549,7 @@ class Via(KiCadObject):
     net: int = field(
         default=0, metadata={"description": "Net ordinal number from net section"}
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={
             "description": "Unique identifier of the line object",
@@ -400,6 +615,7 @@ class KicadPcb(KiCadObject):
         paper: Paper size specification (optional)
         layers: Layer definitions (optional)
         setup: Board setup (optional)
+        embedded_fonts: Whether fonts are embedded (yes/no) (optional)
         properties: Board properties
         nets: Net definitions
         footprints: Footprint instances
@@ -420,7 +636,7 @@ class KicadPcb(KiCadObject):
         default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application"},
     )
-    generator_version: Optional[KiCadStr] = field(
+    generator_version: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
@@ -431,19 +647,26 @@ class KicadPcb(KiCadObject):
         metadata={"description": "General board settings", "required": False},
     )
 
-    page: Optional[KiCadStr] = field(
+    page: KiCadStr = field(
         default_factory=lambda: KiCadStr("page", "", required=False),
         metadata={"description": "Page settings", "required": False},
     )
-    paper: Optional[KiCadStr] = field(
+    paper: KiCadStr = field(
         default_factory=lambda: KiCadStr("paper", "A4", required=False),
         metadata={"description": "Paper size specification", "required": False},
     )
-    layers: Optional[Layers] = field(
+    layers: Optional[BoardLayers] = field(
         default=None, metadata={"description": "Layer definitions", "required": False}
     )
     setup: Optional[Setup] = field(
         default=None, metadata={"description": "Board setup", "required": False}
+    )
+    embedded_fonts: KiCadStr = field(
+        default_factory=lambda: KiCadStr("embedded_fonts", "", required=False),
+        metadata={
+            "description": "Whether fonts are embedded (yes/no)",
+            "required": False,
+        },
     )
 
     # Multiple elements (lists)

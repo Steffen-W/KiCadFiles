@@ -17,6 +17,8 @@ from .base_types import (
     Color,
     Effects,
     Fill,
+    Font,
+    Justify,
     Property,
     Pts,
     Size,
@@ -49,12 +51,12 @@ class TableBorder(KiCadObject):
 
     __token_name__ = "border"
 
-    external: Optional[OptionalFlag] = field(
-        default=None,
+    external: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("external"),
         metadata={"description": "Whether external border is shown", "required": False},
     )
-    header: Optional[OptionalFlag] = field(
-        default=None,
+    header: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("header"),
         metadata={"description": "Whether header border is shown", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -81,12 +83,12 @@ class TableSeparators(KiCadObject):
 
     __token_name__ = "separators"
 
-    rows: Optional[OptionalFlag] = field(
-        default=None,
+    rows: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("rows"),
         metadata={"description": "Whether row separators are shown", "required": False},
     )
-    cols: Optional[OptionalFlag] = field(
-        default=None,
+    cols: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("cols"),
         metadata={
             "description": "Whether column separators are shown",
             "required": False,
@@ -172,8 +174,8 @@ class TableCell(KiCadObject):
     __token_name__ = "table_cell"
 
     text: str = field(default="", metadata={"description": "Cell text content"})
-    exclude_from_sim: Optional[OptionalFlag] = field(
-        default=None,
+    exclude_from_sim: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_sim"),
         metadata={
             "description": "Whether to exclude from simulation",
             "required": False,
@@ -392,8 +394,8 @@ class NetclassFlag(KiCadObject):
     at: Optional[At] = field(
         default=None, metadata={"description": "Position", "required": False}
     )
-    fields_autoplaced: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
+    fields_autoplaced: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are auto-placed", "required": False},
     )
     effects: Optional[Effects] = field(
@@ -504,12 +506,12 @@ class GlobalLabel(KiCadObject):
     __token_name__ = "global_label"
 
     text: str = field(default="", metadata={"description": "Global label text"})
-    shape: Optional[str] = field(
-        default=None,
+    shape: KiCadStr = field(
+        default_factory=lambda: KiCadStr("shape", "bidirectional"),
         metadata={"description": "Way the global label is drawn", "required": False},
     )
-    fields_autoplaced: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
+    fields_autoplaced: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fields_autoplaced"),
         metadata={
             "description": "Whether properties are placed automatically",
             "required": False,
@@ -520,7 +522,7 @@ class GlobalLabel(KiCadObject):
         metadata={"description": "X and Y coordinates and rotation angle"},
     )
     effects: Optional[Effects] = field(
-        default=None,
+        default_factory=lambda: Effects(font=Font(), justify=Justify()),
         metadata={
             "description": "How the global label text is drawn",
             "required": False,
@@ -531,7 +533,13 @@ class GlobalLabel(KiCadObject):
         metadata={"description": "Universally unique identifier"},
     )
     properties: Optional[List[Property]] = field(
-        default_factory=list,
+        default_factory=lambda: [
+            Property(
+                key="Intersheetrefs",
+                value="${INTERSHEET_REFS}",
+                effects=Effects(font=Font(), hide=OptionalFlag("hide")),
+            )
+        ],
         metadata={"description": "Properties of the global label", "required": False},
     )
 
@@ -601,8 +609,8 @@ class Label(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    fields_autoplaced: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
+    fields_autoplaced: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     effects: Optional[Effects] = field(
@@ -640,6 +648,66 @@ class NoConnect(KiCadObject):
 
 
 @dataclass
+class Path(KiCadObject):
+    """Path definition token.
+
+    The 'path' token defines a hierarchical path in the format::
+        (path "PATH"
+            (reference "REF")
+            (unit NUMBER)
+        )
+
+    Args:
+        value: Path value
+        reference: Component reference (optional)
+        unit: Unit number (optional)
+        page: Page number (optional)
+    """
+
+    __token_name__ = "path"
+
+    value: str = field(default="", metadata={"description": "Path value"})
+    reference: KiCadStr = field(
+        default_factory=lambda: KiCadStr("reference", "", required=False),
+        metadata={"description": "Component reference", "required": False},
+    )
+    unit: KiCadInt = field(
+        default_factory=lambda: KiCadInt("unit", 0, required=False),
+        metadata={"description": "Unit number", "required": False},
+    )
+    page: KiCadStr = field(
+        default_factory=lambda: KiCadStr("page", "", required=False),
+        metadata={"description": "Page number", "required": False},
+    )
+
+
+@dataclass
+class Project(KiCadObject):
+    """Project definition token.
+
+    The 'project' token defines a project instance in the format::
+        (project "PROJECT_NAME"
+            (path "PATH"
+                (reference "REF")
+                (unit NUMBER)
+            )
+        )
+
+    Args:
+        name: Project name
+        path: Hierarchical path (optional)
+    """
+
+    __token_name__ = "project"
+
+    name: str = field(default="", metadata={"description": "Project name"})
+    path: Optional[Path] = field(
+        default=None,
+        metadata={"description": "Hierarchical path", "required": False},
+    )
+
+
+@dataclass
 class SheetPin(KiCadObject):
     """Sheet pin definition token.
 
@@ -669,6 +737,29 @@ class SheetPin(KiCadObject):
     )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
+    )
+
+
+@dataclass
+class SheetLocalInstances(KiCadObject):
+    """Sheet local instances definition token.
+
+    The 'instances' token defines local sheet instances in the format::
+
+        (instances
+            (project "PROJECT_NAME"
+                (path "/PATH" (page "PAGE"))
+            )
+        )
+
+    Args:
+        project: List of project data
+    """
+
+    __token_name__ = "instances"
+
+    project: List[Project] = field(
+        default_factory=list, metadata={"description": "List of project data"}
     )
 
 
@@ -716,8 +807,8 @@ class Sheet(KiCadObject):
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Sheet size"}
     )
-    fields_autoplaced: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fields_autoplaced"),
+    fields_autoplaced: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -736,23 +827,23 @@ class Sheet(KiCadObject):
         default_factory=list,
         metadata={"description": "List of sheet pins", "required": False},
     )
-    exclude_from_sim: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
+    exclude_from_sim: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_sim"),
         metadata={
             "description": "Whether sheet is excluded from simulation",
             "required": False,
         },
     )
-    in_bom: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("in_bom"),
+    in_bom: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("in_bom"),
         metadata={"description": "Whether sheet appears in BOM", "required": False},
     )
-    on_board: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("on_board"),
+    on_board: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("on_board"),
         metadata={"description": "Whether sheet is exported to PCB", "required": False},
     )
-    dnp: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("dnp"),
+    dnp: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dnp"),
         metadata={"description": "Do not populate flag", "required": False},
     )
     rectangles: Optional[List[Rectangle]] = field(
@@ -762,7 +853,7 @@ class Sheet(KiCadObject):
             "required": False,
         },
     )
-    instances: Optional["SheetLocalInstances"] = field(
+    instances: Optional[SheetLocalInstances] = field(
         default=None,
         metadata={"description": "Sheet local instances", "required": False},
     )
@@ -825,29 +916,6 @@ class SheetInstance(KiCadObject):
 
 
 @dataclass
-class SheetLocalInstances(KiCadObject):
-    """Sheet local instances definition token.
-
-    The 'instances' token defines local sheet instances in the format::
-
-        (instances
-            (project "PROJECT_NAME"
-                (path "/PATH" (page "PAGE"))
-            )
-        )
-
-    Args:
-        project: List of project data
-    """
-
-    __token_name__ = "instances"
-
-    project: List["Project"] = field(
-        default_factory=list, metadata={"description": "List of project data"}
-    )
-
-
-@dataclass
 class SheetInstances(KiCadObject):
     """Sheet instances container definition token.
 
@@ -891,66 +959,6 @@ class PinRef(KiCadObject):
     uuid: Optional[Uuid] = field(
         default=None,
         metadata={"description": "Unique identifier", "required": False},
-    )
-
-
-@dataclass
-class Path(KiCadObject):
-    """Path definition token.
-
-    The 'path' token defines a hierarchical path in the format::
-        (path "PATH"
-            (reference "REF")
-            (unit NUMBER)
-        )
-
-    Args:
-        value: Path value
-        reference: Component reference (optional)
-        unit: Unit number (optional)
-        page: Page number (optional)
-    """
-
-    __token_name__ = "path"
-
-    value: str = field(default="", metadata={"description": "Path value"})
-    reference: Optional[KiCadStr] = field(
-        default_factory=lambda: KiCadStr("reference", "", required=False),
-        metadata={"description": "Component reference", "required": False},
-    )
-    unit: Optional[KiCadInt] = field(
-        default_factory=lambda: KiCadInt("unit", 0, required=False),
-        metadata={"description": "Unit number", "required": False},
-    )
-    page: Optional[KiCadStr] = field(
-        default_factory=lambda: KiCadStr("page", "", required=False),
-        metadata={"description": "Page number", "required": False},
-    )
-
-
-@dataclass
-class Project(KiCadObject):
-    """Project definition token.
-
-    The 'project' token defines a project instance in the format::
-        (project "PROJECT_NAME"
-            (path "PATH"
-                (reference "REF")
-                (unit NUMBER)
-            )
-        )
-
-    Args:
-        name: Project name
-        path: Hierarchical path (optional)
-    """
-
-    __token_name__ = "project"
-
-    name: str = field(default="", metadata={"description": "Project name"})
-    path: Optional[Path] = field(
-        default=None,
-        metadata={"description": "Hierarchical path", "required": False},
     )
 
 
@@ -1026,7 +1034,7 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Library name", "required": False},
     )
-    lib_id: Optional[KiCadStr] = field(
+    lib_id: KiCadStr = field(
         default_factory=lambda: KiCadStr("lib_id", "", required=False),
         metadata={
             "description": "Library identifier referencing symbol definition",
@@ -1037,35 +1045,35 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Position and rotation", "required": False},
     )
-    mirror: Optional[KiCadStr] = field(
+    mirror: KiCadStr = field(
         default_factory=lambda: KiCadStr("mirror", "x", required=False),
         metadata={"description": "Mirror transformation", "required": False},
     )
-    unit: Optional[KiCadInt] = field(
+    unit: KiCadInt = field(
         default_factory=lambda: KiCadInt("unit", 0, required=False),
         metadata={"description": "Unit number", "required": False},
     )
-    exclude_from_sim: Optional[OptionalFlag] = field(
-        default=None,
+    exclude_from_sim: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_sim"),
         metadata={
             "description": "Whether to exclude from simulation",
             "required": False,
         },
     )
-    in_bom: Optional[OptionalFlag] = field(
-        default=None,
+    in_bom: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("in_bom"),
         metadata={"description": "Whether to include in BOM", "required": False},
     )
-    on_board: Optional[OptionalFlag] = field(
-        default=None,
+    on_board: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("on_board"),
         metadata={"description": "Whether to place on board", "required": False},
     )
-    dnp: Optional[OptionalFlag] = field(
-        default=None,
+    dnp: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dnp"),
         metadata={"description": "Do not populate flag", "required": False},
     )
-    fields_autoplaced: Optional[OptionalFlag] = field(
-        default=None,
+    fields_autoplaced: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are auto-placed", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -1143,7 +1151,7 @@ class KicadSch(KiCadObject):
         default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: Optional[KiCadStr] = field(
+    generator_version: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
@@ -1158,14 +1166,6 @@ class KicadSch(KiCadObject):
     title_block: Optional[TitleBlock] = field(
         default=None,
         metadata={"description": "Title block", "required": False},
-    )
-    sheet_instances: Optional[SheetInstances] = field(
-        default=None,
-        metadata={"description": "Sheet instances", "required": False},
-    )
-    embedded_fonts: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
-        metadata={"description": "Embedded fonts setting", "required": False},
     )
     lib_symbols: Optional[LibSymbols] = field(
         default=None,
@@ -1240,6 +1240,14 @@ class KicadSch(KiCadObject):
     images: Optional[List[Image]] = field(
         default_factory=list,
         metadata={"description": "List of image elements", "required": False},
+    )
+    sheet_instances: Optional[SheetInstances] = field(
+        default=None,
+        metadata={"description": "Sheet instances", "required": False},
+    )
+    embedded_fonts: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("embedded_fonts", token_value="yes"),
+        metadata={"description": "Embedded fonts setting", "required": False},
     )
 
     @classmethod

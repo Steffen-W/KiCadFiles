@@ -3,7 +3,7 @@
 A comprehensive Python library for parsing and manipulating KiCad file formats.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
-[![CI/CD](https://github.com/Steffen-W/KiCadFiles/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/Steffen-W/KiCadFiles/actions)
+[![CI/CD](https://github.com/Steffen-W/KiCadFiles/workflows/CI%20Pipeline/badge.svg)](https://github.com/Steffen-W/KiCadFiles/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/kicadfiles.svg)](https://badge.fury.io/py/kicadfiles)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](https://steffen-w.github.io/KiCadFiles/)
@@ -28,72 +28,68 @@ pip install kicadfiles
 
 ## Quick Start
 
-### Basic Usage
+### Main File Format Classes
 
 ```python
-from kicadfiles import At, Layer, Footprint, ParseStrictness
-
-# Create objects using dataclass syntax
-position = At(x=10.0, y=20.0, angle=90.0)
-layer = Layer(name="F.Cu")
-
-# Parse from S-expression
-at_obj = At.from_sexpr("(at 10.0 20.0 90.0)", ParseStrictness.STRICT)
-
-# Convert back to S-expression string
-sexpr_str = at_obj.to_sexpr_str()
-print(sexpr_str)  # Output: (at 10.0 20.0 90.0)
-```
-
-### Parsing with Different Strictness Modes
-
-```python
-from kicadfiles import At, ParseStrictness
-
-# STRICT mode: Raises exceptions for any parsing errors
-try:
-    at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.STRICT)
-except ValueError as e:
-    print(f"Parsing failed: {e}")
-
-# FAILSAFE mode: Logs warnings and uses defaults for missing fields
-at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
-print(f"Angle defaulted to: {at_obj.angle}")  # Output: 0.0
-
-# SILENT mode: Silently uses defaults for missing fields
-at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.SILENT)
-```
-
-### Working with Complex Objects
-
-```python
-from kicadfiles import Footprint, Pad, At, Size
-
-# Create a footprint with pads
-footprint = Footprint(
-    library_link="Resistor_SMD:R_0603",
-    at=At(x=50.0, y=30.0, angle=0.0),
-    pads=[
-        Pad(
-            number="1",
-            type="smd",
-            shape="roundrect",
-            at=At(x=-0.8, y=0.0),
-            size=Size(width=0.7, height=0.9)
-        ),
-        Pad(
-            number="2",
-            type="smd",
-            shape="roundrect",
-            at=At(x=0.8, y=0.0),
-            size=Size(width=0.7, height=0.9)
-        )
-    ]
+from kicadfiles import (
+    KicadPcb, KicadSch, Footprint, KicadWks, KicadSymbolLib,
+    KicadProject, KiCadDesignRules, FpLibTable, SymLibTable,
+    KiCadTemplates
 )
 
-# Convert to S-expression
-sexpr = footprint.to_sexpr_str()
-print(sexpr)
+# PCB board (.kicad_pcb)
+pcb = KicadPcb.from_file("board.kicad_pcb")
+# pcb.save_to_file("output.kicad_pcb")
+
+# Schematic (.kicad_sch)
+schematic = KicadSch.from_file("schematic.kicad_sch")
+# schematic.save_to_file("output.kicad_sch")
+
+# Footprint (.kicad_mod)
+footprint = Footprint.from_file("component.kicad_mod")
+# footprint.save_to_file("output.kicad_mod")
+
+# Symbol library (.kicad_sym)
+symbol_lib = KicadSymbolLib.from_file("library.kicad_sym")
+# symbol_lib.save_to_file("output.kicad_sym")
+
+# Worksheet (.kicad_wks)
+worksheet = KicadWks.from_file("template.kicad_wks")
+# worksheet.save_to_file("output.kicad_wks")
+
+# Project settings (.kicad_pro)
+project = KicadProject.from_file("project.kicad_pro")
+# project.save_to_file("output.kicad_pro")
+
+# Design rules (.kicad_dru)
+design_rules = KiCAdDesignRules.from_file("rules.kicad_dru")
+# design_rules.save_to_file("output.kicad_dru")
+
+# Footprint library table
+fp_lib_table = FpLibTable.from_file("fp-lib-table")
+# fp_lib_table.save_to_file("output-fp-lib-table")
+
+# Symbol library table
+sym_lib_table = SymLibTable.from_file("sym-lib-table")
+# sym_lib_table.save_to_file("output-sym-lib-table")
+```
+
+### Working with PCB Files
+
+```python
+from kicadfiles import KicadPcb, KiCadTemplates
+
+# Load and modify existing PCB
+pcb = KicadPcb.from_file("board.kicad_pcb")
+
+# Access elements
+for footprint in pcb.footprints:
+    print(f"Footprint: {footprint.library_link} at ({footprint.at.x}, {footprint.at.y})")
+
+# Create new PCB from template
+new_pcb = KiCAdTemplates.pcb()
+new_pcb.setup.pad_to_mask_clearance(0.05)
+new_pcb.save_to_file("new_board.kicad_pcb")
 ```
 
 ## API Overview
@@ -116,33 +112,40 @@ These classes represent complete KiCad file formats and support both `from_file(
 
 ### Main Object Categories
 
-- **Base Types** (37 classes): At, Size, Layer, Stroke, etc.
-- **Text and Documents** (27 classes): TitleBlock, Page, Comment, etc.
-- **Pad and Drill** (18 classes): Pad, Drill, Via, etc.
-- **Graphics** (28 classes): Line, Circle, Arc, Polygon, etc.
-- **Symbol Library** (15 classes): Symbol, Pin, Property, etc.
-- **Footprint Library** (12 classes): Footprint, Model, Tags, etc.
-- **Zone System** (28 classes): Zone, Hatch, FilledPolygon, etc.
-- **Board Layout** (15 classes): General, Layers, Nets, etc.
-- **Schematic System** (13 classes): Wire, Junction, Label, etc.
+- **Base Types**: At, Size, Layer, Stroke, etc.
+- **Text and Documents**: TitleBlock, Page, Comment, etc.
+- **Pad and Drill**: Pad, Drill, Via, etc.
+- **Graphics**: Line, Circle, Arc, Polygon, etc.
+- **Symbol Library**: Symbol, Pin, Property, etc.
+- **Footprint Library**: Footprint, Model, Tags, etc.
+- **Zone System**: Zone, Hatch, FilledPolygon, etc.
+- **Board Layout**: General, Layers, Nets, etc.
+- **Schematic System**: Wire, Junction, Label, etc.
 
-## Error Handling
+## Error Handling with Strictness Modes
+
+```python
+from kicadfiles import At, ParseStrictness
+
+# STRICT mode: Raises exceptions for any parsing errors
+try:
+    at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.STRICT)
+except ValueError as e:
+    print(f"Parsing failed: {e}")
+
+# FAILSAFE mode: Logs warnings and uses defaults for missing fields
+at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
+print(f"Angle defaulted to: {at_obj.angle}")  # Output: 0.0
+
+# SILENT mode: Silently uses defaults for missing fields
+at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.SILENT)
+```
 
 | Mode | Behavior |
 |------|----------|
 | **STRICT** | Raises `ValueError` on errors |
 | **FAILSAFE** | Logs warnings, uses defaults |
 | **SILENT** | Uses defaults silently |
-
-```python
-from kicadfiles import At, ParseStrictness
-
-# STRICT: Will raise ValueError for missing angle
-at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.STRICT)
-
-# FAILSAFE: Logs warning, angle defaults to 0.0
-at_obj = At.from_sexpr("(at 10.0 20.0)", ParseStrictness.FAILSAFE)
-```
 
 For a complete overview of all classes and their module organization, see **[kicadfiles/CLASSES.md](kicadfiles/CLASSES.md)**.
 
@@ -162,26 +165,17 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-### Code Formatting
+### Code Quality
 
 ```bash
-# Complete pipeline (recommended)
+# Format code
 black .
 isort .
-flake8 kicadfiles
-pyright kicadfiles
-mypy kicadfiles
-```
 
-### Linting
-
-```bash
+# Linting
 flake8 kicadfiles/
-```
 
-### Type Checking
-
-```bash
+# Type checking
 mypy kicadfiles/
 pyright kicadfiles/
 ```

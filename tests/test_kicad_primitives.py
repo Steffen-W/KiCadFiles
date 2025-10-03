@@ -31,17 +31,17 @@ class SamplePrimitiveObject(KiCadObject):
     )
 
     # Optional primitives
-    description: Optional[KiCadStr] = field(
+    description: KiCadStr = field(
         default_factory=lambda: KiCadStr(
             token_name="description", value="", required=False
         )
     )
-    height: Optional[KiCadFloat] = field(
+    height: KiCadFloat = field(
         default_factory=lambda: KiCadFloat(
             token_name="height", value=0.0, required=False
         )
     )
-    version: Optional[KiCadInt] = field(
+    version: KiCadInt = field(
         default_factory=lambda: KiCadInt(token_name="version", value=1, required=False)
     )
 

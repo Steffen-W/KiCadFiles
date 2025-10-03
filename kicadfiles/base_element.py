@@ -59,6 +59,10 @@ class KiCadPrimitive(ABC):
         self.__found__ = True
         return self
 
+    def is_optional(self) -> bool:
+        """Check if this primitive is optional (not required)."""
+        return not self.required
+
     def to_sexpr(self) -> Optional[List[Any]]:
         """Convert to S-expression format."""
         if not self.__found__ and not self.required:
@@ -67,7 +71,7 @@ class KiCadPrimitive(ABC):
         return [self.token_name, self.value]
 
     def __eq__(self, other: object) -> bool:
-        """Equality comparison excluding __found__ field."""
+        """Equality comparison excluding __found__ and required fields."""
         if not isinstance(other, KiCadPrimitive):
             return False
 
@@ -75,7 +79,6 @@ class KiCadPrimitive(ABC):
             self.__class__ == other.__class__
             and self.token_name == other.token_name
             and self.value == other.value
-            and self.required == other.required
         )
 
 
@@ -385,9 +388,22 @@ class KiCadObject(ABC):
         # KiCadPrimitive
         try:
             if isinstance(inner_type, type) and issubclass(inner_type, KiCadPrimitive):
+                # Check default value to see if it's optional
+                field_defaults = cls._get_field_defaults()
+                default_value = field_defaults.get(name)
+
+                # Determine if optional based on:
+                # 1. Type hint is Optional[]
+                # 2. Default value exists and is_optional() returns True
+                is_kicad_optional = is_optional or (
+                    default_value is not None
+                    and hasattr(default_value, "is_optional")
+                    and default_value.is_optional()
+                )
+
                 field_type_enum = (
                     FieldType.OPTIONAL_KICAD_PRIMITIVE
-                    if is_optional
+                    if is_kicad_optional
                     else FieldType.KICAD_PRIMITIVE
                 )
                 return FieldInfo(
@@ -772,6 +788,13 @@ class KiCadObject(ABC):
         except (ValueError, TypeError) as e:
             raise ValueError(f"Cannot convert '{value}' to {target_type.__name__}: {e}")
 
+    def is_optional(self) -> bool:
+        """Check if this object is optional (default: False for KiCadObject).
+
+        Can be overridden in subclasses if needed.
+        """
+        return False
+
     def to_sexpr(self) -> SExpr:
         """Convert to S-expression using simple field iteration."""
         result: SExpr = [self.__token_name__]
@@ -920,8 +943,7 @@ class KiCadObject(ABC):
             if isinstance(item, list):
                 nested_lists.append(item)
             else:
-                # Special handling for Type and Uuid tokens - don't quote their values
-                if token_name in ("type", "uuid") and isinstance(item, str):
+                if token_name in ("type") and isinstance(item, str):
                     primitive_values.append(item)  # No quotes for Type/Uuid values
                 else:
                     primitive_values.append(self._format_primitive_value(item))
@@ -1030,11 +1052,11 @@ class OptionalFlag:
     """
 
     token: str
-    is_token: bool = (
-        False  # True if it was a token like (locked), False if simple string
-    )
     token_value: Optional[str] = (
         None  # Additional value after token like "yes" in (locked yes)
+    )
+    is_token: bool = (
+        True  # True if it was a token like (locked), False if simple string
     )
     __found__: bool = False
 
@@ -1066,19 +1088,32 @@ class OptionalFlag:
         return f"OptionalFlag({', '.join(parts)})"
 
     def __eq__(self, other: object) -> bool:
-        """Equality comparison for OptionalFlag objects."""
+        """Equality comparison excluding __found__ field."""
         if not isinstance(other, OptionalFlag):
             return False
         return (
             self.token == other.token
             and self.is_token == other.is_token
             and self.token_value == other.token_value
-            and self.__found__ == other.__found__
         )
 
     def __hash__(self) -> int:
         """Hash implementation - required when implementing __eq__."""
-        return hash((self.token, self.is_token, self.token_value, self.__found__))
+        return hash((self.token, self.is_token, self.token_value))
+
+    def __call__(self, value: Optional[str] = None) -> "OptionalFlag":
+        """Set token_value and mark as found using function call syntax: flag(value).
+
+        Args:
+            value: Optional token value to set
+
+        Returns:
+            self for chaining
+        """
+        if value is not None:
+            self.token_value = value
+        self.__found__ = True
+        return self
 
     def __bool__(self) -> bool:
         """Boolean conversion - returns the logical boolean value based on token_value."""
@@ -1088,6 +1123,10 @@ class OptionalFlag:
         if self.token_value:
             return self.token_value.lower() in ("yes", "true", "1")
         # If no token_value, the presence of the flag means True
+        return True
+
+    def is_optional(self) -> bool:
+        """Check if this flag is optional (always True for OptionalFlag)."""
         return True
 
     def to_sexpr(self) -> str:
@@ -1102,8 +1141,3 @@ class OptionalFlag:
                 return f"({self.token})"
         else:
             return self.token
-
-    @classmethod
-    def create_bool_flag(cls, token: str) -> "OptionalFlag":
-        """Create a simple boolean flag (presence indicates True)."""
-        return cls(token=token, is_token=True)

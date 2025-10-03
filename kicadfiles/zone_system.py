@@ -354,8 +354,8 @@ class Zone(KiCadObject):
     priority: Optional[int] = field(
         default=None, metadata={"description": "Zone priority", "required": False}
     )
-    filled_areas_thickness: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("filled_areas_thickness"),
+    filled_areas_thickness: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("filled_areas_thickness"),
         metadata={"description": "Filled areas thickness flag", "required": False},
     )
     keepout: Optional[Keepout] = field(

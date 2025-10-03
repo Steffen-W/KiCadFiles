@@ -94,8 +94,8 @@ class Paper(KiCadObject):
     height: Optional[float] = field(
         default=None, metadata={"description": "Custom paper height", "required": False}
     )
-    portrait: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("portrait"),
+    portrait: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("portrait"),
         metadata={
             "description": "Whether paper is in portrait mode",
             "required": False,
@@ -127,19 +127,19 @@ class TitleBlock(KiCadObject):
 
     __token_name__ = "title_block"
 
-    title: Optional[KiCadStr] = field(
+    title: KiCadStr = field(
         default_factory=lambda: KiCadStr("title", "", required=False),
         metadata={"description": "Document title", "required": False},
     )
-    date: Optional[KiCadStr] = field(
+    date: KiCadStr = field(
         default_factory=lambda: KiCadStr("date", "", required=False),
         metadata={"description": "Document date", "required": False},
     )
-    rev: Optional[KiCadStr] = field(
+    rev: KiCadStr = field(
         default_factory=lambda: KiCadStr("rev", "", required=False),
         metadata={"description": "Document revision", "required": False},
     )
-    company: Optional[KiCadStr] = field(
+    company: KiCadStr = field(
         default_factory=lambda: KiCadStr("company", "", required=False),
         metadata={"description": "Company name", "required": False},
     )
@@ -190,18 +190,18 @@ class Tbtext(KiCadObject):
     font: Optional[Font] = field(
         default=None, metadata={"description": "Font settings", "required": False}
     )
-    repeat: Optional[KiCadInt] = field(
+    repeat: KiCadInt = field(
         default_factory=lambda: KiCadInt("repeat", 0, required=False),
         metadata={
             "description": "Repeat count for incremental text",
             "required": False,
         },
     )
-    incrx: Optional[KiCadFloat] = field(
+    incrx: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incrx", 0.0, required=False),
         metadata={"description": "Repeat distance on X axis", "required": False},
     )
-    incry: Optional[KiCadFloat] = field(
+    incry: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incry", 0.0, required=False),
         metadata={"description": "Repeat distance on Y axis", "required": False},
     )
@@ -322,27 +322,27 @@ class WksSetup(KiCadObject):
         default=None,
         metadata={"description": "Text size", "required": False},
     )
-    linewidth: Optional[KiCadFloat] = field(
+    linewidth: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("linewidth", 0.0, required=False),
         metadata={"description": "Line width", "required": False},
     )
-    textlinewidth: Optional[KiCadFloat] = field(
+    textlinewidth: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("textlinewidth", 0.0, required=False),
         metadata={"description": "Text line width", "required": False},
     )
-    left_margin: Optional[KiCadFloat] = field(
+    left_margin: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("left_margin", 0.0, required=False),
         metadata={"description": "Left margin", "required": False},
     )
-    right_margin: Optional[KiCadFloat] = field(
+    right_margin: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("right_margin", 0.0, required=False),
         metadata={"description": "Right margin", "required": False},
     )
-    top_margin: Optional[KiCadFloat] = field(
+    top_margin: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("top_margin", 0.0, required=False),
         metadata={"description": "Top margin", "required": False},
     )
-    bottom_margin: Optional[KiCadFloat] = field(
+    bottom_margin: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("bottom_margin", 0.0, required=False),
         metadata={"description": "Bottom margin", "required": False},
     )
@@ -374,23 +374,23 @@ class WksRect(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    comment: Optional[KiCadStr] = field(
+    comment: KiCadStr = field(
         default_factory=lambda: KiCadStr("comment", "", required=False),
         metadata={"description": "Comment", "required": False},
     )
-    repeat: Optional[KiCadInt] = field(
+    repeat: KiCadInt = field(
         default_factory=lambda: KiCadInt("repeat", 0, required=False),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: Optional[KiCadFloat] = field(
+    incrx: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incrx", 0.0, required=False),
         metadata={"description": "X increment", "required": False},
     )
-    incry: Optional[KiCadFloat] = field(
+    incry: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incry", 0.0, required=False),
         metadata={"description": "Y increment", "required": False},
     )
-    linewidth: Optional[KiCadFloat] = field(
+    linewidth: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("linewidth", 0.0, required=False),
         metadata={"description": "Line width", "required": False},
     )
@@ -420,15 +420,15 @@ class WksLine(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    repeat: Optional[KiCadInt] = field(
+    repeat: KiCadInt = field(
         default_factory=lambda: KiCadInt("repeat", 0, required=False),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: Optional[KiCadFloat] = field(
+    incrx: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incrx", 0.0, required=False),
         metadata={"description": "X increment", "required": False},
     )
-    incry: Optional[KiCadFloat] = field(
+    incry: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incry", 0.0, required=False),
         metadata={"description": "Y increment", "required": False},
     )
@@ -453,7 +453,7 @@ class WksTbText(KiCadObject):
     __token_name__ = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
-    name: Optional[KiCadStr] = field(
+    name: KiCadStr = field(
         default_factory=lambda: KiCadStr("name", "", required=False),
         metadata={"description": "Text name", "required": False},
     )
@@ -466,19 +466,19 @@ class WksTbText(KiCadObject):
     justify: Optional[Justify] = field(
         default=None, metadata={"description": "Text justification", "required": False}
     )
-    repeat: Optional[KiCadInt] = field(
+    repeat: KiCadInt = field(
         default_factory=lambda: KiCadInt("repeat", 0, required=False),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: Optional[KiCadFloat] = field(
+    incrx: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incrx", 0.0, required=False),
         metadata={"description": "X increment", "required": False},
     )
-    incry: Optional[KiCadFloat] = field(
+    incry: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incry", 0.0, required=False),
         metadata={"description": "Y increment", "required": False},
     )
-    comment: Optional[KiCadStr] = field(
+    comment: KiCadStr = field(
         default_factory=lambda: KiCadStr("comment", "", required=False),
         metadata={"description": "Comment", "required": False},
     )
@@ -512,19 +512,19 @@ class KicadWks(KiCadObject):
     __token_name__ = "kicad_wks"
     __legacy_token_names__ = ["page_layout"]
 
-    version: Optional[KiCadInt] = field(
+    version: KiCadInt = field(
         default_factory=lambda: KiCadInt("version", 0, required=False),
         metadata={"description": "Format version", "required": False},
     )
-    generator: Optional[KiCadStr] = field(
+    generator: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator", "", required=False),
         metadata={"description": "Generator name", "required": False},
     )
-    generator_version: Optional[KiCadStr] = field(
+    generator_version: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
-    page: Optional[KiCadStr] = field(
+    page: KiCadStr = field(
         default_factory=lambda: KiCadStr("page", "", required=False),
         metadata={"description": "Page settings", "required": False},
     )
@@ -621,15 +621,15 @@ class Bitmap(KiCadObject):
         default_factory=lambda: KiCadFloat("factor", 0.0),
         metadata={"description": "Scale factor"},
     )
-    repeat: Optional[KiCadInt] = field(
+    repeat: KiCadInt = field(
         default_factory=lambda: KiCadInt("repeat", 0, required=False),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: Optional[KiCadFloat] = field(
+    incrx: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incrx", 0.0, required=False),
         metadata={"description": "X increment distance", "required": False},
     )
-    incry: Optional[KiCadFloat] = field(
+    incry: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("incry", 0.0, required=False),
         metadata={"description": "Y increment distance", "required": False},
     )
@@ -662,7 +662,7 @@ class Image(KiCadObject):
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
     )
-    scale: Optional[KiCadFloat] = field(
+    scale: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("scale", 1.0, required=False),
         metadata={"description": "Scale factor", "required": False},
     )
@@ -672,8 +672,8 @@ class Image(KiCadObject):
     data: Optional[Data] = field(
         default=None, metadata={"description": "Image data", "required": False}
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether image is locked", "required": False},
     )
 

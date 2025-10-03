@@ -1,7 +1,7 @@
 """Base types for KiCad S-expressions - fundamental elements with no cross-dependencies."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
 from .enums import PadShape, StrokeType
@@ -90,6 +90,19 @@ class Pts(KiCadObject):
         default_factory=list, metadata={"description": "List of 2D coordinate points"}
     )
 
+    def xy(self, x: float, y: float) -> "Pts":
+        """Add a coordinate point to the list.
+
+        Args:
+            x: X coordinate
+            y: Y coordinate
+
+        Returns:
+            Pts: Self (for method chaining)
+        """
+        self.points.append(Xy(x=x, y=y))
+        return self
+
 
 @dataclass
 class AtXY(KiCadObject):
@@ -114,6 +127,20 @@ class AtXY(KiCadObject):
     y: float = field(
         default=0.0, metadata={"description": "Vertical position of the object"}
     )
+
+    def xy(self, x: float, y: float) -> "AtXY":
+        """Set X and Y coordinates.
+
+        Args:
+            x: Horizontal position
+            y: Vertical position
+
+        Returns:
+            AtXY: Self (for method chaining)
+        """
+        self.x = x
+        self.y = y
+        return self
 
 
 @dataclass
@@ -478,47 +505,6 @@ class Stroke(KiCadObject):
 
 
 @dataclass
-class Text(KiCadObject):
-    """Text content definition token.
-
-    The 'text' token defines text content in the format:
-    (text "TEXT_CONTENT"
-        (at X Y [ANGLE])
-        (effects EFFECTS)
-    )
-
-    Args:
-        content: Text content
-        at: Position and rotation (optional)
-        effects: Text effects (optional)
-        exclude_from_sim: Whether to exclude from simulation (optional)
-        uuid: Unique identifier (optional)
-    """
-
-    __token_name__ = "text"
-
-    content: str = field(default="", metadata={"description": "Text content"})
-    at: Optional[At] = field(
-        default=None,
-        metadata={"description": "Position and rotation", "required": False},
-    )
-    effects: Optional["Effects"] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
-    )
-    exclude_from_sim: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
-        metadata={
-            "description": "Whether to exclude from simulation",
-            "required": False,
-        },
-    )
-    uuid: Optional["Uuid"] = field(
-        default=None,
-        metadata={"description": "Unique identifier", "required": False},
-    )
-
-
-@dataclass
 class Uuid(KiCadObject):
     """UUID identifier token.
 
@@ -533,9 +519,20 @@ class Uuid(KiCadObject):
 
     value: str = field(default="", metadata={"description": "UUID value"})
 
+    def new_id(self) -> "Uuid":
+        """Generate a new UUID identifier and update this instance.
+
+        Returns:
+            Uuid: Self (for method chaining)
+        """
+        import uuid
+
+        self.value = str(uuid.uuid4())
+        return self
+
     @classmethod
-    def new_id(cls) -> "Uuid":
-        """Generate a new UUID identifier.
+    def create(cls) -> "Uuid":
+        """Create a new UUID identifier (factory method).
 
         Returns:
             Uuid: New Uuid object with a generated UUID value
@@ -563,23 +560,24 @@ class Font(KiCadObject):
 
     __token_name__ = "font"
 
-    face: Optional[KiCadStr] = field(
+    face: KiCadStr = field(
         default_factory=lambda: KiCadStr("face", "", required=False),
         metadata={"description": "Font face specification", "required": False},
     )
     size: Optional[Size] = field(
-        default=None, metadata={"description": "Font size", "required": False}
+        default_factory=lambda: Size(1.27, 1.27),
+        metadata={"description": "Font size", "required": False},
     )
-    thickness: Optional[KiCadFloat] = field(
+    thickness: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("thickness", 0.0, required=False),
         metadata={"description": "Font thickness", "required": False},
     )
-    bold: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("bold"),
+    bold: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("bold"),
         metadata={"description": "Bold flag", "required": False},
     )
-    italic: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("italic"),
+    italic: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("italic"),
         metadata={"description": "Italic flag", "required": False},
     )
     color: Optional[Color] = field(
@@ -608,15 +606,15 @@ class Justify(KiCadObject):
     __token_name__ = "justify"
 
     # Horizontal justification flags
-    left: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("left"),
+    left: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("left"),
         metadata={
             "description": "Left horizontal justification flag",
             "required": False,
         },
     )
-    right: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("right"),
+    right: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("right"),
         metadata={
             "description": "Right horizontal justification flag",
             "required": False,
@@ -624,12 +622,12 @@ class Justify(KiCadObject):
     )
 
     # Vertical justification flags
-    top: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("top"),
+    top: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("top"),
         metadata={"description": "Top vertical justification flag", "required": False},
     )
-    bottom: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("bottom"),
+    bottom: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("bottom"),
         metadata={
             "description": "Bottom vertical justification flag",
             "required": False,
@@ -637,8 +635,8 @@ class Justify(KiCadObject):
     )
 
     # Center can be horizontal or vertical - ambiguous in S-expression
-    center: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("center"),
+    center: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("center"),
         metadata={
             "description": "Center justification flag (horizontal or vertical)",
             "required": False,
@@ -646,8 +644,8 @@ class Justify(KiCadObject):
     )
 
     # Mirror flag
-    mirror: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("mirror"),
+    mirror: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("mirror"),
         metadata={"description": "Mirror text flag", "required": False},
     )
 
@@ -680,13 +678,54 @@ class Effects(KiCadObject):
         default=None,
         metadata={"description": "Text justification", "required": False},
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
-    href: Optional[KiCadStr] = field(
+    href: KiCadStr = field(
         default_factory=lambda: KiCadStr("href", "", required=False),
         metadata={"description": "Hyperlink reference", "required": False},
+    )
+
+
+@dataclass
+class Text(KiCadObject):
+    """Text content definition token.
+
+    The 'text' token defines text content in the format:
+    (text "TEXT_CONTENT"
+        (at X Y [ANGLE])
+        (effects EFFECTS)
+    )
+
+    Args:
+        content: Text content
+        at: Position and rotation (optional)
+        effects: Text effects (optional)
+        exclude_from_sim: Whether to exclude from simulation (optional)
+        uuid: Unique identifier (optional)
+    """
+
+    __token_name__ = "text"
+
+    content: str = field(default="", metadata={"description": "Text content"})
+    at: Optional[At] = field(
+        default=None,
+        metadata={"description": "Position and rotation", "required": False},
+    )
+    effects: Optional[Effects] = field(
+        default=None, metadata={"description": "Text effects", "required": False}
+    )
+    exclude_from_sim: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+        metadata={
+            "description": "Whether to exclude from simulation",
+            "required": False,
+        },
+    )
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 
@@ -726,7 +765,7 @@ class Property(KiCadObject):
         default="", metadata={"description": "Property key name (must be unique)"}
     )
     value: str = field(default="", metadata={"description": "Property value"})
-    id: Optional[KiCadStr] = field(
+    id: KiCadStr = field(
         default_factory=lambda: KiCadStr("id", "", required=False),
         metadata={"description": "Property ID", "required": False},
     )
@@ -737,8 +776,8 @@ class Property(KiCadObject):
     effects: Optional[Effects] = field(
         default=None, metadata={"description": "Text effects", "required": False}
     )
-    unlocked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("unlocked"),
+    unlocked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("unlocked"),
         metadata={"description": "Whether property is unlocked", "required": False},
     )
     layer: Optional[Layer] = field(
@@ -747,10 +786,89 @@ class Property(KiCadObject):
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Hide property flag", "required": False},
     )
+
+
+@dataclass
+class LayerDefinition:
+    """Board layer definition entry (no token name).
+
+    Individual layer definition within a 'layers' token in PCB files::
+
+        (0 "F.Cu" signal)
+        (9 "F.Adhes" user "F.Adhesive")
+        (31 "F.CrtYd" user "F.Courtyard")
+
+    Stores the raw list internally and provides properties for access.
+
+    Args:
+        data: Raw layer data as list [ordinal, name, type, user_name?]
+    """
+
+    data: List[Any] = field(default_factory=list)
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize from list or individual parameters."""
+        if len(args) == 1 and isinstance(args[0], list):
+            self.data = args[0]
+        elif args:
+            self.data = list(args)
+        else:
+            self.data = []
+
+    @property
+    def ordinal(self) -> int:
+        """Layer ordinal number."""
+        return int(self.data[0]) if len(self.data) > 0 else 0
+
+    @property
+    def canonical_name(self) -> str:
+        """Canonical layer name."""
+        return self.data[1] if len(self.data) > 1 else ""
+
+    @property
+    def layer_type(self) -> str:
+        """Layer type (signal, user, power, mixed, jumper)."""
+        return self.data[2] if len(self.data) > 2 else "signal"
+
+    @property
+    def user_name(self) -> Optional[str]:
+        """User-defined layer name (optional)."""
+        return self.data[3] if len(self.data) > 3 else None
+
+
+@dataclass
+class BoardLayers(KiCadObject):
+    """Board layer definitions for kicad_pcb files.
+
+    Stores layer definitions as raw lists::
+
+        (layers (0 "F.Cu" signal) (2 "B.Cu" signal) ...)
+
+    Use get_layer(index) to parse a specific layer as LayerDefinition if needed.
+    """
+
+    __token_name__ = "layers"
+    layer_defs: List[LayerDefinition] = field(default_factory=list)
+
+    @classmethod
+    def _parse_recursive(cls, cursor: Any) -> "BoardLayers":
+        """Parse and store layer definitions as LayerDefinition objects."""
+        layer_defs = [
+            LayerDefinition([str(v) for v in item])
+            for item in cursor.sexpr[1:]
+            if isinstance(item, list)
+        ]
+        for i in range(1, len(cursor.sexpr)):
+            cursor.parser.mark_used(i)
+        return cls(layer_defs=layer_defs)
+
+    def to_sexpr(self) -> SExpr:
+        """Convert to S-expression format."""
+        return [self.__token_name__] + [ld.data for ld in self.layer_defs]
 
 
 @dataclass

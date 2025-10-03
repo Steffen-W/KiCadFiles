@@ -104,7 +104,7 @@ class Bezier(KiCadObject):
         default=None,
         metadata={"description": "Fill definition for filling", "required": False},
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width of the curve", "required": False},
     )
@@ -244,8 +244,8 @@ class Polyline(KiCadObject):
         default=None,
         metadata={"description": "Stroke definition for outline", "required": False},
     )
-    fill: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+    fill: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fill"),
         metadata={"description": "Fill definition", "required": False},
     )
     uuid: Optional[Uuid] = field(

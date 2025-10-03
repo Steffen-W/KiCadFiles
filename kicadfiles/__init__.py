@@ -84,6 +84,7 @@ from .base_types import (
     Anchor,
     At,
     AtXY,
+    BoardLayers,
     Center,
     Color,
     Effects,
@@ -92,6 +93,7 @@ from .base_types import (
     Font,
     Justify,
     Layer,
+    LayerDefinition,
     Layers,
     Offset,
     Pos,
@@ -111,9 +113,11 @@ from .base_types import (
 from .board_layout import (
     KicadPcb,
     Nets,
+    PcbPlotParams,
     PrivateLayers,
     Segment,
     Setup,
+    Tenting,
     Tracks,
     Via,
     Vias,
@@ -242,6 +246,11 @@ from .symbol_library import (
     Symbol,
 )
 
+# Templates (convenience helpers)
+from .templates import (
+    KiCadTemplates,
+)
+
 # Text and document elements
 from .text_and_documents import (
     Bitmap,
@@ -278,7 +287,12 @@ from .zone_system import (
     Zone,
 )
 
+# Grid helper constants
+GRID = 1.27  # KiCad schematic default grid in mm (50 mil)
+
 __all__ = [
+    # Grid helpers
+    "GRID",
     # Base
     "KiCadFloat",
     "KiCadInt",
@@ -309,6 +323,7 @@ __all__ = [
     "Anchor",
     "At",
     "AtXY",
+    "BoardLayers",
     "Center",
     "Color",
     "Effects",
@@ -317,6 +332,7 @@ __all__ = [
     "Font",
     "Justify",
     "Layer",
+    "LayerDefinition",
     "Layers",
     "Offset",
     "Pos",
@@ -443,9 +459,11 @@ __all__ = [
     # Board layout
     "KicadPcb",
     "Nets",
+    "PcbPlotParams",
     "PrivateLayers",
     "Segment",
     "Setup",
+    "Tenting",
     "Tracks",
     "Via",
     "Vias",
@@ -466,4 +484,6 @@ __all__ = [
     "SheetInstances",
     "Table",
     "Wire",
+    # Templates
+    "KiCadTemplates",
 ]

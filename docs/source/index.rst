@@ -117,7 +117,7 @@ Working with Complex Objects
 
 .. code-block:: python
 
-   from kicadfiles import Footprint, Pad, At, Size
+   from kicadfiles import Footprint, Pad, At, AtXY, Size, PadType, PadShape
 
    # Create a footprint with pads
    footprint = Footprint(
@@ -126,16 +126,16 @@ Working with Complex Objects
        pads=[
            Pad(
                number="1",
-               type="smd",
-               shape="roundrect",
-               at=At(x=-0.8, y=0.0),
+               type=PadType.SMD,
+               shape=PadShape.ROUNDRECT,
+               at=AtXY(x=-0.8, y=0.0),
                size=Size(width=0.7, height=0.9)
            ),
            Pad(
                number="2",
-               type="smd",
-               shape="roundrect",
-               at=At(x=0.8, y=0.0),
+               type=PadType.SMD,
+               shape=PadShape.ROUNDRECT,
+               at=AtXY(x=0.8, y=0.0),
                size=Size(width=0.7, height=0.9)
            )
        ]

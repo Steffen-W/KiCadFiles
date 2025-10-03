@@ -136,8 +136,8 @@ class GrCircle(KiCadObject):
         default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width"},
     )
-    fill: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+    fill: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fill"),
         metadata={"description": "Fill definition", "required": False},
     )
     uuid: Uuid = field(
@@ -221,8 +221,8 @@ class GrTextBox(KiCadObject):
 
     __token_name__ = "gr_text_box"
 
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the text box can be moved",
             "required": False,
@@ -250,7 +250,7 @@ class GrTextBox(KiCadObject):
             "required": False,
         },
     )
-    angle: Optional[KiCadFloat] = field(
+    angle: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={
             "description": "Rotation of the text box in degrees",
@@ -273,7 +273,7 @@ class GrTextBox(KiCadObject):
             "required": False,
         },
     )
-    render_cache: Optional[KiCadStr] = field(
+    render_cache: KiCadStr = field(
         default_factory=lambda: KiCadStr("render_cache", "", required=False),
         metadata={
             "description": "Text rendering cache for TrueType fonts",
@@ -341,11 +341,11 @@ class Format(KiCadObject):
 
     __token_name__ = "format"
 
-    prefix: Optional[KiCadStr] = field(
+    prefix: KiCadStr = field(
         default_factory=lambda: KiCadStr("prefix", "", required=False),
         metadata={"description": "Text prefix", "required": False},
     )
-    suffix: Optional[KiCadStr] = field(
+    suffix: KiCadStr = field(
         default_factory=lambda: KiCadStr("suffix", "", required=False),
         metadata={"description": "Text suffix", "required": False},
     )
@@ -361,12 +361,12 @@ class Format(KiCadObject):
         default_factory=lambda: KiCadInt("precision", 2),
         metadata={"description": "Precision digits"},
     )
-    override_value: Optional[KiCadStr] = field(
+    override_value: KiCadStr = field(
         default_factory=lambda: KiCadStr("override_value", "", required=False),
         metadata={"description": "Override text value", "required": False},
     )
-    suppress_zeros: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("suppress_zeros"),
+    suppress_zeros: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("suppress_zeros"),
         metadata={
             "description": "Whether to suppress trailing zeros",
             "required": False,
@@ -410,8 +410,8 @@ class Dimension(KiCadObject):
 
     __token_name__ = "dimension"
 
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether dimension is locked", "required": False},
     )
     type: Type = field(
@@ -429,18 +429,18 @@ class Dimension(KiCadObject):
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Dimension points"}
     )
-    height: Optional[KiCadFloat] = field(
+    height: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("height", 0.0, required=False),
         metadata={"description": "Height for aligned dimensions", "required": False},
     )
-    orientation: Optional[KiCadFloat] = field(
+    orientation: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("orientation", 0.0, required=False),
         metadata={
             "description": "Orientation angle for orthogonal dimensions",
             "required": False,
         },
     )  # todo: use orientation
-    leader_length: Optional[KiCadFloat] = field(
+    leader_length: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("leader_length", 0.0, required=False),
         metadata={
             "description": "Leader length for radial dimensions",
@@ -509,7 +509,7 @@ class FpArc(KiCadObject):
     layer: Optional[Layer] = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width (prior to version 7)"},
     )
@@ -520,11 +520,11 @@ class FpArc(KiCadObject):
             "required": False,
         },
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether the arc is locked", "required": False},
     )
-    angle: Optional[KiCadFloat] = field(
+    angle: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={"description": "Arc angle in degrees", "required": False},
     )
@@ -571,11 +571,11 @@ class FpCircle(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={"description": "Timestamp UUID", "required": False},
     )
@@ -585,12 +585,12 @@ class FpCircle(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    fill: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+    fill: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fill"),
         metadata={"description": "Fill definition", "required": False},
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether the circle is locked", "required": False},
     )
 
@@ -630,15 +630,15 @@ class FpCurve(KiCadObject):
         default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width"},
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={"description": "Timestamp UUID", "required": False},
     )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether the curve is locked", "required": False},
     )
 
@@ -680,11 +680,11 @@ class FpLine(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={"description": "Timestamp UUID", "required": False},
     )
@@ -694,8 +694,8 @@ class FpLine(KiCadObject):
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether the line is locked", "required": False},
     )
 
@@ -733,23 +733,23 @@ class FpPoly(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width", "required": False},
     )
-    tstamp: Optional[KiCadStr] = field(
+    tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
         metadata={"description": "Timestamp UUID", "required": False},
     )
     stroke: Optional[Stroke] = field(
         default=None, metadata={"description": "Stroke definition", "required": False}
     )
-    fill: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+    fill: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fill"),
         metadata={"description": "Fill definition", "required": False},
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={"description": "Whether thepolygon is locked", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -799,7 +799,7 @@ class FpRect(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    width: Optional[KiCadFloat] = field(
+    width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width (prior to version 7)", "required": False},
     )
@@ -810,15 +810,15 @@ class FpRect(KiCadObject):
             "required": False,
         },
     )
-    fill: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("fill"),
+    fill: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("fill"),
         metadata={
             "description": "Whether the rectangle is filled (yes/no)",
             "required": False,
         },
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the rectangle cannot be edited",
             "required": False,
@@ -869,8 +869,8 @@ class FpText(KiCadObject):
         default_factory=lambda: FpTextAt(),
         metadata={"description": "Position and rotation coordinates"},
     )
-    unlocked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("unlocked"),
+    unlocked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("unlocked"),
         metadata={
             "description": "Whether text orientation can be other than upright",
             "required": False,
@@ -879,8 +879,8 @@ class FpText(KiCadObject):
     layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
     effects: Effects = field(
@@ -928,8 +928,8 @@ class FpTextBox(KiCadObject):
     __token_name__ = "fp_text_box"
     __legacy_token_names__ = ["gr_text_box"]
 
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the text box can be moved",
             "required": False,
@@ -957,7 +957,7 @@ class FpTextBox(KiCadObject):
             "required": False,
         },
     )
-    angle: Optional[KiCadFloat] = field(
+    angle: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("angle", 0.0, required=False),
         metadata={
             "description": "Rotation of the text box in degrees",
@@ -980,7 +980,7 @@ class FpTextBox(KiCadObject):
             "required": False,
         },
     )
-    render_cache: Optional[KiCadStr] = field(
+    render_cache: KiCadStr = field(
         default_factory=lambda: KiCadStr("render_cache", "", required=False),
         metadata={
             "description": "Text rendering cache for TrueType fonts",

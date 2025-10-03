@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "sym")(type "KiCad")(uri "${KIPRJMOD}/sym.pretty")(options "")(descr ""))
+)

@@ -128,8 +128,8 @@ class Pin(KiCadObject):
     number: Optional[Number] = field(
         default=None, metadata={"description": "Pin number", "required": False}
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Whether pin is hidden", "required": False},
     )
 
@@ -152,8 +152,8 @@ class PinNames(KiCadObject):
     offset: Optional[float] = field(
         default=None, metadata={"description": "Pin name offset", "required": False}
     )
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Whether pin names are hidden", "required": False},
     )
 
@@ -172,8 +172,8 @@ class PinNumbers(KiCadObject):
 
     __token_name__ = "pin_numbers"
 
-    hide: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("hide"),
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
         metadata={"description": "Whether pin numbers are hidden", "required": False},
     )
 
@@ -258,33 +258,26 @@ class Symbol(KiCadObject):
         default=None,
         metadata={"description": "Pin names attributes", "required": False},
     )
-    in_bom: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("in_bom"),
+    in_bom: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("in_bom"),
         metadata={"description": "Whether symbol appears in BOM", "required": False},
     )
-    on_board: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("on_board"),
+    on_board: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("on_board"),
         metadata={
             "description": "Whether symbol is exported to PCB (yes/no)",
             "required": False,
         },
     )
-    exclude_from_sim: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_sim"),
+    exclude_from_sim: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_sim"),
         metadata={
             "description": "Whether symbol is excluded from simulation",
             "required": False,
         },
     )
-    embedded_fonts: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
-        metadata={
-            "description": "Whether embedded fonts are used",
-            "required": False,
-        },
-    )
-    power: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("power"),
+    power: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("power"),
         metadata={
             "description": "Whether symbol is a power symbol",
             "required": False,
@@ -315,6 +308,13 @@ class Symbol(KiCadObject):
     unit_name: Optional[str] = field(
         default=None,
         metadata={"description": "Display name for subunits", "required": False},
+    )
+    embedded_fonts: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("embedded_fonts"),
+        metadata={
+            "description": "Whether embedded fonts are used",
+            "required": False,
+        },
     )
 
 
@@ -368,7 +368,7 @@ class KicadSymbolLib(KiCadObject):
         default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: Optional[KiCadStr] = field(
+    generator_version: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )

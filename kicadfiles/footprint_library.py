@@ -72,7 +72,7 @@ class EmbeddedFile(KiCadObject):
         default=None,
         metadata={"description": "Base64 encoded file data token", "required": False},
     )
-    checksum: Optional[KiCadStr] = field(
+    checksum: KiCadStr = field(
         default_factory=lambda: KiCadStr("checksum", "", required=False),
         metadata={"description": "File checksum token", "required": False},
     )
@@ -125,22 +125,22 @@ class Attr(KiCadObject):
     type: str = field(
         default="", metadata={"description": "Footprint type (smd | through_hole)"}
     )
-    board_only: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("board_only"),
+    board_only: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("board_only"),
         metadata={
             "description": "Whether footprint is only defined in board",
             "required": False,
         },
     )
-    exclude_from_pos_files: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_pos_files"),
+    exclude_from_pos_files: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_pos_files"),
         metadata={
             "description": "Whether to exclude from position files",
             "required": False,
         },
     )
-    exclude_from_bom: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("exclude_from_bom"),
+    exclude_from_bom: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("exclude_from_bom"),
         metadata={
             "description": "Whether to exclude from BOM files",
             "required": False,
@@ -374,27 +374,27 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Link to footprint library", "required": False},
     )
-    version: Optional[KiCadInt] = field(
+    version: KiCadInt = field(
         default_factory=lambda: KiCadInt("version", 0, required=False),
         metadata={"description": "File format version", "required": False},
     )
-    generator: Optional[KiCadStr] = field(
+    generator: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator", "", required=False),
         metadata={"description": "Generator application", "required": False},
     )
-    generator_version: Optional[KiCadStr] = field(
+    generator_version: KiCadStr = field(
         default_factory=lambda: KiCadStr("generator_version", "", required=False),
         metadata={"description": "Generator version", "required": False},
     )
-    locked: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("locked"),
+    locked: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("locked"),
         metadata={
             "description": "Whether the footprint cannot be edited",
             "required": False,
         },
     )
-    placed: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("placed"),
+    placed: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("placed"),
         metadata={
             "description": "Whether the footprint has been placed",
             "required": False,
@@ -404,7 +404,7 @@ class Footprint(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the footprint is placed on"},
     )
-    tedit: Optional[KiCadStr] = field(
+    tedit: KiCadStr = field(
         default_factory=lambda: KiCadStr("tedit", "0", required=False),
         metadata={"description": "Last edit timestamp", "required": False},
     )
@@ -422,11 +422,11 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    descr: Optional[KiCadStr] = field(
+    descr: KiCadStr = field(
         default_factory=lambda: KiCadStr("descr", "", required=False),
         metadata={"description": "Description of the footprint", "required": False},
     )
-    tags: Optional[KiCadStr] = field(
+    tags: KiCadStr = field(
         default_factory=lambda: KiCadStr("tags", "", required=False),
         metadata={"description": "Search tags for the footprint", "required": False},
     )
@@ -474,7 +474,7 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    clearance: Optional[KiCadFloat] = field(
+    clearance: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("clearance", 0.0, required=False),
         metadata={
             "description": "Clearance to board copper objects",
@@ -485,11 +485,11 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "How pads connect to filled zones", "required": False},
     )
-    thermal_width: Optional[KiCadFloat] = field(
+    thermal_width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("thermal_width", 0.0, required=False),
         metadata={"description": "Thermal relief spoke width", "required": False},
     )
-    thermal_gap: Optional[KiCadFloat] = field(
+    thermal_gap: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("thermal_gap", 0.0, required=False),
         metadata={
             "description": "Distance from pad to zone for thermal relief",
@@ -520,8 +520,8 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    embedded_fonts: Optional[OptionalFlag] = field(
-        default_factory=lambda: OptionalFlag.create_bool_flag("embedded_fonts"),
+    embedded_fonts: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("embedded_fonts"),
         metadata={"description": "Embedded fonts settings", "required": False},
     )
     embedded_files: Optional[EmbeddedFiles] = field(
