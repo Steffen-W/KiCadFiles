@@ -245,7 +245,7 @@ class Members(KiCadObject):
 
     __token_name__ = "members"
 
-    uuids: List[Uuid] = field(
+    uuids: List[str] = field(
         default_factory=list, metadata={"description": "List of member UUIDs"}
     )
 
@@ -258,22 +258,22 @@ class Group(KiCadObject):
 
         (group
             "NAME"
-            (id UUID)
+            (uuid UUID)
             (members UUID1 ... UUIDN)
         )
 
     Args:
         name: Group name
-        id: Group unique identifier
+        uuid: Group unique identifier (optional)
         members: List of member UUIDs (optional)
     """
 
     __token_name__ = "group"
 
     name: str = field(default="", metadata={"description": "Group name"})
-    id: KiCadStr = field(
-        default_factory=lambda: KiCadStr("id", ""),
-        metadata={"description": "Group unique identifier"},
+    uuid: Optional[Uuid] = field(
+        default=None,
+        metadata={"description": "Group unique identifier", "required": False},
     )
     members: Optional[Members] = field(
         default=None,

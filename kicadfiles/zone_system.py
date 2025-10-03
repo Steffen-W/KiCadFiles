@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .base_element import KiCadFloat, KiCadObject, OptionalFlag
-from .base_types import Fill, Pts, Uuid
+from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
+from .base_types import Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
 
@@ -56,6 +56,51 @@ class Copperpour(KiCadObject):
     value: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
         metadata={"description": "Copper pour setting"},
+    )
+
+
+@dataclass
+class ZoneFill(KiCadObject):
+    """Zone fill definition token.
+
+    The 'fill' token for zones defines zone fill properties in the format::
+
+        (fill yes
+            (thermal_gap GAP)
+            (thermal_bridge_width WIDTH)
+            (smoothing STYLE)
+            (radius RADIUS)
+        )
+
+    Args:
+        enabled: Whether fill is enabled (yes|no) (optional)
+        thermal_gap: Thermal gap distance (optional)
+        thermal_bridge_width: Thermal bridge width (optional)
+        smoothing: Smoothing style (optional)
+        radius: Smoothing radius (optional)
+    """
+
+    __token_name__ = "fill"
+
+    enabled: Optional[str] = field(
+        default=None,
+        metadata={"description": "Whether fill is enabled (yes|no)", "required": False},
+    )
+    thermal_gap: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("thermal_gap", 0.0, required=False),
+        metadata={"description": "Thermal gap distance", "required": False},
+    )
+    thermal_bridge_width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0, required=False),
+        metadata={"description": "Thermal bridge width", "required": False},
+    )
+    smoothing: KiCadStr = field(
+        default_factory=lambda: KiCadStr("smoothing", "", required=False),
+        metadata={"description": "Smoothing style", "required": False},
+    )
+    radius: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("radius", 0.0, required=False),
+        metadata={"description": "Smoothing radius", "required": False},
     )
 
 
@@ -328,8 +373,8 @@ class Zone(KiCadObject):
         default_factory=lambda: ConnectPads(),
         metadata={"description": "Pad connection settings"},
     )
-    fill: Fill = field(
-        default_factory=lambda: Fill(), metadata={"description": "Fill settings"}
+    fill: ZoneFill = field(
+        default_factory=lambda: ZoneFill(), metadata={"description": "Fill settings"}
     )
     polygon: Polygon = field(
         default_factory=lambda: Polygon(),

@@ -4,8 +4,14 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
 from .advanced_graphics import GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect
-from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
-from .base_types import Anchor, AtXY, Layers, Offset, Size, Uuid
+from .base_element import (
+    KiCadFloat,
+    KiCadObject,
+    KiCadStr,
+    OptionalFlag,
+    OptionalSimpleFlag,
+)
+from .base_types import Anchor, At, Layers, Offset, Size, Uuid
 from .enums import PadShape, PadType, ZoneConnection
 
 
@@ -213,22 +219,22 @@ class Drill(KiCadObject):
         )
 
     Args:
-        diameter: Drill diameter
         oval: Whether the drill is oval instead of round (optional)
+        diameter: Drill diameter
         width: Width of the slot for oval drills (optional)
         offset: Drill offset coordinates from the center of the pad (optional)
     """
 
     __token_name__ = "drill"
 
-    diameter: float = field(default=0.0, metadata={"description": "Drill diameter"})
-    oval: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("oval"),
+    oval: OptionalSimpleFlag = field(
+        default_factory=lambda: OptionalSimpleFlag("oval"),
         metadata={
             "description": "Whether the drill is oval instead of round",
             "required": False,
         },
     )
+    diameter: float = field(default=0.0, metadata={"description": "Drill diameter"})
     width: Optional[float] = field(
         default=None,
         metadata={
@@ -279,7 +285,7 @@ class Primitives(KiCadObject):
         },
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
         metadata={"description": "Line width of graphical items", "required": False},
     )
     fill: OptionalFlag = field(
@@ -331,6 +337,7 @@ class Pad(KiCadObject):
         clearance: Clearance value (optional)
         zone_connect: Zone connection type (optional)
         thermal_width: Thermal width (optional)
+        thermal_bridge_width: Thermal bridge width (optional)
         thermal_gap: Thermal gap (optional)
         options: Custom pad options (optional)
         primitives: Custom pad primitives (optional)
@@ -348,8 +355,8 @@ class Pad(KiCadObject):
         default=PadShape.CIRCLE,
         metadata={"description": "Pad shape"},
     )
-    at: AtXY = field(
-        default_factory=lambda: AtXY(),
+    at: At = field(
+        default_factory=lambda: At(),
         metadata={"description": "Position and rotation"},
     )
     size: Size = field(
@@ -429,6 +436,10 @@ class Pad(KiCadObject):
     )
     thermal_width: Optional[float] = field(
         default=None, metadata={"description": "Thermal width", "required": False}
+    )
+    thermal_bridge_width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0, required=False),
+        metadata={"description": "Thermal bridge width", "required": False},
     )
     thermal_gap: Optional[float] = field(
         default=None, metadata={"description": "Thermal gap", "required": False}

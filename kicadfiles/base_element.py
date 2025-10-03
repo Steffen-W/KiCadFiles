@@ -160,6 +160,7 @@ class FieldType(Enum):
     KICAD_OBJECT = "kicad_object"  # KiCadObject (required)
     OPTIONAL_KICAD_OBJECT = "optional_kicad_object"  # Optional[KiCadObject] (optional)
     OPTIONAL_FLAG = "optional_flag"  # OptionalFlag (always optional by definition)
+    OPTIONAL_SIMPLE_FLAG = "optional_simple_flag"  # OptionalSimpleFlag (always optional, simple symbols only)
 
 
 @dataclass
@@ -311,7 +312,10 @@ class KiCadObject(ABC):
                     dataclass_field.name, field_type, position_index
                 )
                 field_infos.append(field_info)
-                position_index += 1
+
+                # OptionalSimpleFlag doesn't consume positional slots
+                if field_info.field_type != FieldType.OPTIONAL_SIMPLE_FLAG:
+                    position_index += 1
 
             cls._field_info_cache = field_infos
 
@@ -372,6 +376,20 @@ class KiCadObject(ABC):
                     else None
                 ),
             )
+
+        # OptionalSimpleFlag (check before OptionalFlag since it's more specific)
+        try:
+            if isinstance(inner_type, type) and issubclass(
+                inner_type, OptionalSimpleFlag
+            ):
+                return FieldInfo(
+                    name=name,
+                    field_type=FieldType.OPTIONAL_SIMPLE_FLAG,
+                    inner_type=inner_type,
+                    position_index=position,
+                )
+        except TypeError:
+            pass
 
         # OptionalFlag
         try:
@@ -459,6 +477,9 @@ class KiCadObject(ABC):
 
         elif field_info.field_type == FieldType.OPTIONAL_FLAG:
             return cls._parse_optional_flag_with_cursor(field_info, cursor)
+
+        elif field_info.field_type == FieldType.OPTIONAL_SIMPLE_FLAG:
+            return cls._parse_optional_simple_flag_with_cursor(field_info, cursor)
 
         elif field_info.field_type in (
             FieldType.KICAD_OBJECT,
@@ -626,6 +647,29 @@ class KiCadObject(ABC):
         return None
 
     @classmethod
+    def _parse_optional_simple_flag_with_cursor(
+        cls,
+        field_info: FieldInfo,
+        cursor: ParseCursor,
+    ) -> Optional[OptionalSimpleFlag]:
+        """Parse OptionalSimpleFlag with cursor tracking.
+
+        Only matches simple symbols (not S-expressions).
+        """
+        _ = cursor.sexpr[0]  # Token at index 0, skip in enumeration
+
+        for token_idx, item in enumerate(cursor.sexpr[1:], 1):
+            # Only match simple symbols, NOT lists
+            if not isinstance(item, list) and str(item) == field_info.name:
+                cursor.parser.mark_used(token_idx)  # Mark in main parser
+                result = OptionalSimpleFlag(field_info.name)
+                result.__found__ = True
+                return result
+
+        # Not found - return None for optional fields
+        return None
+
+    @classmethod
     def _parse_kicad_primitive_with_cursor(
         cls,
         field_info: FieldInfo,
@@ -721,19 +765,47 @@ class KiCadObject(ABC):
                     )
 
         # Try positional access
-        if field_info.position_index < len(cursor.sexpr[1:]):
-            value = cursor.sexpr[1:][field_info.position_index]
-            if not isinstance(value, list):
-                cursor.parser.mark_used(
-                    field_info.position_index + 1
-                )  # Mark in main parser
-                try:
-                    return cls._convert_value(value, field_info.inner_type)
-                except ValueError as e:
-                    cls._log_parse_issue(
-                        cursor,
-                        f"{cursor.get_path_str()}: Positional conversion failed for '{field_info.name}': {e}",
-                    )
+        # Check if there are any OPTIONAL_SIMPLE_FLAG fields that might have consumed positions
+        field_infos = cls._classify_fields()
+        has_preceding_simple_flags = any(
+            fi.field_type == FieldType.OPTIONAL_SIMPLE_FLAG
+            and fi.position_index == field_info.position_index
+            for fi in field_infos
+        )
+
+        if has_preceding_simple_flags:
+            # Use loop-based parsing to skip values consumed by OptionalSimpleFlags
+            positional_count = 0
+            for token_idx, value in enumerate(cursor.sexpr[1:], 1):
+                if isinstance(value, list):
+                    continue
+                if token_idx in cursor.parser.used_indices:
+                    continue
+
+                if positional_count == field_info.position_index:
+                    cursor.parser.mark_used(token_idx)
+                    try:
+                        return cls._convert_value(value, field_info.inner_type)
+                    except ValueError as e:
+                        cls._log_parse_issue(
+                            cursor,
+                            f"{cursor.get_path_str()}: Positional conversion failed for '{field_info.name}': {e}",
+                        )
+                        break
+                positional_count += 1
+        else:
+            # Use simple direct access for normal fields
+            if field_info.position_index < len(cursor.sexpr[1:]):
+                value = cursor.sexpr[1:][field_info.position_index]
+                if not isinstance(value, list):
+                    cursor.parser.mark_used(field_info.position_index + 1)
+                    try:
+                        return cls._convert_value(value, field_info.inner_type)
+                    except ValueError as e:
+                        cls._log_parse_issue(
+                            cursor,
+                            f"{cursor.get_path_str()}: Positional conversion failed for '{field_info.name}': {e}",
+                        )
 
         # Handle missing values
         is_optional_field = field_info.field_type in (
@@ -822,6 +894,7 @@ class KiCadObject(ABC):
                     FieldType.OPTIONAL_KICAD_OBJECT,
                     FieldType.OPTIONAL_KICAD_PRIMITIVE,
                     FieldType.OPTIONAL_FLAG,
+                    FieldType.OPTIONAL_SIMPLE_FLAG,
                 )
                 has_default = field_info.name in field_defaults
 
@@ -850,6 +923,10 @@ class KiCadObject(ABC):
                             result.append([value.token, value.token_value])
                         else:
                             result.append([value.token])
+                elif isinstance(value, OptionalSimpleFlag):
+                    # Only add the simple flag if it was found
+                    if value.__found__:
+                        result.append(value.token)
                 else:
                     # Primitives are added directly, not as named fields
                     # Convert enum to its value for serialization
@@ -1141,3 +1218,59 @@ class OptionalFlag:
                 return f"({self.token})"
         else:
             return self.token
+
+
+@dataclass(eq=False)
+class OptionalSimpleFlag:
+    """Simple flag for optional symbol tokens (not S-expressions).
+
+    This flag matches only simple symbols like 'oval', 'locked', etc.
+    Unlike OptionalFlag, it does NOT match S-expressions like (locked yes).
+
+    Used for flags that should NOT consume positional argument slots,
+    like 'oval' in (drill oval 4 1.5).
+
+    Args:
+        token: The token name to match
+        __found__: Whether the token was found during parsing
+    """
+
+    token: str
+    __found__: bool = False
+
+    def __str__(self) -> str:
+        """Clean string representation."""
+        return f"OptionalSimpleFlag({self.token}={self.__found__})"
+
+    def __repr__(self) -> str:
+        """Developer-friendly representation."""
+        return f"OptionalSimpleFlag('{self.token}', found={self.__found__})"
+
+    def __eq__(self, other: object) -> bool:
+        """Equality comparison excluding __found__ field."""
+        if not isinstance(other, OptionalSimpleFlag):
+            return False
+        return self.token == other.token
+
+    def __hash__(self) -> int:
+        """Hash implementation."""
+        return hash(self.token)
+
+    def __bool__(self) -> bool:
+        """Boolean conversion - returns True if found."""
+        return self.__found__
+
+    def __call__(self) -> "OptionalSimpleFlag":
+        """Mark as found using function call syntax: flag()."""
+        self.__found__ = True
+        return self
+
+    def is_optional(self) -> bool:
+        """Check if this flag is optional (always True)."""
+        return True
+
+    def to_sexpr(self) -> str:
+        """Convert back to S-expression format."""
+        if not self.__found__:
+            return ""
+        return self.token

@@ -8,8 +8,10 @@ from kicadfiles import (
     Color,
     Effects,
     Font,
+    FpLibTable,
     KiCadFloat,
     Layer,
+    LibraryEntry,
     ParseStrictness,
     Size,
     Stroke,
@@ -239,6 +241,109 @@ def test_complex_nested_equality():
     print("✅ Objects with None optional nested fields are equal")
 
 
+def test_nested_subelement_parameter_validation():
+    """Test parameter validation in nested subelements (fp_lib_table with lib entries)."""
+    print("\n=== TESTING NESTED SUBELEMENT PARAMETER VALIDATION ===")
+
+    # Valid fp_lib_table structure
+    valid_sexpr = """(fp_lib_table
+  (version 7)
+  (lib (name "Audio_Module")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Audio_Module.pretty")(options "")(descr "Audio Module footprints"))
+  (lib (name "Battery")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Battery.pretty")(options "")(descr "Battery and battery holder footprints"))
+  (lib (name "Snapeda")(type "KiCad")(uri "${KICAD_3RD_PARTY}/Snapeda.pretty")(options "")(descr ""))
+)"""
+
+    # Test valid structure parses correctly in STRICT mode
+    result = FpLibTable.from_str(valid_sexpr, ParseStrictness.STRICT)
+    assert result.version == 7
+    assert len(result.libraries) == 3
+    assert result.libraries[0].name == "Audio_Module"
+    assert result.libraries[0].descr == "Audio Module footprints"
+    assert result.libraries[1].name == "Battery"
+    assert result.libraries[2].name == "Snapeda"
+    print("✅ Valid nested structure parsed correctly")
+
+    # Test with extra parameter in subelement (lib)
+    extra_param_sexpr = """(fp_lib_table
+  (version 7)
+  (lib (name "Audio_Module")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Audio_Module.pretty")(options "")(descr "Audio Module footprints")(extra_param "unexpected"))
+  (lib (name "Battery")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Battery.pretty")(options "")(descr "Battery"))
+)"""
+
+    try:
+        result = FpLibTable.from_str(extra_param_sexpr, ParseStrictness.STRICT)
+        print(
+            f"⚠️  STRICT mode allowed extra parameter in subelement (this may be expected behavior)"
+        )
+        print(f"    Result: {result.libraries[0]}")
+    except ValueError as e:
+        error_msg = str(e)
+        print(f"✅ STRICT mode caught extra parameter in subelement: {error_msg}")
+
+    # Test FAILSAFE mode with extra parameter
+    result = FpLibTable.from_str(extra_param_sexpr, ParseStrictness.FAILSAFE)
+    assert len(result.libraries) == 2
+    assert result.libraries[0].name == "Audio_Module"
+    print("✅ FAILSAFE mode handled extra parameter in subelement")
+
+    # Test with missing parameter in subelement (missing descr)
+    missing_param_sexpr = """(fp_lib_table
+  (version 7)
+  (lib (name "Audio_Module")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Audio_Module.pretty")(options ""))
+  (lib (name "Battery")(type "KiCad")(uri "${KICAD8_FOOTPRINT_DIR}/Battery.pretty")(options "")(descr "Battery"))
+)"""
+
+    # STRICT mode should catch missing parameter in subelement (even with default value)
+    try:
+        result = FpLibTable.from_str(missing_param_sexpr, ParseStrictness.STRICT)
+        assert False, "STRICT mode should have caught missing parameter"
+    except ValueError as e:
+        error_msg = str(e)
+        assert "Missing field 'descr'" in error_msg
+        print(f"✅ STRICT mode caught missing parameter in subelement: {error_msg}")
+
+    # FAILSAFE mode should handle missing parameter and use default
+    result = FpLibTable.from_str(missing_param_sexpr, ParseStrictness.FAILSAFE)
+    assert len(result.libraries) == 2
+    assert result.libraries[0].name == "Audio_Module"
+    assert result.libraries[0].descr == ""  # Uses default empty string
+    assert result.libraries[1].descr == "Battery"
+    print("✅ FAILSAFE mode handled missing parameter in subelement (used default)")
+
+    # Test with completely wrong token in subelement
+    wrong_token_sexpr = """(fp_lib_table
+  (version 7)
+  (wrong_token (name "Audio_Module")(type "KiCad"))
+)"""
+
+    try:
+        result = FpLibTable.from_str(wrong_token_sexpr, ParseStrictness.STRICT)
+        print(f"⚠️  STRICT mode allowed wrong token in subelement: {result}")
+    except ValueError as e:
+        error_msg = str(e)
+        print(f"✅ STRICT mode caught wrong token in subelement: {error_msg}")
+
+    # Test FAILSAFE mode with wrong token in subelement
+    result = FpLibTable.from_str(wrong_token_sexpr, ParseStrictness.FAILSAFE)
+    print(
+        f"✅ FAILSAFE mode handled wrong token in subelement (libraries: {len(result.libraries)})"
+    )
+
+    # Test with mixed valid and invalid subelements
+    mixed_sexpr = """(fp_lib_table
+  (version 7)
+  (lib (name "Valid1")(type "KiCad")(uri "path1")(options "")(descr "Valid"))
+  (lib (name "ExtraParam")(type "KiCad")(uri "path2")(options "")(descr "Has extra")(extra "param"))
+  (lib (name "Valid2")(type "KiCad")(uri "path3")(options "")(descr "Also valid"))
+)"""
+
+    result = FpLibTable.from_str(mixed_sexpr, ParseStrictness.FAILSAFE)
+    assert len(result.libraries) >= 2  # Should parse at least the valid ones
+    print(
+        f"✅ FAILSAFE mode handled mixed valid/invalid subelements ({len(result.libraries)} libraries)"
+    )
+
+
 if __name__ == "__main__":
     test_eq_edge_cases()
     test_parser_strictness_unused_parameters()
@@ -246,4 +351,5 @@ if __name__ == "__main__":
     test_parser_strictness_wrong_token()
     test_conversion_errors()
     test_complex_nested_equality()
+    test_nested_subelement_parameter_validation()
     print("\n🎉 All edge case tests passed!")

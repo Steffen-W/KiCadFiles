@@ -118,6 +118,7 @@ class Attr(KiCadObject):
         board_only: Whether footprint is only defined in board (optional)
         exclude_from_pos_files: Whether to exclude from position files (optional)
         exclude_from_bom: Whether to exclude from BOM files (optional)
+        allow_soldermask_bridges: Whether to allow soldermask bridges (optional)
     """
 
     __token_name__ = "attr"
@@ -143,6 +144,13 @@ class Attr(KiCadObject):
         default_factory=lambda: OptionalFlag("exclude_from_bom"),
         metadata={
             "description": "Whether to exclude from BOM files",
+            "required": False,
+        },
+    )
+    allow_soldermask_bridges: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("allow_soldermask_bridges"),
+        metadata={
+            "description": "Whether to allow soldermask bridges",
             "required": False,
         },
     )
@@ -262,6 +270,7 @@ class Model(KiCadObject):
         scale: Model scale factor for each 3D axis (optional)
         rotate: Model rotation for each 3D axis relative to the footprint (optional)
         offset: Model offset coordinates (optional)
+        hide: Whether the 3D model is hidden (optional)
     """
 
     __token_name__ = "model"
@@ -293,6 +302,10 @@ class Model(KiCadObject):
     offset: Optional[ModelOffset] = field(
         default=None,
         metadata={"description": "Model offset coordinates", "required": False},
+    )
+    hide: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("hide"),
+        metadata={"description": "Whether the 3D model is hidden", "required": False},
     )
 
 
@@ -348,11 +361,14 @@ class Footprint(KiCadObject):
         tags: Search tags for the footprint (optional)
         properties: List of footprint properties (optional)
         path: Hierarchical path of linked schematic symbol (optional)
+        sheetname: Schematic sheet name (optional)
+        sheetfile: Schematic sheet file (optional)
         attr: Footprint attributes (optional)
         autoplace_cost90: Vertical cost for automatic placement (optional)
         autoplace_cost180: Horizontal cost for automatic placement (optional)
         solder_mask_margin: Solder mask distance from pads (optional)
         solder_paste_margin: Solder paste distance from pads (optional)
+        solder_paste_margin_ratio: Solder paste margin ratio (optional)
         solder_paste_ratio: Percentage of pad size for solder paste (optional)
         clearance: Clearance to board copper objects (optional)
         zone_connect: How pads connect to filled zones (optional)
@@ -441,6 +457,14 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
+    sheetname: KiCadStr = field(
+        default_factory=lambda: KiCadStr("sheetname", "", required=False),
+        metadata={"description": "Schematic sheet name", "required": False},
+    )
+    sheetfile: KiCadStr = field(
+        default_factory=lambda: KiCadStr("sheetfile", "", required=False),
+        metadata={"description": "Schematic sheet file", "required": False},
+    )
     attr: Optional[Attr] = field(
         default=None,
         metadata={"description": "Footprint attributes", "required": False},
@@ -466,6 +490,12 @@ class Footprint(KiCadObject):
     solder_paste_margin: Optional[float] = field(
         default=None,
         metadata={"description": "Solder paste distance from pads", "required": False},
+    )
+    solder_paste_margin_ratio: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat(
+            "solder_paste_margin_ratio", 0.0, required=False
+        ),
+        metadata={"description": "Solder paste margin ratio", "required": False},
     )
     solder_paste_ratio: Optional[float] = field(
         default=None,

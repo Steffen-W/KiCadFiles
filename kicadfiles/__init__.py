@@ -76,6 +76,7 @@ from .base_element import (
     KiCadObject,
     KiCadStr,
     OptionalFlag,
+    OptionalSimpleFlag,
     ParseStrictness,
 )
 
@@ -111,12 +112,15 @@ from .base_types import (
 
 # Board layout
 from .board_layout import (
+    BoardArc,
     KicadPcb,
     Nets,
     PcbPlotParams,
     PrivateLayers,
     Segment,
     Setup,
+    Stackup,
+    StackupLayer,
     Tenting,
     Tracks,
     Via,
@@ -285,6 +289,7 @@ from .zone_system import (
     Mode,
     Smoothing,
     Zone,
+    ZoneFill,
 )
 
 # Grid helper constants
@@ -300,6 +305,7 @@ __all__ = [
     "KiCadStr",
     "ParseStrictness",
     "OptionalFlag",
+    "OptionalSimpleFlag",
     # Enums
     "ClearanceType",
     "FillType",
@@ -456,13 +462,17 @@ __all__ = [
     "Mode",
     "Smoothing",
     "Zone",
+    "ZoneFill",
     # Board layout
+    "BoardArc",
     "KicadPcb",
     "Nets",
     "PcbPlotParams",
     "PrivateLayers",
     "Segment",
     "Setup",
+    "Stackup",
+    "StackupLayer",
     "Tenting",
     "Tracks",
     "Via",

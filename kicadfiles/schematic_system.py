@@ -1119,8 +1119,6 @@ class KicadSch(KiCadObject):
         uuid: Universally unique identifier for the schematic
         paper: Paper settings (optional)
         title_block: Title block (optional)
-        sheet_instances: Sheet instances (optional)
-        embedded_fonts: Embedded fonts setting (optional)
         lib_symbols: Symbol library container (optional)
         junctions: List of junctions (optional)
         no_connects: List of no connect markers (optional)
@@ -1139,6 +1137,8 @@ class KicadSch(KiCadObject):
         symbols: List of symbol instances (optional)
         text: List of text elements (optional)
         images: List of image elements (optional)
+        sheet_instances: Sheet instances (optional)
+        embedded_fonts: Embedded fonts setting (optional)
     """
 
     __token_name__ = "kicad_sch"

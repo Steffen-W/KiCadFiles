@@ -228,7 +228,6 @@ class Symbol(KiCadObject):
         in_bom: Whether symbol appears in BOM (optional)
         on_board: Whether symbol is exported to PCB (yes/no) (optional)
         exclude_from_sim: Whether symbol is excluded from simulation (optional)
-        embedded_fonts: Whether embedded fonts are used (optional)
         power: Whether symbol is a power symbol (optional)
         properties: List of symbol properties (optional)
         graphic_items: List of graphical items (optional)
@@ -236,6 +235,7 @@ class Symbol(KiCadObject):
         pins: List of symbol pins (optional)
         units: List of child symbol units (optional)
         unit_name: Display name for subunits (optional)
+        embedded_fonts: Whether embedded fonts are used (optional)
     """
 
     __token_name__ = "symbol"

@@ -10,7 +10,7 @@ from .base_types import (
     Effects,
     End,
     Layer,
-    Pos,
+    Mid,
     Pts,
     Start,
     Stroke,
@@ -38,8 +38,9 @@ class GrArc(KiCadObject):
         start: Start point coordinates
         mid: Mid point coordinates
         end: End point coordinates
-        layer: Layer definition
-        width: Line width
+        stroke: Stroke definition (optional)
+        layer: Layer definition (optional)
+        width: Line width (deprecated, use stroke) (optional)
         uuid: Unique identifier
     """
 
@@ -49,18 +50,24 @@ class GrArc(KiCadObject):
         default_factory=lambda: Start(),
         metadata={"description": "Start point coordinates"},
     )
-    mid: Pos = field(
-        default_factory=lambda: Pos(), metadata={"description": "Mid point coordinates"}
+    mid: Mid = field(
+        default_factory=lambda: Mid(), metadata={"description": "Mid point coordinates"}
     )
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point coordinates"}
     )
-    layer: Layer = field(
-        default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
+    stroke: Optional[Stroke] = field(
+        default=None, metadata={"description": "Stroke definition", "required": False}
+    )
+    layer: Optional[Layer] = field(
+        default=None, metadata={"description": "Layer definition", "required": False}
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
-        metadata={"description": "Line width"},
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        metadata={
+            "description": "Line width (deprecated, use stroke)",
+            "required": False,
+        },
     )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
@@ -485,7 +492,7 @@ class FpArc(KiCadObject):
         mid: Mid point coordinates (optional)
         end: End point coordinates
         layer: Layer definition
-        width: Line width (prior to version 7)
+        width: Line width (prior to version 7) (optional)
         stroke: Stroke definition (from version 7) (optional)
         locked: Whether the arc is locked (optional)
         angle: Arc angle in degrees (optional)
@@ -493,13 +500,12 @@ class FpArc(KiCadObject):
     """
 
     __token_name__ = "fp_arc"
-    __legacy_token_names__ = ["gr_arc"]
 
     start: Start = field(
         default_factory=lambda: Start(),
         metadata={"description": "Start point coordinates"},
     )
-    mid: Optional[Pos] = field(
+    mid: Optional[Mid] = field(
         default=None,
         metadata={"description": "Mid point coordinates", "required": False},
     )
@@ -510,8 +516,8 @@ class FpArc(KiCadObject):
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
-        metadata={"description": "Line width (prior to version 7)"},
+        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        metadata={"description": "Line width (prior to version 7)", "required": False},
     )
     stroke: Optional[Stroke] = field(
         default=None,
@@ -560,7 +566,6 @@ class FpCircle(KiCadObject):
     """
 
     __token_name__ = "fp_circle"
-    __legacy_token_names__ = ["gr_circle"]
 
     center: Center = field(
         default_factory=lambda: Center(), metadata={"description": "Center point"}
@@ -618,7 +623,6 @@ class FpCurve(KiCadObject):
     """
 
     __token_name__ = "fp_curve"
-    __legacy_token_names__ = ["gr_curve"]
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Control points"}
@@ -669,7 +673,6 @@ class FpLine(KiCadObject):
     """
 
     __token_name__ = "fp_line"
-    __legacy_token_names__ = ["gr_line"]
 
     start: Start = field(
         default_factory=lambda: Start(), metadata={"description": "Start point"}
@@ -715,7 +718,7 @@ class FpPoly(KiCadObject):
 
     Args:
         pts: Polygon points
-        layer: Layer definition
+        layer: Layer definition (optional)
         width: Line width (optional)
         tstamp: Timestamp UUID (optional)
         stroke: Stroke definition (optional)
@@ -725,13 +728,12 @@ class FpPoly(KiCadObject):
     """
 
     __token_name__ = "fp_poly"
-    __legacy_token_names__ = ["gr_poly"]
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon points"}
     )
-    layer: Layer = field(
-        default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
+    layer: Optional[Layer] = field(
+        default=None, metadata={"description": "Layer definition", "required": False}
     )
     width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0, required=False),
@@ -786,7 +788,6 @@ class FpRect(KiCadObject):
     """
 
     __token_name__ = "fp_rect"
-    __legacy_token_names__ = ["gr_rect"]
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -858,7 +859,6 @@ class FpText(KiCadObject):
     """
 
     __token_name__ = "fp_text"
-    __legacy_token_names__ = ["gr_text"]
 
     type: str = field(
         default="",
@@ -926,7 +926,6 @@ class FpTextBox(KiCadObject):
     """
 
     __token_name__ = "fp_text_box"
-    __legacy_token_names__ = ["gr_text_box"]
 
     locked: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("locked"),

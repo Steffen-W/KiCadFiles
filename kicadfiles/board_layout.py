@@ -1,9 +1,9 @@
 """Board layout elements for KiCad S-expressions - PCB/board design and routing."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
-from .advanced_graphics import GrText
+from .advanced_graphics import GrArc, GrLine, GrPoly, GrText
 from .base_element import (
     KiCadFloat,
     KiCadInt,
@@ -18,12 +18,14 @@ from .base_types import (
     End,
     Layer,
     Layers,
+    Mid,
     Property,
     Start,
     Uuid,
 )
 from .footprint_library import Footprint
 from .pad_and_drill import Net
+from .text_and_documents import Group
 from .zone_system import Zone
 
 
@@ -182,6 +184,7 @@ class PcbPlotParams(KiCadObject):
         psnegative: PS negative (optional)
         psa4output: PS A4 output (optional)
         plot_black_and_white: Plot black and white (optional)
+        plotinvisibletext: Plot invisible text (optional)
         sketchpadsonfab: Sketch pads on fab (optional)
         plotpadnumbers: Plot pad numbers (optional)
         hidednponfab: Hide DNP on fab (optional)
@@ -317,6 +320,10 @@ class PcbPlotParams(KiCadObject):
         default_factory=lambda: OptionalFlag("plot_black_and_white", "yes"),
         metadata={"description": "Plot black and white", "required": False},
     )
+    plotinvisibletext: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("plotinvisibletext", "no"),
+        metadata={"description": "Plot invisible text", "required": False},
+    )
     sketchpadsonfab: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("sketchpadsonfab", "no"),
         metadata={"description": "Sketch pads on fab", "required": False},
@@ -364,6 +371,75 @@ class PcbPlotParams(KiCadObject):
 
 
 @dataclass
+class StackupLayer(KiCadObject):
+    """A single layer in the stackup configuration.
+
+    Args:
+        name: Layer name
+        type: Layer type (optional)
+        color: Layer color (optional)
+        thickness: Layer thickness (optional)
+        material: Material name (optional)
+        epsilon_r: Relative permittivity (optional)
+        loss_tangent: Loss tangent (optional)
+    """
+
+    __token_name__ = "layer"
+
+    name: str = field(default="", metadata={"description": "Layer name"})
+    type: KiCadStr = field(
+        default_factory=lambda: KiCadStr("type", "", required=False),
+        metadata={"description": "Layer type", "required": False},
+    )
+    color: KiCadStr = field(
+        default_factory=lambda: KiCadStr("color", "", required=False),
+        metadata={"description": "Layer color", "required": False},
+    )
+    thickness: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("thickness", 0.0, required=False),
+        metadata={"description": "Layer thickness", "required": False},
+    )
+    material: KiCadStr = field(
+        default_factory=lambda: KiCadStr("material", "", required=False),
+        metadata={"description": "Material name", "required": False},
+    )
+    epsilon_r: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("epsilon_r", 0.0, required=False),
+        metadata={"description": "Relative permittivity", "required": False},
+    )
+    loss_tangent: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("loss_tangent", 0.0, required=False),
+        metadata={"description": "Loss tangent", "required": False},
+    )
+
+
+@dataclass
+class Stackup(KiCadObject):
+    """PCB stackup configuration.
+
+    Args:
+        layers: List of stackup layers
+        copper_finish: Copper finish specification (optional)
+        dielectric_constraints: Dielectric constraints flag (optional)
+    """
+
+    __token_name__ = "stackup"
+
+    layers: List[StackupLayer] = field(
+        default_factory=list,
+        metadata={"description": "List of stackup layers"},
+    )
+    copper_finish: KiCadStr = field(
+        default_factory=lambda: KiCadStr("copper_finish", "", required=False),
+        metadata={"description": "Copper finish specification", "required": False},
+    )
+    dielectric_constraints: OptionalFlag = field(
+        default_factory=lambda: OptionalFlag("dielectric_constraints", "no"),
+        metadata={"description": "Dielectric constraints flag", "required": False},
+    )
+
+
+@dataclass
 class Setup(KiCadObject):
     """Board setup definition token.
 
@@ -381,6 +457,7 @@ class Setup(KiCadObject):
         )
 
     Args:
+        stackup: Stackup configuration (optional)
         pad_to_mask_clearance: Pad to mask clearance (optional)
         allow_soldermask_bridges_in_footprints: Allow soldermask bridges in footprints (optional)
         tenting: Tenting configuration (optional)
@@ -389,6 +466,10 @@ class Setup(KiCadObject):
 
     __token_name__ = "setup"
 
+    stackup: Optional["Stackup"] = field(
+        default=None,
+        metadata={"description": "Stackup configuration", "required": False},
+    )
     pad_to_mask_clearance: KiCadFloat = field(
         default_factory=lambda: KiCadFloat(
             "pad_to_mask_clearance", 0.0, required=False
@@ -584,6 +665,64 @@ class Vias(KiCadObject):
 
 
 @dataclass
+class BoardArc(KiCadObject):
+    """Board arc track segment definition.
+
+    The 'arc' token defines an arc-shaped track segment in the format::
+
+        (arc
+            (start X Y)
+            (mid X Y)
+            (end X Y)
+            (width WIDTH)
+            (layer LAYER)
+            (net NET_NUMBER)
+            (uuid UUID)
+        )
+
+    Args:
+        start: Start point of the arc
+        mid: Mid point of the arc
+        end: End point of the arc
+        width: Track width
+        layer: Layer name
+        net: Net number
+        uuid: Unique identifier (optional)
+    """
+
+    __token_name__ = "arc"
+
+    start: Start = field(
+        default_factory=lambda: Start(),
+        metadata={"description": "Start point of the arc"},
+    )
+    mid: Mid = field(
+        default_factory=lambda: Mid(),
+        metadata={"description": "Mid point of the arc"},
+    )
+    end: End = field(
+        default_factory=lambda: End(),
+        metadata={"description": "End point of the arc"},
+    )
+    width: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat("width", 0.0),
+        metadata={"description": "Track width"},
+    )
+    layer: KiCadStr = field(
+        default_factory=lambda: KiCadStr("layer", ""),
+        metadata={"description": "Layer name"},
+    )
+    net: KiCadInt = field(
+        default_factory=lambda: KiCadInt("net", 0),
+        metadata={"description": "Net number"},
+    )
+    uuid: Optional[Uuid] = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
+    )
+
+
+@dataclass
 class KicadPcb(KiCadObject):
     """KiCad PCB board file definition.
 
@@ -619,7 +758,9 @@ class KicadPcb(KiCadObject):
         properties: Board properties
         nets: Net definitions
         footprints: Footprint instances
-        gr_texts: Graphical text elements
+        gr_elements: List of board graphical elements (optional)
+        arcs: Arc track segments
+        groups: Group definitions
         segments: Track segments
         vias: Via definitions
         zones: Zone definitions
@@ -679,8 +820,18 @@ class KicadPcb(KiCadObject):
     footprints: List[Footprint] = field(
         default_factory=list, metadata={"description": "Footprint instances"}
     )
-    gr_texts: List[GrText] = field(
-        default_factory=list, metadata={"description": "Graphical text elements"}
+    gr_elements: Optional[List[Union[GrText, GrLine, GrArc, GrPoly]]] = field(
+        default_factory=list,
+        metadata={
+            "description": "List of board graphical elements",
+            "required": False,
+        },
+    )
+    arcs: List[BoardArc] = field(
+        default_factory=list, metadata={"description": "Arc track segments"}
+    )
+    groups: List[Group] = field(
+        default_factory=list, metadata={"description": "Group definitions"}
     )
     segments: List[Segment] = field(
         default_factory=list, metadata={"description": "Track segments"}
