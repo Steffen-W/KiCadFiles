@@ -1,7 +1,7 @@
 """Advanced graphics elements for KiCad S-expressions - complex graphical objects."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ClassVar, Optional
 
 from .base_element import KiCadFloat, KiCadInt, KiCadObject, KiCadStr, OptionalFlag
 from .base_types import (
@@ -44,7 +44,7 @@ class GrArc(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "gr_arc"
+    __token_name__: ClassVar[str] = "gr_arc"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -90,7 +90,7 @@ class GrBbox(KiCadObject):
         end: Coordinates of the lower right corner
     """
 
-    __token_name__ = "gr_bbox"
+    __token_name__: ClassVar[str] = "gr_bbox"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -126,7 +126,7 @@ class GrCircle(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "gr_circle"
+    __token_name__: ClassVar[str] = "gr_circle"
 
     center: Center = field(
         default_factory=lambda: Center(),
@@ -174,7 +174,7 @@ class GrText(KiCadObject):
         effects: Text effects
     """
 
-    __token_name__ = "gr_text"
+    __token_name__: ClassVar[str] = "gr_text"
 
     text: str = field(default="", metadata={"description": "Text content"})
     at: At = field(
@@ -226,7 +226,7 @@ class GrTextBox(KiCadObject):
         render_cache: Text rendering cache for TrueType fonts (optional)
     """
 
-    __token_name__ = "gr_text_box"
+    __token_name__: ClassVar[str] = "gr_text_box"
 
     locked: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("locked"),
@@ -304,7 +304,7 @@ class FpTextAt(KiCadObject):
         angle: Rotation angle of the text (optional)
     """
 
-    __token_name__ = "at"
+    __token_name__: ClassVar[str] = "at"
 
     x: float = field(
         default=0.0,
@@ -346,7 +346,7 @@ class Format(KiCadObject):
         suppress_zeros: Whether to suppress trailing zeros (optional)
     """
 
-    __token_name__ = "format"
+    __token_name__: ClassVar[str] = "format"
 
     prefix: KiCadStr = field(
         default_factory=lambda: KiCadStr("prefix", "", required=False),
@@ -415,7 +415,7 @@ class Dimension(KiCadObject):
         style: Dimension style
     """
 
-    __token_name__ = "dimension"
+    __token_name__: ClassVar[str] = "dimension"
 
     locked: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("locked"),
@@ -499,7 +499,7 @@ class FpArc(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "fp_arc"
+    __token_name__: ClassVar[str] = "fp_arc"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -565,7 +565,7 @@ class FpCircle(KiCadObject):
         locked: Whether the circle is locked (optional)
     """
 
-    __token_name__ = "fp_circle"
+    __token_name__: ClassVar[str] = "fp_circle"
 
     center: Center = field(
         default_factory=lambda: Center(), metadata={"description": "Center point"}
@@ -622,7 +622,7 @@ class FpCurve(KiCadObject):
         locked: Whether the curve is locked (optional)
     """
 
-    __token_name__ = "fp_curve"
+    __token_name__: ClassVar[str] = "fp_curve"
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Control points"}
@@ -672,7 +672,7 @@ class FpLine(KiCadObject):
         locked: Whether the line is locked (optional)
     """
 
-    __token_name__ = "fp_line"
+    __token_name__: ClassVar[str] = "fp_line"
 
     start: Start = field(
         default_factory=lambda: Start(), metadata={"description": "Start point"}
@@ -727,7 +727,7 @@ class FpPoly(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "fp_poly"
+    __token_name__: ClassVar[str] = "fp_poly"
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon points"}
@@ -787,7 +787,7 @@ class FpRect(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "fp_rect"
+    __token_name__: ClassVar[str] = "fp_rect"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -858,7 +858,7 @@ class FpText(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "fp_text"
+    __token_name__: ClassVar[str] = "fp_text"
 
     type: str = field(
         default="",
@@ -925,7 +925,7 @@ class FpTextBox(KiCadObject):
         render_cache: Text rendering cache for TrueType fonts (optional)
     """
 
-    __token_name__ = "fp_text_box"
+    __token_name__: ClassVar[str] = "fp_text_box"
 
     locked: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("locked"),
@@ -999,7 +999,7 @@ class GrLine(FpLine):
     Inherits all fields from FpLine but uses 'gr_line' token.
     """
 
-    __token_name__ = "gr_line"
+    __token_name__: ClassVar[str] = "gr_line"
 
 
 @dataclass
@@ -1009,7 +1009,7 @@ class GrRect(FpRect):
     Inherits all fields from FpRect but uses 'gr_rect' token.
     """
 
-    __token_name__ = "gr_rect"
+    __token_name__: ClassVar[str] = "gr_rect"
 
 
 @dataclass
@@ -1019,7 +1019,7 @@ class GrPoly(FpPoly):
     Inherits all fields from FpPoly but uses 'gr_poly' token.
     """
 
-    __token_name__ = "gr_poly"
+    __token_name__: ClassVar[str] = "gr_poly"
 
 
 @dataclass
@@ -1029,4 +1029,4 @@ class GrCurve(FpCurve):
     Inherits all fields from FpCurve but uses 'gr_curve' token.
     """
 
-    __token_name__ = "gr_curve"
+    __token_name__: ClassVar[str] = "gr_curve"

@@ -1,7 +1,7 @@
 """Design rules elements for KiCad S-expressions - design rule constraint system."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import ClassVar, List, Optional
 
 from .base_element import KiCadInt, KiCadObject, KiCadStr, ParseStrictness
 from .enums import ConstraintType, SeverityLevel
@@ -25,7 +25,7 @@ class DesignRuleConstraint(KiCadObject):
         disallow_item: Item type to disallow (optional)
     """
 
-    __token_name__ = "constraint"
+    __token_name__: ClassVar[str] = "constraint"
 
     constraint_type: ConstraintType = field(
         default=ConstraintType.CLEARANCE, metadata={"description": "Type of constraint"}
@@ -60,7 +60,7 @@ class DesignRuleSeverity(KiCadObject):
         level: Severity level
     """
 
-    __token_name__ = "severity"
+    __token_name__: ClassVar[str] = "severity"
 
     level: SeverityLevel = field(
         default=SeverityLevel.ERROR, metadata={"description": "Severity level"}
@@ -91,7 +91,7 @@ class DesignRule(KiCadObject):
         constraints: List of constraint definitions
     """
 
-    __token_name__ = "rule"
+    __token_name__: ClassVar[str] = "rule"
 
     name: str = field(default="", metadata={"description": "Rule name"})
     severity: Optional[DesignRuleSeverity] = field(
@@ -132,7 +132,7 @@ class KiCadDesignRules(KiCadObject):
         rules: List of design rules (optional)
     """
 
-    __token_name__ = (
+    __token_name__: ClassVar[str] = (
         "kicad_dru"  # Using this as placeholder, but file format is different
     )
 

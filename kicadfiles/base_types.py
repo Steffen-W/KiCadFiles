@@ -1,7 +1,7 @@
 """Base types for KiCad S-expressions - fundamental elements with no cross-dependencies."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, ClassVar, List, Optional
 
 from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
 from .enums import PadShape, StrokeType
@@ -20,7 +20,7 @@ class Anchor(KiCadObject):
         pad_shape: Anchor pad shape (rect or circle)
     """
 
-    __token_name__ = "anchor"
+    __token_name__: ClassVar[str] = "anchor"
 
     pad_shape: PadShape = field(
         default=PadShape.RECT,
@@ -40,7 +40,7 @@ class Xy(KiCadObject):
         y: Vertical coordinate
     """
 
-    __token_name__ = "xy"
+    __token_name__: ClassVar[str] = "xy"
 
     x: float = field(default=0.0, metadata={"description": "Horizontal coordinate"})
     y: float = field(default=0.0, metadata={"description": "Vertical coordinate"})
@@ -59,7 +59,7 @@ class Xyz(KiCadObject):
         z: Z coordinate
     """
 
-    __token_name__ = "xyz"
+    __token_name__: ClassVar[str] = "xyz"
 
     x: float = field(default=0.0, metadata={"description": "X coordinate"})
     y: float = field(default=0.0, metadata={"description": "Y coordinate"})
@@ -84,7 +84,7 @@ class Pts(KiCadObject):
         points: List of 2D coordinate points
     """
 
-    __token_name__ = "pts"
+    __token_name__: ClassVar[str] = "pts"
 
     points: List[Xy] = field(
         default_factory=list, metadata={"description": "List of 2D coordinate points"}
@@ -118,7 +118,7 @@ class AtXY(KiCadObject):
         y: Vertical position of the object
     """
 
-    __token_name__ = "at"
+    __token_name__: ClassVar[str] = "at"
 
     x: float = field(
         default=0.0,
@@ -160,7 +160,7 @@ class At(KiCadObject):
         angle: Rotational angle of the object
     """
 
-    __token_name__ = "at"
+    __token_name__: ClassVar[str] = "at"
 
     x: float = field(
         default=0.0,
@@ -188,7 +188,7 @@ class Center(KiCadObject):
         y: Vertical position of the center point
     """
 
-    __token_name__ = "center"
+    __token_name__: ClassVar[str] = "center"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal position of the center point"}
@@ -213,7 +213,7 @@ class Color(KiCadObject):
         a: Alpha component (0-255)
     """
 
-    __token_name__ = "color"
+    __token_name__: ClassVar[str] = "color"
 
     r: int = field(default=0, metadata={"description": "Red color component (0-255)"})
     g: int = field(default=0, metadata={"description": "Green color component (0-255)"})
@@ -235,7 +235,7 @@ class End(KiCadObject):
         corner: Corner reference (optional)
     """
 
-    __token_name__ = "end"
+    __token_name__: ClassVar[str] = "end"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal position of the end point"}
@@ -261,7 +261,7 @@ class Mid(KiCadObject):
         y: Vertical position of the mid point
     """
 
-    __token_name__ = "mid"
+    __token_name__: ClassVar[str] = "mid"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal position of the mid point"}
@@ -282,7 +282,7 @@ class Type(KiCadObject):
         value: Type value
     """
 
-    __token_name__ = "type"
+    __token_name__: ClassVar[str] = "type"
 
     value: str = field(default="", metadata={"description": "Type value"})
 
@@ -308,7 +308,7 @@ class Fill(KiCadObject):
         color: Fill color specification (optional)
     """
 
-    __token_name__ = "fill"
+    __token_name__: ClassVar[str] = "fill"
 
     type: Optional[Type] = field(
         default=None,
@@ -345,7 +345,7 @@ class Layer(KiCadObject):
         loss_tangent: Loss tangent value (optional)
     """
 
-    __token_name__ = "layer"
+    __token_name__: ClassVar[str] = "layer"
 
     name: str = field(
         default="", metadata={"description": "Layer name or 'dielectric'"}
@@ -389,7 +389,7 @@ class Offset(KiCadObject):
         y: Vertical offset coordinate
     """
 
-    __token_name__ = "offset"
+    __token_name__: ClassVar[str] = "offset"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal offset coordinate"}
@@ -412,7 +412,7 @@ class Pos(KiCadObject):
         corner: Corner reference (optional)
     """
 
-    __token_name__ = "pos"
+    __token_name__: ClassVar[str] = "pos"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal position coordinate"}
@@ -437,7 +437,7 @@ class Size(KiCadObject):
         height: Height dimension
     """
 
-    __token_name__ = "size"
+    __token_name__: ClassVar[str] = "size"
 
     width: float = field(default=0.0, metadata={"description": "Width dimension"})
     height: float = field(default=0.0, metadata={"description": "Height dimension"})
@@ -456,7 +456,7 @@ class Start(KiCadObject):
         corner: Corner reference (optional)
     """
 
-    __token_name__ = "start"
+    __token_name__: ClassVar[str] = "start"
 
     x: float = field(
         default=0.0, metadata={"description": "Horizontal position of the start point"}
@@ -488,7 +488,7 @@ class Stroke(KiCadObject):
         color: Line color specification (optional)
     """
 
-    __token_name__ = "stroke"
+    __token_name__: ClassVar[str] = "stroke"
 
     width: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("width", 0.0),
@@ -515,7 +515,7 @@ class Uuid(KiCadObject):
         value: UUID value
     """
 
-    __token_name__ = "uuid"
+    __token_name__: ClassVar[str] = "uuid"
 
     value: str = field(default="", metadata={"description": "UUID value"})
 
@@ -558,7 +558,7 @@ class Font(KiCadObject):
         color: Font color (optional)
     """
 
-    __token_name__ = "font"
+    __token_name__: ClassVar[str] = "font"
 
     face: KiCadStr = field(
         default_factory=lambda: KiCadStr("face", "", required=False),
@@ -603,7 +603,7 @@ class Justify(KiCadObject):
         mirror: Mirror text flag (optional)
     """
 
-    __token_name__ = "justify"
+    __token_name__: ClassVar[str] = "justify"
 
     # Horizontal justification flags
     left: OptionalFlag = field(
@@ -669,7 +669,7 @@ class Effects(KiCadObject):
         href: Hyperlink reference (optional)
     """
 
-    __token_name__ = "effects"
+    __token_name__: ClassVar[str] = "effects"
 
     font: Optional[Font] = field(
         default=None, metadata={"description": "Font definition", "required": False}
@@ -706,7 +706,7 @@ class Text(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "text"
+    __token_name__: ClassVar[str] = "text"
 
     content: str = field(default="", metadata={"description": "Text content"})
     at: Optional[At] = field(
@@ -759,7 +759,7 @@ class Property(KiCadObject):
         hide: Hide property flag (optional)
     """
 
-    __token_name__ = "property"
+    __token_name__: ClassVar[str] = "property"
 
     key: str = field(
         default="", metadata={"description": "Property key name (must be unique)"}
@@ -851,7 +851,7 @@ class BoardLayers(KiCadObject):
     Use get_layer(index) to parse a specific layer as LayerDefinition if needed.
     """
 
-    __token_name__ = "layers"
+    __token_name__: ClassVar[str] = "layers"
     layer_defs: List[LayerDefinition] = field(default_factory=list)
 
     @classmethod
@@ -889,7 +889,7 @@ class Layers(KiCadObject):
         layers: List of layer names
     """
 
-    __token_name__ = "layers"
+    __token_name__: ClassVar[str] = "layers"
 
     layers: List[str] = field(
         default_factory=list, metadata={"description": "List of layer names"}

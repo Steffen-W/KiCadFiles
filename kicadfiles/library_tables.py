@@ -15,9 +15,9 @@ Both table types share the same structure with library entries containing:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import ClassVar, List
 
-from .base_element import KiCadObject, ParseStrictness
+from .base_element import KiCadInt, KiCadObject, KiCadStr, ParseStrictness
 
 
 @dataclass
@@ -34,19 +34,27 @@ class LibraryEntry(KiCadObject):
         descr: Human readable description
     """
 
-    __token_name__ = "lib"
+    __token_name__: ClassVar[str] = "lib"
 
-    name: str = field(
-        default="",
+    name: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="name", value=""),
         metadata={"description": "Library name/identifier"},
     )
-    type: str = field(
-        default="", metadata={"description": "Library type (e.g., 'KiCad')"}
+    type: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="type", value=""),
+        metadata={"description": "Library type (e.g., 'KiCad')"},
     )
-    uri: str = field(default="", metadata={"description": "Path to library"})
-    options: str = field(default="", metadata={"description": "Additional options"})
-    descr: str = field(
-        default="", metadata={"description": "Human readable description"}
+    uri: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="uri", value=""),
+        metadata={"description": "Path to library"},
+    )
+    options: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="options", value=""),
+        metadata={"description": "Additional options"},
+    )
+    descr: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="descr", value=""),
+        metadata={"description": "Human readable description"},
     )
 
 
@@ -61,9 +69,12 @@ class FpLibTable(KiCadObject):
         libraries: List of library entries
     """
 
-    __token_name__ = "fp_lib_table"
+    __token_name__: ClassVar[str] = "fp_lib_table"
 
-    version: int = field(default=7, metadata={"description": "Table format version"})
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt(token="version", value=7),
+        metadata={"description": "Table format version"},
+    )
     libraries: List[LibraryEntry] = field(
         default_factory=list, metadata={"description": "List of library entries"}
     )
@@ -107,9 +118,12 @@ class SymLibTable(KiCadObject):
         libraries: List of library entries
     """
 
-    __token_name__ = "sym_lib_table"
+    __token_name__: ClassVar[str] = "sym_lib_table"
 
-    version: int = field(default=7, metadata={"description": "Table format version"})
+    version: KiCadInt = field(
+        default_factory=lambda: KiCadInt(token="version", value=7),
+        metadata={"description": "Table format version"},
+    )
     libraries: List[LibraryEntry] = field(
         default_factory=list, metadata={"description": "List of library entries"}
     )

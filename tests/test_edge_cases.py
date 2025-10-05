@@ -255,12 +255,12 @@ def test_nested_subelement_parameter_validation():
 
     # Test valid structure parses correctly in STRICT mode
     result = FpLibTable.from_str(valid_sexpr, ParseStrictness.STRICT)
-    assert result.version == 7
+    assert result.version.value == 7
     assert len(result.libraries) == 3
-    assert result.libraries[0].name == "Audio_Module"
-    assert result.libraries[0].descr == "Audio Module footprints"
-    assert result.libraries[1].name == "Battery"
-    assert result.libraries[2].name == "Snapeda"
+    assert result.libraries[0].name.value == "Audio_Module"
+    assert result.libraries[0].descr.value == "Audio Module footprints"
+    assert result.libraries[1].name.value == "Battery"
+    assert result.libraries[2].name.value == "Snapeda"
     print("✅ Valid nested structure parsed correctly")
 
     # Test with extra parameter in subelement (lib)
@@ -283,7 +283,7 @@ def test_nested_subelement_parameter_validation():
     # Test FAILSAFE mode with extra parameter
     result = FpLibTable.from_str(extra_param_sexpr, ParseStrictness.FAILSAFE)
     assert len(result.libraries) == 2
-    assert result.libraries[0].name == "Audio_Module"
+    assert result.libraries[0].name.value == "Audio_Module"
     print("✅ FAILSAFE mode handled extra parameter in subelement")
 
     # Test with missing parameter in subelement (missing descr)
@@ -299,15 +299,17 @@ def test_nested_subelement_parameter_validation():
         assert False, "STRICT mode should have caught missing parameter"
     except ValueError as e:
         error_msg = str(e)
-        assert "Missing field 'descr'" in error_msg
+        assert "descr" in error_msg and (
+            "not found" in error_msg or "Missing" in error_msg
+        )
         print(f"✅ STRICT mode caught missing parameter in subelement: {error_msg}")
 
     # FAILSAFE mode should handle missing parameter and use default
     result = FpLibTable.from_str(missing_param_sexpr, ParseStrictness.FAILSAFE)
     assert len(result.libraries) == 2
-    assert result.libraries[0].name == "Audio_Module"
-    assert result.libraries[0].descr == ""  # Uses default empty string
-    assert result.libraries[1].descr == "Battery"
+    assert result.libraries[0].name.value == "Audio_Module"
+    assert result.libraries[0].descr.value == ""  # Uses default empty string
+    assert result.libraries[1].descr.value == "Battery"
     print("✅ FAILSAFE mode handled missing parameter in subelement (used default)")
 
     # Test with completely wrong token in subelement

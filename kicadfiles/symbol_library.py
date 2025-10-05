@@ -1,7 +1,7 @@
 """Symbol library elements for KiCad S-expressions - schematic symbol definitions."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, ClassVar, List, Optional, Union
 
 from .base_element import (
     KiCadFloat,
@@ -32,7 +32,7 @@ class Instances(KiCadObject):
         instances: List of instance data
     """
 
-    __token_name__ = "instances"
+    __token_name__: ClassVar[str] = "instances"
 
     instances: List[Any] = field(
         default_factory=list, metadata={"description": "List of instance data"}
@@ -52,7 +52,7 @@ class PinName(KiCadObject):
         effects: Text effects (optional)
     """
 
-    __token_name__ = "name"
+    __token_name__: ClassVar[str] = "name"
 
     name: str = field(default="", metadata={"description": "Pin name string"})
     effects: Optional[Effects] = field(
@@ -73,7 +73,7 @@ class Number(KiCadObject):
         effects: Text effects (optional)
     """
 
-    __token_name__ = "number"
+    __token_name__: ClassVar[str] = "number"
 
     number: str = field(default="", metadata={"description": "Pin number string"})
     effects: Optional[Effects] = field(
@@ -106,7 +106,7 @@ class Pin(KiCadObject):
         hide: Whether pin is hidden (optional)
     """
 
-    __token_name__ = "pin"
+    __token_name__: ClassVar[str] = "pin"
 
     electrical_type: PinElectricalType = field(
         default=PinElectricalType.PASSIVE,
@@ -147,7 +147,7 @@ class PinNames(KiCadObject):
         hide: Whether pin names are hidden (optional)
     """
 
-    __token_name__ = "pin_names"
+    __token_name__: ClassVar[str] = "pin_names"
 
     offset: Optional[float] = field(
         default=None, metadata={"description": "Pin name offset", "required": False}
@@ -170,7 +170,7 @@ class PinNumbers(KiCadObject):
         hide: Whether pin numbers are hidden (optional)
     """
 
-    __token_name__ = "pin_numbers"
+    __token_name__: ClassVar[str] = "pin_numbers"
 
     hide: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("hide"),
@@ -193,7 +193,7 @@ class Pintype(KiCadObject):
         type: Pin electrical type
     """
 
-    __token_name__ = "pintype"
+    __token_name__: ClassVar[str] = "pintype"
 
     type: PinElectricalType = field(
         default=PinElectricalType.PASSIVE,
@@ -238,7 +238,7 @@ class Symbol(KiCadObject):
         embedded_fonts: Whether embedded fonts are used (optional)
     """
 
-    __token_name__ = "symbol"
+    __token_name__: ClassVar[str] = "symbol"
 
     library_id: str = field(
         default="", metadata={"description": "Unique library identifier or unit ID"}
@@ -332,7 +332,7 @@ class LibSymbols(KiCadObject):
         symbols: List of symbols
     """
 
-    __token_name__ = "lib_symbols"
+    __token_name__: ClassVar[str] = "lib_symbols"
 
     symbols: List[Symbol] = field(
         default_factory=list, metadata={"description": "List of symbols"}
@@ -358,7 +358,7 @@ class KicadSymbolLib(KiCadObject):
         symbols: List of symbol definitions (optional)
     """
 
-    __token_name__ = "kicad_symbol_lib"
+    __token_name__: ClassVar[str] = "kicad_symbol_lib"
 
     version: KiCadInt = field(
         default_factory=lambda: KiCadInt("version", 20240101),

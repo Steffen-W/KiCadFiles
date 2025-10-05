@@ -1,7 +1,7 @@
 """Primitive graphics elements for KiCad S-expressions - basic geometric shapes."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ClassVar, Optional
 
 from .base_element import KiCadFloat, KiCadObject, OptionalFlag
 from .base_types import (
@@ -40,7 +40,7 @@ class Arc(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "arc"
+    __token_name__: ClassVar[str] = "arc"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -88,7 +88,7 @@ class Bezier(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "bezier"
+    __token_name__: ClassVar[str] = "bezier"
 
     pts: Pts = field(
         default_factory=lambda: Pts(),
@@ -138,7 +138,7 @@ class Circle(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "circle"
+    __token_name__: ClassVar[str] = "circle"
 
     center: Center = field(
         default_factory=lambda: Center(),
@@ -176,7 +176,7 @@ class Line(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "line"
+    __token_name__: ClassVar[str] = "line"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -204,7 +204,7 @@ class Polygon(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "polygon"
+    __token_name__: ClassVar[str] = "polygon"
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon vertex points"}
@@ -234,7 +234,7 @@ class Polyline(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "polyline"
+    __token_name__: ClassVar[str] = "polyline"
 
     pts: Pts = field(
         default_factory=lambda: Pts(),
@@ -267,7 +267,7 @@ class Rect(KiCadObject):
         end: End corner of the rectangle
     """
 
-    __token_name__ = "rect"
+    __token_name__: ClassVar[str] = "rect"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -300,7 +300,7 @@ class Rectangle(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "rectangle"
+    __token_name__: ClassVar[str] = "rectangle"
 
     start: Start = field(
         default_factory=lambda: Start(),

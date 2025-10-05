@@ -1,7 +1,7 @@
 """Schematic system elements for KiCad S-expressions - schematic drawing and connectivity."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, ClassVar, List, Optional, Union
 
 from .base_element import (
     KiCadFloat,
@@ -49,7 +49,7 @@ class TableBorder(KiCadObject):
         stroke: Stroke definition for border lines (optional)
     """
 
-    __token_name__ = "border"
+    __token_name__: ClassVar[str] = "border"
 
     external: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("external"),
@@ -81,7 +81,7 @@ class TableSeparators(KiCadObject):
         stroke: Stroke definition for separator lines (optional)
     """
 
-    __token_name__ = "separators"
+    __token_name__: ClassVar[str] = "separators"
 
     rows: OptionalFlag = field(
         default_factory=lambda: OptionalFlag("rows"),
@@ -117,7 +117,7 @@ class TableMargins(KiCadObject):
         bottom: Bottom margin
     """
 
-    __token_name__ = "margins"
+    __token_name__: ClassVar[str] = "margins"
 
     left: float = field(default=0.0, metadata={"description": "Left margin"})
     top: float = field(default=0.0, metadata={"description": "Top margin"})
@@ -137,7 +137,7 @@ class TableSpan(KiCadObject):
         rows: Number of rows to span
     """
 
-    __token_name__ = "span"
+    __token_name__: ClassVar[str] = "span"
 
     cols: int = field(default=1, metadata={"description": "Number of columns to span"})
     rows: int = field(default=1, metadata={"description": "Number of rows to span"})
@@ -171,7 +171,7 @@ class TableCell(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "table_cell"
+    __token_name__: ClassVar[str] = "table_cell"
 
     text: str = field(default="", metadata={"description": "Cell text content"})
     exclude_from_sim: OptionalFlag = field(
@@ -222,7 +222,7 @@ class RowHeights(KiCadObject):
         heights: List of row height values
     """
 
-    __token_name__ = "row_heights"
+    __token_name__: ClassVar[str] = "row_heights"
 
     heights: List[float] = field(
         default_factory=list,
@@ -241,7 +241,7 @@ class ColumnWidths(KiCadObject):
         widths: List of column width values
     """
 
-    __token_name__ = "column_widths"
+    __token_name__: ClassVar[str] = "column_widths"
 
     widths: List[float] = field(
         default_factory=list,
@@ -264,7 +264,7 @@ class Cells(KiCadObject):
         cells: List of table cell objects
     """
 
-    __token_name__ = "cells"
+    __token_name__: ClassVar[str] = "cells"
 
     cells: List[TableCell] = field(
         default_factory=list,
@@ -288,7 +288,7 @@ class Table(KiCadObject):
         cells: Table cells (optional)
     """
 
-    __token_name__ = "table"
+    __token_name__: ClassVar[str] = "table"
 
     column_count: Optional[int] = field(
         default=None,
@@ -330,7 +330,7 @@ class HierarchicalLabel(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "hierarchical_label"
+    __token_name__: ClassVar[str] = "hierarchical_label"
 
     text: str = field(default="", metadata={"description": "Label text"})
     shape: Optional[LabelShape] = field(
@@ -357,7 +357,7 @@ class RuleArea(KiCadObject):
         polylines: Polylines defining area (optional)
     """
 
-    __token_name__ = "rule_area"
+    __token_name__: ClassVar[str] = "rule_area"
 
     polylines: Optional[List[Polyline]] = field(
         default_factory=list,
@@ -382,7 +382,7 @@ class NetclassFlag(KiCadObject):
         properties: Properties of the netclass flag (optional)
     """
 
-    __token_name__ = "netclass_flag"
+    __token_name__: ClassVar[str] = "netclass_flag"
 
     name: str = field(default="", metadata={"description": "Netclass name"})
     length: Optional[float] = field(
@@ -428,7 +428,7 @@ class Bus(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "bus"
+    __token_name__: ClassVar[str] = "bus"
 
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Bus connection points"}
@@ -461,7 +461,7 @@ class BusEntry(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "bus_entry"
+    __token_name__: ClassVar[str] = "bus_entry"
 
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
@@ -503,7 +503,7 @@ class GlobalLabel(KiCadObject):
         properties: Properties of the global label (optional)
     """
 
-    __token_name__ = "global_label"
+    __token_name__: ClassVar[str] = "global_label"
 
     text: str = field(default="", metadata={"description": "Global label text"})
     shape: KiCadStr = field(
@@ -564,7 +564,7 @@ class Junction(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "junction"
+    __token_name__: ClassVar[str] = "junction"
 
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
@@ -603,7 +603,7 @@ class Label(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "label"
+    __token_name__: ClassVar[str] = "label"
 
     text: str = field(default="", metadata={"description": "Label text"})
     at: At = field(
@@ -637,7 +637,7 @@ class NoConnect(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "no_connect"
+    __token_name__: ClassVar[str] = "no_connect"
 
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
@@ -664,7 +664,7 @@ class Path(KiCadObject):
         page: Page number (optional)
     """
 
-    __token_name__ = "path"
+    __token_name__: ClassVar[str] = "path"
 
     value: str = field(default="", metadata={"description": "Path value"})
     reference: KiCadStr = field(
@@ -698,7 +698,7 @@ class Project(KiCadObject):
         path: Hierarchical path (optional)
     """
 
-    __token_name__ = "project"
+    __token_name__: ClassVar[str] = "project"
 
     name: str = field(default="", metadata={"description": "Project name"})
     path: Optional[Path] = field(
@@ -723,7 +723,7 @@ class SheetPin(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "pin"
+    __token_name__: ClassVar[str] = "pin"
 
     name: str = field(default="", metadata={"description": "Pin name string"})
     shape: LabelShape = field(
@@ -756,7 +756,7 @@ class SheetLocalInstances(KiCadObject):
         project: List of project data
     """
 
-    __token_name__ = "instances"
+    __token_name__: ClassVar[str] = "instances"
 
     project: List[Project] = field(
         default_factory=list, metadata={"description": "List of project data"}
@@ -799,7 +799,7 @@ class Sheet(KiCadObject):
         instances: Sheet local instances (optional)
     """
 
-    __token_name__ = "sheet"
+    __token_name__: ClassVar[str] = "sheet"
 
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
@@ -877,7 +877,7 @@ class Wire(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "wire"
+    __token_name__: ClassVar[str] = "wire"
 
     pts: Pts = field(
         default_factory=lambda: Pts(),
@@ -906,7 +906,7 @@ class SheetInstance(KiCadObject):
         page: Page object
     """
 
-    __token_name__ = "path"
+    __token_name__: ClassVar[str] = "path"
 
     path: str = field(default="", metadata={"description": "Hierarchical path string"})
     page: KiCadStr = field(
@@ -931,7 +931,7 @@ class SheetInstances(KiCadObject):
         sheet_instances: List of sheet instances
     """
 
-    __token_name__ = "sheet_instances"
+    __token_name__: ClassVar[str] = "sheet_instances"
 
     sheet_instances: List[SheetInstance] = field(
         default_factory=list,
@@ -953,7 +953,7 @@ class PinRef(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "pin"
+    __token_name__: ClassVar[str] = "pin"
 
     number: str = field(default="", metadata={"description": "Pin number"})
     uuid: Optional[Uuid] = field(
@@ -980,7 +980,7 @@ class SymbolInstances(KiCadObject):
         projects: List of project instances
     """
 
-    __token_name__ = "instances"
+    __token_name__: ClassVar[str] = "instances"
 
     projects: List[Project] = field(
         default_factory=list,
@@ -1028,7 +1028,7 @@ class SchematicSymbol(KiCadObject):
         instances: Symbol instances (optional)
     """
 
-    __token_name__ = "symbol"
+    __token_name__: ClassVar[str] = "symbol"
 
     lib_name: Optional[str] = field(
         default=None,
@@ -1141,7 +1141,7 @@ class KicadSch(KiCadObject):
         embedded_fonts: Embedded fonts setting (optional)
     """
 
-    __token_name__ = "kicad_sch"
+    __token_name__: ClassVar[str] = "kicad_sch"
 
     version: KiCadInt = field(
         default_factory=lambda: KiCadInt("version", 20240101),

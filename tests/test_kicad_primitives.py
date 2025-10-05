@@ -2,7 +2,7 @@
 """Tests for KiCad primitive classes."""
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import ClassVar, Optional
 
 from kicadfiles.base_element import (
     KiCadFloat,
@@ -17,32 +17,28 @@ from kicadfiles.base_element import (
 class SamplePrimitiveObject(KiCadObject):
     """Sample object using KiCad primitives for testing."""
 
-    __token_name__ = "test_primitive"
+    __token_name__: ClassVar[str] = "test_primitive"
 
     # Required primitives
     name: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token_name="name", value="", required=True)
+        default_factory=lambda: KiCadStr(token="name", value="", required=True)
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(token_name="width", value=0.0, required=True)
+        default_factory=lambda: KiCadFloat(token="width", value=0.0, required=True)
     )
     count: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token_name="count", value=0, required=True)
+        default_factory=lambda: KiCadInt(token="count", value=0, required=True)
     )
 
     # Optional primitives
     description: KiCadStr = field(
-        default_factory=lambda: KiCadStr(
-            token_name="description", value="", required=False
-        )
+        default_factory=lambda: KiCadStr(token="description", value="", required=False)
     )
     height: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(
-            token_name="height", value=0.0, required=False
-        )
+        default_factory=lambda: KiCadFloat(token="height", value=0.0, required=False)
     )
     version: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token_name="version", value=1, required=False)
+        default_factory=lambda: KiCadInt(token="version", value=1, required=False)
     )
 
 
@@ -52,17 +48,17 @@ class TestKiCadPrimitives:
     def test_primitive_basic(self):
         """Test basic primitive functionality."""
         # Basic construction
-        name = KiCadStr(token_name="name", value="test_component", required=True)
+        name = KiCadStr(token="name", value="test_component", required=True)
         assert name.value == "test_component"
         assert name.required is True
-        assert name.token_name == "name"
+        assert name.token == "name"
 
         # to_sexpr works for manually created objects
         sexpr_result = name.to_sexpr()
         assert sexpr_result == ["name", "test_component"]
 
         # Equality
-        name2 = KiCadStr(token_name="name", value="test_component", required=True)
+        name2 = KiCadStr(token="name", value="test_component", required=True)
         assert name == name2
 
     def test_sample_primitive_object_roundtrip(self):

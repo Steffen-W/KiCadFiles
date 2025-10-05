@@ -420,7 +420,7 @@ class ClassName(KiCadObject):
         param1: Description of required parameter
         optional_param: Description of optional parameter
     """
-    __token_name__ = "token_name"
+    __token_name__: ClassVar[str] = "token_name"
 
     # Follow exact documentation order
     param1: type = field(default=default_value, metadata={"description": "Description"})
@@ -466,7 +466,7 @@ class Example(KiCadObject):
         required_str: Required parameter after optional
         optional2: Last parameter (optional)
     """
-    __token_name__ = "example"
+    __token_name__: ClassVar[str] = "example"
 
     optional1: Optional[str] = field(default=None, metadata={"description": "First param", "required": False})
     required_str: str = field(default="", metadata={"description": "Required after optional"})  # TODO: Fix field order
@@ -499,7 +499,7 @@ class Stroke(KiCadObject):
         type: Stroke line style specification (Type object)
         color: Line color specification (Color object, optional)
     """
-    __token_name__ = "stroke"
+    __token_name__: ClassVar[str] = "stroke"
 
     width: Width = field(
         default_factory=lambda: Width(),

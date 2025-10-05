@@ -1,7 +1,7 @@
 """Text and document related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, ClassVar, List, Optional
 
 from .base_element import (
     KiCadFloat,
@@ -38,7 +38,7 @@ class Comment(KiCadObject):
         text: Comment text
     """
 
-    __token_name__ = "comment"
+    __token_name__: ClassVar[str] = "comment"
 
     number: int = field(default=1, metadata={"description": "Comment number (1-9)"})
     text: str = field(default="", metadata={"description": "Comment text"})
@@ -58,7 +58,7 @@ class Data(KiCadObject):
         hex_bytes: Hexadecimal byte values (up to 32 bytes)
     """
 
-    __token_name__ = "data"
+    __token_name__: ClassVar[str] = "data"
 
     hex_bytes: List[str] = field(
         default_factory=list,
@@ -83,7 +83,7 @@ class Paper(KiCadObject):
         portrait: Whether paper is in portrait mode (optional)
     """
 
-    __token_name__ = "paper"
+    __token_name__: ClassVar[str] = "paper"
 
     size: Optional[str] = field(
         default=None, metadata={"description": "Standard paper size", "required": False}
@@ -125,7 +125,7 @@ class TitleBlock(KiCadObject):
         comments: List of comments (optional)
     """
 
-    __token_name__ = "title_block"
+    __token_name__: ClassVar[str] = "title_block"
 
     title: KiCadStr = field(
         default_factory=lambda: KiCadStr("title", "", required=False),
@@ -177,7 +177,7 @@ class Tbtext(KiCadObject):
         comment: Comment for the text object (optional)
     """
 
-    __token_name__ = "tbtext"
+    __token_name__: ClassVar[str] = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
     name: KiCadStr = field(
@@ -223,7 +223,7 @@ class Textsize(KiCadObject):
         size: Text size (width and height)
     """
 
-    __token_name__ = "textsize"
+    __token_name__: ClassVar[str] = "textsize"
 
     size: Size = field(
         default_factory=lambda: Size(),
@@ -243,7 +243,7 @@ class Members(KiCadObject):
         uuids: List of member UUIDs
     """
 
-    __token_name__ = "members"
+    __token_name__: ClassVar[str] = "members"
 
     uuids: List[str] = field(
         default_factory=list, metadata={"description": "List of member UUIDs"}
@@ -268,7 +268,7 @@ class Group(KiCadObject):
         members: List of member UUIDs (optional)
     """
 
-    __token_name__ = "group"
+    __token_name__: ClassVar[str] = "group"
 
     name: str = field(default="", metadata={"description": "Group name"})
     uuid: Optional[Uuid] = field(
@@ -290,7 +290,7 @@ class WksTextsize(KiCadObject):
         height: Text height
     """
 
-    __token_name__ = "textsize"
+    __token_name__: ClassVar[str] = "textsize"
 
     width: float = field(
         default=1.0,
@@ -316,7 +316,7 @@ class WksSetup(KiCadObject):
         bottom_margin: Bottom margin (optional)
     """
 
-    __token_name__ = "setup"
+    __token_name__: ClassVar[str] = "setup"
 
     textsize: Optional[WksTextsize] = field(
         default=None,
@@ -363,7 +363,7 @@ class WksRect(KiCadObject):
         linewidth: Line width (optional)
     """
 
-    __token_name__ = "rect"
+    __token_name__: ClassVar[str] = "rect"
 
     name: Optional[str] = field(
         default=None, metadata={"description": "Rectangle name", "required": False}
@@ -409,7 +409,7 @@ class WksLine(KiCadObject):
         incry: Y increment (optional)
     """
 
-    __token_name__ = "line"
+    __token_name__: ClassVar[str] = "line"
 
     name: Optional[str] = field(
         default=None, metadata={"description": "Line name", "required": False}
@@ -450,7 +450,7 @@ class WksTbText(KiCadObject):
         comment: Comment (optional)
     """
 
-    __token_name__ = "tbtext"
+    __token_name__: ClassVar[str] = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
     name: KiCadStr = field(
@@ -509,7 +509,7 @@ class KicadWks(KiCadObject):
         elements: List of worksheet elements (optional)
     """
 
-    __token_name__ = "kicad_wks"
+    __token_name__: ClassVar[str] = "kicad_wks"
     __legacy_token_names__ = ["page_layout"]
 
     version: KiCadInt = field(
@@ -608,7 +608,7 @@ class Bitmap(KiCadObject):
         pngdata: PNG image data
     """
 
-    __token_name__ = "bitmap"
+    __token_name__: ClassVar[str] = "bitmap"
 
     name: KiCadStr = field(
         default_factory=lambda: KiCadStr("name", ""),
@@ -657,7 +657,7 @@ class Image(KiCadObject):
         locked: Whether image is locked (optional)
     """
 
-    __token_name__ = "image"
+    __token_name__: ClassVar[str] = "image"
 
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
@@ -696,7 +696,7 @@ class Pngdata(KiCadObject):
         data_lines: List of data token objects containing hexadecimal bytes
     """
 
-    __token_name__ = "pngdata"
+    __token_name__: ClassVar[str] = "pngdata"
 
     data_lines: List[Data] = field(
         default_factory=list,

@@ -1,7 +1,7 @@
 """Board layout elements for KiCad S-expressions - PCB/board design and routing."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import Any, ClassVar, List, Optional, Union
 
 from .advanced_graphics import GrArc, GrLine, GrPoly, GrText
 from .base_element import (
@@ -44,7 +44,7 @@ class Nets(KiCadObject):
         net_definitions: List of net definitions (ordinal, net_name)
     """
 
-    __token_name__ = "nets"
+    __token_name__: ClassVar[str] = "nets"
 
     net_definitions: List[tuple[Any, ...]] = field(
         default_factory=list,
@@ -64,7 +64,7 @@ class PrivateLayers(KiCadObject):
         layers: List of private layer names
     """
 
-    __token_name__ = "private_layers"
+    __token_name__: ClassVar[str] = "private_layers"
 
     layers: List[str] = field(
         default_factory=list, metadata={"description": "List of private layer names"}
@@ -98,7 +98,7 @@ class Segment(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "segment"
+    __token_name__: ClassVar[str] = "segment"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -123,8 +123,9 @@ class Segment(KiCadObject):
             "required": False,
         },
     )
-    net: int = field(
-        default=0, metadata={"description": "Net ordinal number from net section"}
+    net: KiCadInt = field(
+        default_factory=lambda: KiCadInt(token="net", value=0),
+        metadata={"description": "Net ordinal number from net section"},
     )
     tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
@@ -146,7 +147,7 @@ class Tenting(KiCadObject):
         sides: List of sides (front/back)
     """
 
-    __token_name__ = "tenting"
+    __token_name__: ClassVar[str] = "tenting"
 
     sides: List[str] = field(
         default_factory=list, metadata={"description": "List of sides (front/back)"}
@@ -198,7 +199,7 @@ class PcbPlotParams(KiCadObject):
         outputdirectory: Output directory (optional)
     """
 
-    __token_name__ = "pcbplotparams"
+    __token_name__: ClassVar[str] = "pcbplotparams"
 
     layerselection: KiCadStr = field(
         default_factory=lambda: KiCadStr(
@@ -384,7 +385,7 @@ class StackupLayer(KiCadObject):
         loss_tangent: Loss tangent (optional)
     """
 
-    __token_name__ = "layer"
+    __token_name__: ClassVar[str] = "layer"
 
     name: str = field(default="", metadata={"description": "Layer name"})
     type: KiCadStr = field(
@@ -423,7 +424,7 @@ class Stackup(KiCadObject):
         dielectric_constraints: Dielectric constraints flag (optional)
     """
 
-    __token_name__ = "stackup"
+    __token_name__: ClassVar[str] = "stackup"
 
     layers: List[StackupLayer] = field(
         default_factory=list,
@@ -464,7 +465,7 @@ class Setup(KiCadObject):
         pcbplotparams: PCB plot parameters (optional)
     """
 
-    __token_name__ = "setup"
+    __token_name__: ClassVar[str] = "setup"
 
     stackup: Optional["Stackup"] = field(
         default=None,
@@ -511,7 +512,7 @@ class General(KiCadObject):
         legacy_teardrops: Whether to use legacy teardrops (optional)
     """
 
-    __token_name__ = "general"
+    __token_name__: ClassVar[str] = "general"
 
     thickness: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("thickness", 1.6),
@@ -541,7 +542,7 @@ class Tracks(KiCadObject):
         segments: List of track segments
     """
 
-    __token_name__ = "tracks"
+    __token_name__: ClassVar[str] = "tracks"
 
     segments: List[Segment] = field(
         default_factory=list, metadata={"description": "List of track segments"}
@@ -583,7 +584,7 @@ class Via(KiCadObject):
         uuid: Unique identifier
     """
 
-    __token_name__ = "via"
+    __token_name__: ClassVar[str] = "via"
 
     type: Optional[str] = field(
         default=None,
@@ -627,8 +628,9 @@ class Via(KiCadObject):
             "required": False,
         },
     )
-    net: int = field(
-        default=0, metadata={"description": "Net ordinal number from net section"}
+    net: KiCadInt = field(
+        default_factory=lambda: KiCadInt(token="net", value=0),
+        metadata={"description": "Net ordinal number from net section"},
     )
     tstamp: KiCadStr = field(
         default_factory=lambda: KiCadStr("tstamp", "", required=False),
@@ -657,7 +659,7 @@ class Vias(KiCadObject):
         vias: List of vias
     """
 
-    __token_name__ = "vias"
+    __token_name__: ClassVar[str] = "vias"
 
     vias: List[Via] = field(
         default_factory=list, metadata={"description": "List of vias"}
@@ -690,7 +692,7 @@ class BoardArc(KiCadObject):
         uuid: Unique identifier (optional)
     """
 
-    __token_name__ = "arc"
+    __token_name__: ClassVar[str] = "arc"
 
     start: Start = field(
         default_factory=lambda: Start(),
@@ -766,7 +768,7 @@ class KicadPcb(KiCadObject):
         zones: Zone definitions
     """
 
-    __token_name__ = "kicad_pcb"
+    __token_name__: ClassVar[str] = "kicad_pcb"
 
     # Required header fields
     version: KiCadInt = field(

@@ -1,7 +1,7 @@
 """Footprint library elements for KiCad S-expressions - footprint management and properties."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import ClassVar, List, Optional, Union
 
 from .advanced_graphics import FpArc, FpCircle, FpCurve, FpLine, FpPoly, FpRect, FpText
 from .base_element import (
@@ -30,7 +30,7 @@ class FileData(KiCadObject):
         lines: List of base64 encoded data lines
     """
 
-    __token_name__ = "data"
+    __token_name__: ClassVar[str] = "data"
 
     lines: List[str] = field(
         default_factory=list,
@@ -58,7 +58,7 @@ class EmbeddedFile(KiCadObject):
         checksum: File checksum token (optional)
     """
 
-    __token_name__ = "file"
+    __token_name__: ClassVar[str] = "file"
 
     name: KiCadStr = field(
         default_factory=lambda: KiCadStr("name", ""),
@@ -93,7 +93,7 @@ class EmbeddedFiles(KiCadObject):
         files: List of embedded files
     """
 
-    __token_name__ = "embedded_files"
+    __token_name__: ClassVar[str] = "embedded_files"
 
     files: List[EmbeddedFile] = field(
         default_factory=list, metadata={"description": "List of embedded files"}
@@ -121,7 +121,7 @@ class Attr(KiCadObject):
         allow_soldermask_bridges: Whether to allow soldermask bridges (optional)
     """
 
-    __token_name__ = "attr"
+    __token_name__: ClassVar[str] = "attr"
 
     type: str = field(
         default="", metadata={"description": "Footprint type (smd | through_hole)"}
@@ -168,7 +168,7 @@ class NetTiePadGroups(KiCadObject):
         groups: List of pad group strings
     """
 
-    __token_name__ = "net_tie_pad_groups"
+    __token_name__: ClassVar[str] = "net_tie_pad_groups"
 
     groups: List[str] = field(
         default_factory=list, metadata={"description": "List of pad group strings"}
@@ -186,7 +186,7 @@ class ModelAt(KiCadObject):
         xyz: 3D coordinates for model position
     """
 
-    __token_name__ = "at"
+    __token_name__: ClassVar[str] = "at"
 
     xyz: Xyz = field(
         default_factory=lambda: Xyz(),
@@ -205,7 +205,7 @@ class ModelScale(KiCadObject):
         xyz: 3D scale factors for model
     """
 
-    __token_name__ = "scale"
+    __token_name__: ClassVar[str] = "scale"
 
     xyz: Xyz = field(
         default_factory=lambda: Xyz(x=1.0, y=1.0, z=1.0),
@@ -224,7 +224,7 @@ class ModelRotate(KiCadObject):
         xyz: 3D rotation angles for model
     """
 
-    __token_name__ = "rotate"
+    __token_name__: ClassVar[str] = "rotate"
 
     xyz: Xyz = field(
         default_factory=lambda: Xyz(),
@@ -243,7 +243,7 @@ class ModelOffset(KiCadObject):
         xyz: 3D offset coordinates for model
     """
 
-    __token_name__ = "offset"
+    __token_name__: ClassVar[str] = "offset"
 
     xyz: Xyz = field(
         default_factory=lambda: Xyz(),
@@ -273,7 +273,7 @@ class Model(KiCadObject):
         hide: Whether the 3D model is hidden (optional)
     """
 
-    __token_name__ = "model"
+    __token_name__: ClassVar[str] = "model"
 
     path: str = field(
         default="", metadata={"description": "Path and file name of the 3D model"}
@@ -383,7 +383,7 @@ class Footprint(KiCadObject):
         embedded_files: Embedded files container (optional)
     """
 
-    __token_name__ = "footprint"
+    __token_name__: ClassVar[str] = "footprint"
     __legacy_token_names__ = ["module"]
 
     library_link: Optional[str] = field(
@@ -602,7 +602,7 @@ class Footprints(KiCadObject):
         footprints: List of footprints
     """
 
-    __token_name__ = "footprints"
+    __token_name__: ClassVar[str] = "footprints"
 
     footprints: List[Footprint] = field(
         default_factory=list, metadata={"description": "List of footprints"}

@@ -1,9 +1,9 @@
 """Zone system elements for KiCad S-expressions - copper zones and keepout areas."""
 
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
+from typing import Any, ClassVar, List, Optional
 
-from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
+from .base_element import KiCadFloat, KiCadInt, KiCadObject, KiCadStr, OptionalFlag
 from .base_types import Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
@@ -22,7 +22,7 @@ class ConnectPads(KiCadObject):
         clearance: Pad clearance
     """
 
-    __token_name__ = "connect_pads"
+    __token_name__: ClassVar[str] = "connect_pads"
 
     connection_type: Optional[str] = field(
         default=None,
@@ -51,7 +51,7 @@ class Copperpour(KiCadObject):
         value: Copper pour setting
     """
 
-    __token_name__ = "copperpour"
+    __token_name__: ClassVar[str] = "copperpour"
 
     value: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
@@ -80,7 +80,7 @@ class ZoneFill(KiCadObject):
         radius: Smoothing radius (optional)
     """
 
-    __token_name__ = "fill"
+    __token_name__: ClassVar[str] = "fill"
 
     enabled: Optional[str] = field(
         default=None,
@@ -116,7 +116,7 @@ class FillSegments(KiCadObject):
         segments: List of fill segments
     """
 
-    __token_name__ = "fill_segments"
+    __token_name__: ClassVar[str] = "fill_segments"
 
     segments: List[Any] = field(
         default_factory=list, metadata={"description": "List of fill segments"}
@@ -139,10 +139,11 @@ class FilledPolygon(KiCadObject):
         pts: List of polygon X/Y coordinates used to fill the zone
     """
 
-    __token_name__ = "filled_polygon"
+    __token_name__: ClassVar[str] = "filled_polygon"
 
-    layer: str = field(
-        default="", metadata={"description": "Layer the zone fill resides on"}
+    layer: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="layer", value=""),
+        metadata={"description": "Layer the zone fill resides on"},
     )
     pts: Pts = field(
         default_factory=lambda: Pts(),
@@ -168,7 +169,7 @@ class FilledSegments(KiCadObject):
         segments: List of X and Y coordinates of segments used to fill the zone
     """
 
-    __token_name__ = "filled_segments"
+    __token_name__: ClassVar[str] = "filled_segments"
 
     layer: str = field(
         default="", metadata={"description": "Layer the zone fill resides on"}
@@ -194,7 +195,7 @@ class Hatch(KiCadObject):
         pitch: Hatch pitch distance
     """
 
-    __token_name__ = "hatch"
+    __token_name__: ClassVar[str] = "hatch"
 
     style: HatchStyle = field(
         default=HatchStyle.EDGE,
@@ -215,7 +216,7 @@ class HatchOrientation(KiCadObject):
         angle: Hatch line angle in degrees
     """
 
-    __token_name__ = "hatch_orientation"
+    __token_name__: ClassVar[str] = "hatch_orientation"
 
     angle: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("angle", 0.0),
@@ -248,7 +249,7 @@ class Keepout(KiCadObject):
         footprints: Whether footprints should be excluded (allowed | not_allowed)
     """
 
-    __token_name__ = "keepout"
+    __token_name__: ClassVar[str] = "keepout"
 
     tracks: ZoneKeepoutSetting = field(
         default=ZoneKeepoutSetting.NOT_ALLOWED,
@@ -294,7 +295,7 @@ class Mode(KiCadObject):
         mode: Fill mode
     """
 
-    __token_name__ = "mode"
+    __token_name__: ClassVar[str] = "mode"
 
     mode: ZoneFillMode = field(
         default=ZoneFillMode.SOLID, metadata={"description": "Fill mode"}
@@ -313,7 +314,7 @@ class Smoothing(KiCadObject):
         style: Corner smoothing style
     """
 
-    __token_name__ = "smoothing"
+    __token_name__: ClassVar[str] = "smoothing"
 
     style: SmoothingStyle = field(
         default=SmoothingStyle.NONE,
@@ -363,7 +364,7 @@ class Zone(KiCadObject):
         filled_segments: List of fill segments (optional)
     """
 
-    __token_name__ = "zone"
+    __token_name__: ClassVar[str] = "zone"
 
     # Required fields (no defaults) first
     hatch: Hatch = field(
@@ -382,14 +383,24 @@ class Zone(KiCadObject):
     )
 
     # Fields with defaults second
-    net: int = field(default=0, metadata={"description": "Net number"})
-    net_name: str = field(default="", metadata={"description": "Net name"})
-    layer: str = field(default="", metadata={"description": "Layer name"})
+    net: KiCadInt = field(
+        default_factory=lambda: KiCadInt(token="net", value=0),
+        metadata={"description": "Net number"},
+    )
+    net_name: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="net_name", value=""),
+        metadata={"description": "Net name"},
+    )
+    layer: KiCadStr = field(
+        default_factory=lambda: KiCadStr(token="layer", value=""),
+        metadata={"description": "Layer name"},
+    )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
     )
-    min_thickness: float = field(
-        default=0.0, metadata={"description": "Minimum thickness"}
+    min_thickness: KiCadFloat = field(
+        default_factory=lambda: KiCadFloat(token="min_thickness", value=0.0),
+        metadata={"description": "Minimum thickness"},
     )
 
     # Optional fields (defaults to None) last

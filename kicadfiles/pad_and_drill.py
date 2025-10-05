@@ -1,7 +1,7 @@
 """Pad and drill related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Any, ClassVar, List, Optional, Union
 
 from .advanced_graphics import GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect
 from .base_element import (
@@ -45,7 +45,7 @@ class Teardrops(KiCadObject):
         prefer_zone_connections: Prefer zone connections setting (optional)
     """
 
-    __token_name__ = "teardrops"
+    __token_name__: ClassVar[str] = "teardrops"
 
     best_length_ratio: KiCadFloat = field(
         default_factory=lambda: KiCadFloat("best_length_ratio", 0.0),
@@ -99,7 +99,7 @@ class Chamfer(KiCadObject):
         corners: List of corners to chamfer
     """
 
-    __token_name__ = "chamfer"
+    __token_name__: ClassVar[str] = "chamfer"
 
     corners: List[str] = field(
         default_factory=list, metadata={"description": "List of corners to chamfer"}
@@ -125,7 +125,7 @@ class Options(KiCadObject):
         anchor: Anchor pad shape (optional)
     """
 
-    __token_name__ = "options"
+    __token_name__: ClassVar[str] = "options"
 
     clearance: KiCadStr = field(
         default_factory=lambda: KiCadStr("clearance", "", required=False),
@@ -154,7 +154,7 @@ class Shape(KiCadObject):
         shape: Pad shape type
     """
 
-    __token_name__ = "shape"
+    __token_name__: ClassVar[str] = "shape"
 
     shape: PadShape = field(
         default=PadShape.CIRCLE, metadata={"description": "Pad shape type"}
@@ -178,7 +178,7 @@ class ZoneConnect(KiCadObject):
         connection_type: Zone connection type
     """
 
-    __token_name__ = "zone_connect"
+    __token_name__: ClassVar[str] = "zone_connect"
 
     connection_type: ZoneConnection = field(
         default=ZoneConnection.INHERITED,
@@ -199,7 +199,7 @@ class Net(KiCadObject):
         name: Net name
     """
 
-    __token_name__ = "net"
+    __token_name__: ClassVar[str] = "net"
 
     number: int = field(default=0, metadata={"description": "Net number"})
     name: str = field(default="", metadata={"description": "Net name"})
@@ -225,21 +225,29 @@ class Drill(KiCadObject):
         offset: Drill offset coordinates from the center of the pad (optional)
     """
 
-    __token_name__ = "drill"
+    __token_name__: ClassVar[str] = "drill"
 
-    oval: OptionalSimpleFlag = field(
-        default_factory=lambda: OptionalSimpleFlag("oval"),
+    oval: Optional[OptionalSimpleFlag] = field(
+        default=None,
         metadata={
             "description": "Whether the drill is oval instead of round",
             "required": False,
+            "position": 1,  # Position after token
         },
     )
-    diameter: float = field(default=0.0, metadata={"description": "Drill diameter"})
+    diameter: float = field(
+        default=0.0,
+        metadata={
+            "description": "Drill diameter",
+            "position": 2,  # Position after oval (or at 1 if no oval)
+        },
+    )
     width: Optional[float] = field(
         default=None,
         metadata={
             "description": "Width of the slot for oval drills",
             "required": False,
+            "position": 3,
         },
     )
     offset: Optional[Offset] = field(
@@ -249,6 +257,90 @@ class Drill(KiCadObject):
             "required": False,
         },
     )
+
+    @classmethod
+    def from_sexpr(
+        cls,
+        sexpr: Union[str, list],
+        strictness: Optional[Any] = None,
+        cursor: Optional[Any] = None,
+    ) -> "Drill":
+        """Parse drill with custom logic for optional oval flag."""
+        from .base_element import (
+            OptionalSimpleFlag,
+            ParseCursor,
+            ParseStrictness,
+            SExprParser,
+        )
+        from .sexpdata import Symbol
+
+        if strictness is None:
+            strictness = ParseStrictness.STRICT
+
+        # Type narrowing for cursor
+        assert cursor is None or hasattr(cursor, "sexpr")
+
+        # Create cursor if needed
+        if cursor is None:
+            from .base_element import str_to_sexpr
+
+            if isinstance(sexpr, str):
+                sexpr = str_to_sexpr(sexpr)
+            parser = SExprParser(sexpr)
+            cursor = ParseCursor(
+                sexpr=sexpr,
+                parser=parser,
+                path=["Drill"],
+                strictness=strictness,
+            )
+
+        # Parse: (drill [oval] DIAMETER [WIDTH] [(offset X Y)])
+        oval_flag = None
+        diameter = 0.0
+        width = None
+        offset_obj = None
+
+        # Check if 'oval' is at position 1
+        idx = 1
+        if idx < len(cursor.sexpr) and isinstance(cursor.sexpr[idx], (str, Symbol)):
+            if str(cursor.sexpr[idx]) == "oval":
+                oval_flag = OptionalSimpleFlag(token="oval")
+                cursor.parser.mark_used(idx)
+                idx += 1
+
+        # Parse diameter
+        if idx < len(cursor.sexpr) and not isinstance(cursor.sexpr[idx], list):
+            try:
+                diameter = float(cursor.sexpr[idx])
+                cursor.parser.mark_used(idx)
+                idx += 1
+            except (ValueError, TypeError):
+                pass
+
+        # Parse width (optional)
+        if idx < len(cursor.sexpr) and not isinstance(cursor.sexpr[idx], list):
+            try:
+                width = float(cursor.sexpr[idx])
+                cursor.parser.mark_used(idx)
+                idx += 1
+            except (ValueError, TypeError):
+                pass
+
+        # Parse offset (optional)
+        for i, item in enumerate(cursor.sexpr[1:], start=1):
+            if isinstance(item, list) and item and str(item[0]) == "offset":
+                offset_obj = Offset.from_sexpr(
+                    item, strictness, cursor.enter(item, "offset")
+                )
+                cursor.parser.mark_used(i)
+                break
+
+        return cls(
+            oval=oval_flag,
+            diameter=diameter,
+            width=width,
+            offset=offset_obj,
+        )
 
 
 @dataclass
@@ -273,7 +365,7 @@ class Primitives(KiCadObject):
         fill: Whether geometry should be filled (optional)
     """
 
-    __token_name__ = "primitives"
+    __token_name__: ClassVar[str] = "primitives"
 
     elements: Optional[
         List[Union[GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect]]
@@ -344,7 +436,7 @@ class Pad(KiCadObject):
         teardrops: Teardrop settings (optional)
     """
 
-    __token_name__ = "pad"
+    __token_name__: ClassVar[str] = "pad"
 
     number: str = field(default="", metadata={"description": "Pad number or name"})
     type: PadType = field(
@@ -472,7 +564,7 @@ class Pads(KiCadObject):
         pads: List of pads
     """
 
-    __token_name__ = "pads"
+    __token_name__: ClassVar[str] = "pads"
 
     pads: List[Pad] = field(
         default_factory=list, metadata={"description": "List of pads"}
