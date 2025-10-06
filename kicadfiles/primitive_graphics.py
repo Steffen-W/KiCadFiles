@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Optional
 
-from .base_element import KiCadFloat, KiCadObject, OptionalFlag
+from .base_element import KiCadFloat, KiCadObject
 from .base_types import (
     Center,
     End,
@@ -105,7 +105,7 @@ class Bezier(KiCadObject):
         metadata={"description": "Fill definition for filling", "required": False},
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width of the curve", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -244,8 +244,8 @@ class Polyline(KiCadObject):
         default=None,
         metadata={"description": "Stroke definition for outline", "required": False},
     )
-    fill: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fill"),
+    fill: Optional[Fill] = field(
+        default=None,
         metadata={"description": "Fill definition", "required": False},
     )
     uuid: Optional[Uuid] = field(

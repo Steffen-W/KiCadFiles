@@ -668,15 +668,15 @@ class Path(KiCadObject):
 
     value: str = field(default="", metadata={"description": "Path value"})
     reference: KiCadStr = field(
-        default_factory=lambda: KiCadStr("reference", "", required=False),
+        default_factory=lambda: KiCadStr("reference", ""),
         metadata={"description": "Component reference", "required": False},
     )
     unit: KiCadInt = field(
-        default_factory=lambda: KiCadInt("unit", 0, required=False),
+        default_factory=lambda: KiCadInt("unit", 0),
         metadata={"description": "Unit number", "required": False},
     )
     page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", "", required=False),
+        default_factory=lambda: KiCadStr("page", ""),
         metadata={"description": "Page number", "required": False},
     )
 
@@ -1035,7 +1035,7 @@ class SchematicSymbol(KiCadObject):
         metadata={"description": "Library name", "required": False},
     )
     lib_id: KiCadStr = field(
-        default_factory=lambda: KiCadStr("lib_id", "", required=False),
+        default_factory=lambda: KiCadStr("lib_id", ""),
         metadata={
             "description": "Library identifier referencing symbol definition",
             "required": False,
@@ -1046,11 +1046,11 @@ class SchematicSymbol(KiCadObject):
         metadata={"description": "Position and rotation", "required": False},
     )
     mirror: KiCadStr = field(
-        default_factory=lambda: KiCadStr("mirror", "x", required=False),
+        default_factory=lambda: KiCadStr("mirror", "x"),
         metadata={"description": "Mirror transformation", "required": False},
     )
     unit: KiCadInt = field(
-        default_factory=lambda: KiCadInt("unit", 0, required=False),
+        default_factory=lambda: KiCadInt("unit", 0),
         metadata={"description": "Unit number", "required": False},
     )
     exclude_from_sim: OptionalFlag = field(
@@ -1152,7 +1152,7 @@ class KicadSch(KiCadObject):
         metadata={"description": "Generator application name"},
     )
     generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", "", required=False),
+        default_factory=lambda: KiCadStr("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
     uuid: Uuid = field(

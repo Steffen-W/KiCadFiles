@@ -31,15 +31,15 @@ class DesignRuleConstraint(KiCadObject):
         default=ConstraintType.CLEARANCE, metadata={"description": "Type of constraint"}
     )
     min_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("min", "0.0", required=False),
+        default_factory=lambda: KiCadStr("min", "0.0"),
         metadata={"description": "Minimum value constraint", "required": False},
     )
     opt_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("opt", "0.0", required=False),
+        default_factory=lambda: KiCadStr("opt", "0.0"),
         metadata={"description": "Optimal value constraint", "required": False},
     )
     max_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("max", "0.0", required=False),
+        default_factory=lambda: KiCadStr("max", "0.0"),
         metadata={"description": "Maximum value constraint", "required": False},
     )
     disallow_item: Optional[str] = field(
@@ -98,15 +98,15 @@ class DesignRule(KiCadObject):
         default=None, metadata={"description": "Severity level", "required": False}
     )
     layer: KiCadStr = field(
-        default_factory=lambda: KiCadStr("layer", "", required=False),
+        default_factory=lambda: KiCadStr("layer", ""),
         metadata={"description": "Layer specification", "required": False},
     )
     condition: KiCadStr = field(
-        default_factory=lambda: KiCadStr("condition", "", required=False),
+        default_factory=lambda: KiCadStr("condition", ""),
         metadata={"description": "Conditional expression", "required": False},
     )
     priority: KiCadInt = field(
-        default_factory=lambda: KiCadInt("priority", 0, required=False),
+        default_factory=lambda: KiCadInt("priority", 0),
         metadata={"description": "Rule priority", "required": False},
     )
     constraints: List[DesignRuleConstraint] = field(

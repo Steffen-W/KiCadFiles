@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional
 
-from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag
+from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag, UnquotedToken
 from .enums import PadShape, StrokeType
 from .sexpr_parser import SExpr
 
@@ -287,8 +287,8 @@ class Type(KiCadObject):
     value: str = field(default="", metadata={"description": "Type value"})
 
     def to_sexpr(self) -> SExpr:
-        """Custom serialization to ensure type values are never quoted."""
-        return [self.__token_name__, self.value]
+        """Serialize with unquoted value."""
+        return [self.__token_name__, UnquotedToken(self.value)]
 
 
 @dataclass
@@ -561,7 +561,7 @@ class Font(KiCadObject):
     __token_name__: ClassVar[str] = "font"
 
     face: KiCadStr = field(
-        default_factory=lambda: KiCadStr("face", "", required=False),
+        default_factory=lambda: KiCadStr("face", ""),
         metadata={"description": "Font face specification", "required": False},
     )
     size: Optional[Size] = field(
@@ -569,7 +569,7 @@ class Font(KiCadObject):
         metadata={"description": "Font size", "required": False},
     )
     thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thickness", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thickness", 0.0),
         metadata={"description": "Font thickness", "required": False},
     )
     bold: OptionalFlag = field(
@@ -683,7 +683,7 @@ class Effects(KiCadObject):
         metadata={"description": "Whether text is hidden", "required": False},
     )
     href: KiCadStr = field(
-        default_factory=lambda: KiCadStr("href", "", required=False),
+        default_factory=lambda: KiCadStr("href", ""),
         metadata={"description": "Hyperlink reference", "required": False},
     )
 
@@ -766,7 +766,7 @@ class Property(KiCadObject):
     )
     value: str = field(default="", metadata={"description": "Property value"})
     id: KiCadStr = field(
-        default_factory=lambda: KiCadStr("id", "", required=False),
+        default_factory=lambda: KiCadStr("id", ""),
         metadata={"description": "Property ID", "required": False},
     )
     at: Optional[At] = field(

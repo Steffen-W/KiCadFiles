@@ -128,7 +128,7 @@ class Segment(KiCadObject):
         metadata={"description": "Net ordinal number from net section"},
     )
     tstamp: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        default_factory=lambda: KiCadStr("tstamp", ""),
         metadata={
             "description": "Unique identifier of the line object",
             "required": False,
@@ -203,15 +203,13 @@ class PcbPlotParams(KiCadObject):
 
     layerselection: KiCadStr = field(
         default_factory=lambda: KiCadStr(
-            "layerselection", "0x00000000_00000000_55555555_5755f5ff", required=False
+            "layerselection", "0x00000000_00000000_55555555_5755f5ff"
         ),
         metadata={"description": "Layer selection hex mask", "required": False},
     )
     plot_on_all_layers_selection: KiCadStr = field(
         default_factory=lambda: KiCadStr(
-            "plot_on_all_layers_selection",
-            "0x00000000_00000000_00000000_00000000",
-            required=False,
+            "plot_on_all_layers_selection", "0x00000000_00000000_00000000_00000000"
         ),
         metadata={"description": "Plot on all layers selection", "required": False},
     )
@@ -236,19 +234,15 @@ class PcbPlotParams(KiCadObject):
         metadata={"description": "Create gerber job file", "required": False},
     )
     dashed_line_dash_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(
-            "dashed_line_dash_ratio", 12.0, required=False
-        ),
+        default_factory=lambda: KiCadFloat("dashed_line_dash_ratio", 12.0),
         metadata={"description": "Dashed line dash ratio", "required": False},
     )
     dashed_line_gap_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(
-            "dashed_line_gap_ratio", 3.0, required=False
-        ),
+        default_factory=lambda: KiCadFloat("dashed_line_gap_ratio", 3.0),
         metadata={"description": "Dashed line gap ratio", "required": False},
     )
     svgprecision: KiCadInt = field(
-        default_factory=lambda: KiCadInt("svgprecision", 4, required=False),
+        default_factory=lambda: KiCadInt("svgprecision", 4),
         metadata={"description": "SVG precision", "required": False},
     )
     plotframeref: OptionalFlag = field(
@@ -256,7 +250,7 @@ class PcbPlotParams(KiCadObject):
         metadata={"description": "Plot frame reference", "required": False},
     )
     mode: KiCadInt = field(
-        default_factory=lambda: KiCadInt("mode", 1, required=False),
+        default_factory=lambda: KiCadInt("mode", 1),
         metadata={"description": "Plot mode", "required": False},
     )
     useauxorigin: OptionalFlag = field(
@@ -264,15 +258,15 @@ class PcbPlotParams(KiCadObject):
         metadata={"description": "Use auxiliary origin", "required": False},
     )
     hpglpennumber: KiCadInt = field(
-        default_factory=lambda: KiCadInt("hpglpennumber", 1, required=False),
+        default_factory=lambda: KiCadInt("hpglpennumber", 1),
         metadata={"description": "HPGL pen number", "required": False},
     )
     hpglpenspeed: KiCadInt = field(
-        default_factory=lambda: KiCadInt("hpglpenspeed", 20, required=False),
+        default_factory=lambda: KiCadInt("hpglpenspeed", 20),
         metadata={"description": "HPGL pen speed", "required": False},
     )
     hpglpendiameter: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("hpglpendiameter", 15.0, required=False),
+        default_factory=lambda: KiCadFloat("hpglpendiameter", 15.0),
         metadata={"description": "HPGL pen diameter", "required": False},
     )
     pdf_front_fp_property_popups: OptionalFlag = field(
@@ -350,7 +344,7 @@ class PcbPlotParams(KiCadObject):
         metadata={"description": "Subtract mask from silk", "required": False},
     )
     outputformat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("outputformat", 1, required=False),
+        default_factory=lambda: KiCadInt("outputformat", 1),
         metadata={"description": "Output format", "required": False},
     )
     mirror: OptionalFlag = field(
@@ -358,15 +352,15 @@ class PcbPlotParams(KiCadObject):
         metadata={"description": "Mirror", "required": False},
     )
     drillshape: KiCadInt = field(
-        default_factory=lambda: KiCadInt("drillshape", 1, required=False),
+        default_factory=lambda: KiCadInt("drillshape", 1),
         metadata={"description": "Drill shape", "required": False},
     )
     scaleselection: KiCadInt = field(
-        default_factory=lambda: KiCadInt("scaleselection", 1, required=False),
+        default_factory=lambda: KiCadInt("scaleselection", 1),
         metadata={"description": "Scale selection", "required": False},
     )
     outputdirectory: KiCadStr = field(
-        default_factory=lambda: KiCadStr("outputdirectory", "", required=False),
+        default_factory=lambda: KiCadStr("outputdirectory", ""),
         metadata={"description": "Output directory", "required": False},
     )
 
@@ -389,27 +383,27 @@ class StackupLayer(KiCadObject):
 
     name: str = field(default="", metadata={"description": "Layer name"})
     type: KiCadStr = field(
-        default_factory=lambda: KiCadStr("type", "", required=False),
+        default_factory=lambda: KiCadStr("type", ""),
         metadata={"description": "Layer type", "required": False},
     )
     color: KiCadStr = field(
-        default_factory=lambda: KiCadStr("color", "", required=False),
+        default_factory=lambda: KiCadStr("color", ""),
         metadata={"description": "Layer color", "required": False},
     )
     thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thickness", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thickness", 0.0),
         metadata={"description": "Layer thickness", "required": False},
     )
     material: KiCadStr = field(
-        default_factory=lambda: KiCadStr("material", "", required=False),
+        default_factory=lambda: KiCadStr("material", ""),
         metadata={"description": "Material name", "required": False},
     )
     epsilon_r: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("epsilon_r", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("epsilon_r", 0.0),
         metadata={"description": "Relative permittivity", "required": False},
     )
     loss_tangent: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("loss_tangent", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("loss_tangent", 0.0),
         metadata={"description": "Loss tangent", "required": False},
     )
 
@@ -431,7 +425,7 @@ class Stackup(KiCadObject):
         metadata={"description": "List of stackup layers"},
     )
     copper_finish: KiCadStr = field(
-        default_factory=lambda: KiCadStr("copper_finish", "", required=False),
+        default_factory=lambda: KiCadStr("copper_finish", ""),
         metadata={"description": "Copper finish specification", "required": False},
     )
     dielectric_constraints: OptionalFlag = field(
@@ -472,9 +466,7 @@ class Setup(KiCadObject):
         metadata={"description": "Stackup configuration", "required": False},
     )
     pad_to_mask_clearance: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(
-            "pad_to_mask_clearance", 0.0, required=False
-        ),
+        default_factory=lambda: KiCadFloat("pad_to_mask_clearance", 0.0),
         metadata={"description": "Pad to mask clearance", "required": False},
     )
     allow_soldermask_bridges_in_footprints: OptionalFlag = field(
@@ -633,7 +625,7 @@ class Via(KiCadObject):
         metadata={"description": "Net ordinal number from net section"},
     )
     tstamp: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tstamp", "", required=False),
+        default_factory=lambda: KiCadStr("tstamp", ""),
         metadata={
             "description": "Unique identifier of the line object",
             "required": False,
@@ -780,7 +772,7 @@ class KicadPcb(KiCadObject):
         metadata={"description": "Generator application"},
     )
     generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", "", required=False),
+        default_factory=lambda: KiCadStr("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
 
@@ -791,11 +783,11 @@ class KicadPcb(KiCadObject):
     )
 
     page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", "", required=False),
+        default_factory=lambda: KiCadStr("page", ""),
         metadata={"description": "Page settings", "required": False},
     )
     paper: KiCadStr = field(
-        default_factory=lambda: KiCadStr("paper", "A4", required=False),
+        default_factory=lambda: KiCadStr("paper", "A4"),
         metadata={"description": "Paper size specification", "required": False},
     )
     layers: Optional[BoardLayers] = field(
@@ -805,7 +797,7 @@ class KicadPcb(KiCadObject):
         default=None, metadata={"description": "Board setup", "required": False}
     )
     embedded_fonts: KiCadStr = field(
-        default_factory=lambda: KiCadStr("embedded_fonts", "", required=False),
+        default_factory=lambda: KiCadStr("embedded_fonts", ""),
         metadata={
             "description": "Whether fonts are embedded (yes/no)",
             "required": False,

@@ -1,7 +1,7 @@
 """Pad and drill related elements for KiCad S-expressions."""
 
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, List, Optional, Union
+from typing import ClassVar, List, Optional, Union
 
 from .advanced_graphics import GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect
 from .base_element import (
@@ -128,7 +128,7 @@ class Options(KiCadObject):
     __token_name__: ClassVar[str] = "options"
 
     clearance: KiCadStr = field(
-        default_factory=lambda: KiCadStr("clearance", "", required=False),
+        default_factory=lambda: KiCadStr("clearance", ""),
         metadata={
             "description": "Clearance type for custom pad",
             "required": False,
@@ -228,11 +228,10 @@ class Drill(KiCadObject):
     __token_name__: ClassVar[str] = "drill"
 
     oval: Optional[OptionalSimpleFlag] = field(
-        default=None,
+        default_factory=lambda: OptionalSimpleFlag(token="oval"),
         metadata={
             "description": "Whether the drill is oval instead of round",
             "required": False,
-            "position": 1,  # Position after token
         },
     )
     diameter: float = field(
@@ -257,90 +256,6 @@ class Drill(KiCadObject):
             "required": False,
         },
     )
-
-    @classmethod
-    def from_sexpr(
-        cls,
-        sexpr: Union[str, list],
-        strictness: Optional[Any] = None,
-        cursor: Optional[Any] = None,
-    ) -> "Drill":
-        """Parse drill with custom logic for optional oval flag."""
-        from .base_element import (
-            OptionalSimpleFlag,
-            ParseCursor,
-            ParseStrictness,
-            SExprParser,
-        )
-        from .sexpdata import Symbol
-
-        if strictness is None:
-            strictness = ParseStrictness.STRICT
-
-        # Type narrowing for cursor
-        assert cursor is None or hasattr(cursor, "sexpr")
-
-        # Create cursor if needed
-        if cursor is None:
-            from .base_element import str_to_sexpr
-
-            if isinstance(sexpr, str):
-                sexpr = str_to_sexpr(sexpr)
-            parser = SExprParser(sexpr)
-            cursor = ParseCursor(
-                sexpr=sexpr,
-                parser=parser,
-                path=["Drill"],
-                strictness=strictness,
-            )
-
-        # Parse: (drill [oval] DIAMETER [WIDTH] [(offset X Y)])
-        oval_flag = None
-        diameter = 0.0
-        width = None
-        offset_obj = None
-
-        # Check if 'oval' is at position 1
-        idx = 1
-        if idx < len(cursor.sexpr) and isinstance(cursor.sexpr[idx], (str, Symbol)):
-            if str(cursor.sexpr[idx]) == "oval":
-                oval_flag = OptionalSimpleFlag(token="oval")
-                cursor.parser.mark_used(idx)
-                idx += 1
-
-        # Parse diameter
-        if idx < len(cursor.sexpr) and not isinstance(cursor.sexpr[idx], list):
-            try:
-                diameter = float(cursor.sexpr[idx])
-                cursor.parser.mark_used(idx)
-                idx += 1
-            except (ValueError, TypeError):
-                pass
-
-        # Parse width (optional)
-        if idx < len(cursor.sexpr) and not isinstance(cursor.sexpr[idx], list):
-            try:
-                width = float(cursor.sexpr[idx])
-                cursor.parser.mark_used(idx)
-                idx += 1
-            except (ValueError, TypeError):
-                pass
-
-        # Parse offset (optional)
-        for i, item in enumerate(cursor.sexpr[1:], start=1):
-            if isinstance(item, list) and item and str(item[0]) == "offset":
-                offset_obj = Offset.from_sexpr(
-                    item, strictness, cursor.enter(item, "offset")
-                )
-                cursor.parser.mark_used(i)
-                break
-
-        return cls(
-            oval=oval_flag,
-            diameter=diameter,
-            width=width,
-            offset=offset_obj,
-        )
 
 
 @dataclass
@@ -377,7 +292,7 @@ class Primitives(KiCadObject):
         },
     )
     width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("width", 0.0),
         metadata={"description": "Line width of graphical items", "required": False},
     )
     fill: OptionalFlag = field(
@@ -484,7 +399,7 @@ class Pad(KiCadObject):
         metadata={"description": "Keep end layers flag", "required": False},
     )
     roundrect_rratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("roundrect_rratio", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("roundrect_rratio", 0.0),
         metadata={"description": "Round rectangle corner ratio", "required": False},
     )
     chamfer_ratio: Optional[float] = field(
@@ -530,7 +445,7 @@ class Pad(KiCadObject):
         default=None, metadata={"description": "Thermal width", "required": False}
     )
     thermal_bridge_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0),
         metadata={"description": "Thermal bridge width", "required": False},
     )
     thermal_gap: Optional[float] = field(

@@ -369,7 +369,7 @@ class KicadSymbolLib(KiCadObject):
         metadata={"description": "Generator application name"},
     )
     generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", "", required=False),
+        default_factory=lambda: KiCadStr("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
     symbols: Optional[List[Symbol]] = field(

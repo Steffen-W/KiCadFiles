@@ -87,19 +87,19 @@ class ZoneFill(KiCadObject):
         metadata={"description": "Whether fill is enabled (yes|no)", "required": False},
     )
     thermal_gap: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_gap", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thermal_gap", 0.0),
         metadata={"description": "Thermal gap distance", "required": False},
     )
     thermal_bridge_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0),
         metadata={"description": "Thermal bridge width", "required": False},
     )
     smoothing: KiCadStr = field(
-        default_factory=lambda: KiCadStr("smoothing", "", required=False),
+        default_factory=lambda: KiCadStr("smoothing", ""),
         metadata={"description": "Smoothing style", "required": False},
     )
     radius: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("radius", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("radius", 0.0),
         metadata={"description": "Smoothing radius", "required": False},
     )
 

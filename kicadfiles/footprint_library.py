@@ -73,7 +73,7 @@ class EmbeddedFile(KiCadObject):
         metadata={"description": "Base64 encoded file data token", "required": False},
     )
     checksum: KiCadStr = field(
-        default_factory=lambda: KiCadStr("checksum", "", required=False),
+        default_factory=lambda: KiCadStr("checksum", ""),
         metadata={"description": "File checksum token", "required": False},
     )
 
@@ -391,15 +391,15 @@ class Footprint(KiCadObject):
         metadata={"description": "Link to footprint library", "required": False},
     )
     version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 0, required=False),
+        default_factory=lambda: KiCadInt("version", 0),
         metadata={"description": "File format version", "required": False},
     )
     generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", "", required=False),
+        default_factory=lambda: KiCadStr("generator", ""),
         metadata={"description": "Generator application", "required": False},
     )
     generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", "", required=False),
+        default_factory=lambda: KiCadStr("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
     locked: OptionalFlag = field(
@@ -421,7 +421,7 @@ class Footprint(KiCadObject):
         metadata={"description": "Layer the footprint is placed on"},
     )
     tedit: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tedit", "0", required=False),
+        default_factory=lambda: KiCadStr("tedit", "0"),
         metadata={"description": "Last edit timestamp", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -439,11 +439,11 @@ class Footprint(KiCadObject):
         },
     )
     descr: KiCadStr = field(
-        default_factory=lambda: KiCadStr("descr", "", required=False),
+        default_factory=lambda: KiCadStr("descr", ""),
         metadata={"description": "Description of the footprint", "required": False},
     )
     tags: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tags", "", required=False),
+        default_factory=lambda: KiCadStr("tags", ""),
         metadata={"description": "Search tags for the footprint", "required": False},
     )
     properties: Optional[List[Property]] = field(
@@ -458,11 +458,11 @@ class Footprint(KiCadObject):
         },
     )
     sheetname: KiCadStr = field(
-        default_factory=lambda: KiCadStr("sheetname", "", required=False),
+        default_factory=lambda: KiCadStr("sheetname", ""),
         metadata={"description": "Schematic sheet name", "required": False},
     )
     sheetfile: KiCadStr = field(
-        default_factory=lambda: KiCadStr("sheetfile", "", required=False),
+        default_factory=lambda: KiCadStr("sheetfile", ""),
         metadata={"description": "Schematic sheet file", "required": False},
     )
     attr: Optional[Attr] = field(
@@ -492,9 +492,7 @@ class Footprint(KiCadObject):
         metadata={"description": "Solder paste distance from pads", "required": False},
     )
     solder_paste_margin_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(
-            "solder_paste_margin_ratio", 0.0, required=False
-        ),
+        default_factory=lambda: KiCadFloat("solder_paste_margin_ratio", 0.0),
         metadata={"description": "Solder paste margin ratio", "required": False},
     )
     solder_paste_ratio: Optional[float] = field(
@@ -505,7 +503,7 @@ class Footprint(KiCadObject):
         },
     )
     clearance: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("clearance", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("clearance", 0.0),
         metadata={
             "description": "Clearance to board copper objects",
             "required": False,
@@ -516,11 +514,11 @@ class Footprint(KiCadObject):
         metadata={"description": "How pads connect to filled zones", "required": False},
     )
     thermal_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_width", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thermal_width", 0.0),
         metadata={"description": "Thermal relief spoke width", "required": False},
     )
     thermal_gap: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_gap", 0.0, required=False),
+        default_factory=lambda: KiCadFloat("thermal_gap", 0.0),
         metadata={
             "description": "Distance from pad to zone for thermal relief",
             "required": False,

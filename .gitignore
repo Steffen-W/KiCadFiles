@@ -2,6 +2,9 @@
 _*.md
 _large_test/
 
+# Debug and test scripts
+tests/debug/
+
 # AI
 .claude
 
