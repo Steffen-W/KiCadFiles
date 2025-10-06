@@ -3,14 +3,14 @@
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional
 
-from .base_element import KiCadFloat, KiCadInt, KiCadObject, KiCadStr, OptionalFlag
+from .base_element import NamedFloat, NamedInt, NamedObject, NamedString, TokenFlag
 from .base_types import Pts, Uuid
 from .enums import HatchStyle, SmoothingStyle, ZoneFillMode, ZoneKeepoutSetting
 from .primitive_graphics import Polygon
 
 
 @dataclass
-class ConnectPads(KiCadObject):
+class ConnectPads(NamedObject):
     """Connect pads definition token for zones.
 
     The 'connect_pads' token defines pad connection type and clearance in the format::
@@ -31,14 +31,14 @@ class ConnectPads(KiCadObject):
             "required": False,
         },
     )
-    clearance: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("clearance", 0.0),
+    clearance: NamedFloat = field(
+        default_factory=lambda: NamedFloat("clearance", 0.0),
         metadata={"description": "Pad clearance"},
     )
 
 
 @dataclass
-class Copperpour(KiCadObject):
+class Copperpour(NamedObject):
     """Copper pour definition token.
 
     The 'copperpour' token defines copper pour properties in the format::
@@ -60,7 +60,7 @@ class Copperpour(KiCadObject):
 
 
 @dataclass
-class ZoneFill(KiCadObject):
+class ZoneFill(NamedObject):
     """Zone fill definition token.
 
     The 'fill' token for zones defines zone fill properties in the format::
@@ -86,26 +86,26 @@ class ZoneFill(KiCadObject):
         default=None,
         metadata={"description": "Whether fill is enabled (yes|no)", "required": False},
     )
-    thermal_gap: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_gap", 0.0),
+    thermal_gap: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thermal_gap", 0.0),
         metadata={"description": "Thermal gap distance", "required": False},
     )
-    thermal_bridge_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0),
+    thermal_bridge_width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thermal_bridge_width", 0.0),
         metadata={"description": "Thermal bridge width", "required": False},
     )
-    smoothing: KiCadStr = field(
-        default_factory=lambda: KiCadStr("smoothing", ""),
+    smoothing: NamedString = field(
+        default_factory=lambda: NamedString("smoothing", ""),
         metadata={"description": "Smoothing style", "required": False},
     )
-    radius: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("radius", 0.0),
+    radius: NamedFloat = field(
+        default_factory=lambda: NamedFloat("radius", 0.0),
         metadata={"description": "Smoothing radius", "required": False},
     )
 
 
 @dataclass
-class FillSegments(KiCadObject):
+class FillSegments(NamedObject):
     """Fill segments definition token.
 
     The 'fill_segments' token defines zone fill segments in the format::
@@ -124,7 +124,7 @@ class FillSegments(KiCadObject):
 
 
 @dataclass
-class FilledPolygon(KiCadObject):
+class FilledPolygon(NamedObject):
     """Filled polygon definition token.
 
     The 'filled_polygon' token defines the polygons used to fill the zone in the format::
@@ -141,8 +141,8 @@ class FilledPolygon(KiCadObject):
 
     __token_name__: ClassVar[str] = "filled_polygon"
 
-    layer: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="layer", value=""),
+    layer: NamedString = field(
+        default_factory=lambda: NamedString(token="layer", value=""),
         metadata={"description": "Layer the zone fill resides on"},
     )
     pts: Pts = field(
@@ -154,7 +154,7 @@ class FilledPolygon(KiCadObject):
 
 
 @dataclass
-class FilledSegments(KiCadObject):
+class FilledSegments(NamedObject):
     """Filled segments definition token.
 
     The 'filled_segments' token defines segments used to fill the zone in the format::
@@ -183,7 +183,7 @@ class FilledSegments(KiCadObject):
 
 
 @dataclass
-class Hatch(KiCadObject):
+class Hatch(NamedObject):
     """Zone hatch display definition token.
 
     The 'hatch' token defines zone outline display style and pitch in the format::
@@ -205,7 +205,7 @@ class Hatch(KiCadObject):
 
 
 @dataclass
-class HatchOrientation(KiCadObject):
+class HatchOrientation(NamedObject):
     """Hatch orientation definition token.
 
     The 'hatch_orientation' token defines the angle for hatch lines in the format::
@@ -218,8 +218,8 @@ class HatchOrientation(KiCadObject):
 
     __token_name__: ClassVar[str] = "hatch_orientation"
 
-    angle: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("angle", 0.0),
+    angle: NamedFloat = field(
+        default_factory=lambda: NamedFloat("angle", 0.0),
         metadata={"description": "Hatch line angle in degrees"},
     )
 
@@ -228,7 +228,7 @@ class HatchOrientation(KiCadObject):
 
 
 @dataclass
-class Keepout(KiCadObject):
+class Keepout(NamedObject):
     """Keepout zone definition token.
 
     The 'keepout' token defines which objects should be kept out of the zone in the format::
@@ -284,7 +284,7 @@ class Keepout(KiCadObject):
 
 
 @dataclass
-class Mode(KiCadObject):
+class Mode(NamedObject):
     """Fill mode definition token.
 
     The 'mode' token defines the zone fill mode in the format::
@@ -303,7 +303,7 @@ class Mode(KiCadObject):
 
 
 @dataclass
-class Smoothing(KiCadObject):
+class Smoothing(NamedObject):
     """Zone smoothing definition token.
 
     The 'smoothing' token defines corner smoothing style in the format::
@@ -323,7 +323,7 @@ class Smoothing(KiCadObject):
 
 
 @dataclass
-class Zone(KiCadObject):
+class Zone(NamedObject):
     """Zone definition token.
 
     The 'zone' token defines a zone on the board or footprint in the format::
@@ -383,23 +383,23 @@ class Zone(KiCadObject):
     )
 
     # Fields with defaults second
-    net: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="net", value=0),
+    net: NamedInt = field(
+        default_factory=lambda: NamedInt(token="net", value=0),
         metadata={"description": "Net number"},
     )
-    net_name: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="net_name", value=""),
+    net_name: NamedString = field(
+        default_factory=lambda: NamedString(token="net_name", value=""),
         metadata={"description": "Net name"},
     )
-    layer: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="layer", value=""),
+    layer: NamedString = field(
+        default_factory=lambda: NamedString(token="layer", value=""),
         metadata={"description": "Layer name"},
     )
     uuid: Uuid = field(
         default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
     )
-    min_thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(token="min_thickness", value=0.0),
+    min_thickness: NamedFloat = field(
+        default_factory=lambda: NamedFloat(token="min_thickness", value=0.0),
         metadata={"description": "Minimum thickness"},
     )
 
@@ -410,8 +410,8 @@ class Zone(KiCadObject):
     priority: Optional[int] = field(
         default=None, metadata={"description": "Zone priority", "required": False}
     )
-    filled_areas_thickness: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("filled_areas_thickness"),
+    filled_areas_thickness: TokenFlag = field(
+        default_factory=lambda: TokenFlag("filled_areas_thickness"),
         metadata={"description": "Filled areas thickness flag", "required": False},
     )
     keepout: Optional[Keepout] = field(

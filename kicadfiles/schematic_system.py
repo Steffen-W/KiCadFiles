@@ -4,12 +4,12 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional, Union
 
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    TokenFlag,
 )
 from .base_types import (
     At,
@@ -37,7 +37,7 @@ from .text_and_documents import (
 
 
 @dataclass
-class TableBorder(KiCadObject):
+class TableBorder(NamedObject):
     """Table border definition token.
 
     The 'border' token defines border configuration for tables in the format::
@@ -51,12 +51,12 @@ class TableBorder(KiCadObject):
 
     __token_name__: ClassVar[str] = "border"
 
-    external: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("external"),
+    external: TokenFlag = field(
+        default_factory=lambda: TokenFlag("external"),
         metadata={"description": "Whether external border is shown", "required": False},
     )
-    header: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("header"),
+    header: TokenFlag = field(
+        default_factory=lambda: TokenFlag("header"),
         metadata={"description": "Whether header border is shown", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -69,7 +69,7 @@ class TableBorder(KiCadObject):
 
 
 @dataclass
-class TableSeparators(KiCadObject):
+class TableSeparators(NamedObject):
     """Table separators definition token.
 
     The 'separators' token defines separator configuration for tables in the format::
@@ -83,12 +83,12 @@ class TableSeparators(KiCadObject):
 
     __token_name__: ClassVar[str] = "separators"
 
-    rows: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("rows"),
+    rows: TokenFlag = field(
+        default_factory=lambda: TokenFlag("rows"),
         metadata={"description": "Whether row separators are shown", "required": False},
     )
-    cols: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("cols"),
+    cols: TokenFlag = field(
+        default_factory=lambda: TokenFlag("cols"),
         metadata={
             "description": "Whether column separators are shown",
             "required": False,
@@ -104,7 +104,7 @@ class TableSeparators(KiCadObject):
 
 
 @dataclass
-class TableMargins(KiCadObject):
+class TableMargins(NamedObject):
     """Table margins definition token.
 
     The 'margins' token defines cell margins in the format::
@@ -126,7 +126,7 @@ class TableMargins(KiCadObject):
 
 
 @dataclass
-class TableSpan(KiCadObject):
+class TableSpan(NamedObject):
     """Table span definition token.
 
     The 'span' token defines cell span in the format::
@@ -144,7 +144,7 @@ class TableSpan(KiCadObject):
 
 
 @dataclass
-class TableCell(KiCadObject):
+class TableCell(NamedObject):
     """Table cell definition token.
 
     The 'table_cell' token defines individual table cells in the format::
@@ -174,8 +174,8 @@ class TableCell(KiCadObject):
     __token_name__: ClassVar[str] = "table_cell"
 
     text: str = field(default="", metadata={"description": "Cell text content"})
-    exclude_from_sim: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+    exclude_from_sim: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_sim"),
         metadata={
             "description": "Whether to exclude from simulation",
             "required": False,
@@ -212,7 +212,7 @@ class TableCell(KiCadObject):
 
 
 @dataclass
-class RowHeights(KiCadObject):
+class RowHeights(NamedObject):
     """Row heights definition token.
 
     The 'row_heights' token defines row height values in the format::
@@ -231,7 +231,7 @@ class RowHeights(KiCadObject):
 
 
 @dataclass
-class ColumnWidths(KiCadObject):
+class ColumnWidths(NamedObject):
     """Column widths definition token.
 
     The 'column_widths' token defines column width values in the format::
@@ -250,7 +250,7 @@ class ColumnWidths(KiCadObject):
 
 
 @dataclass
-class Cells(KiCadObject):
+class Cells(NamedObject):
     """Table cells container token.
 
     The 'cells' token contains a list of table_cell objects in the format::
@@ -273,7 +273,7 @@ class Cells(KiCadObject):
 
 
 @dataclass
-class Table(KiCadObject):
+class Table(NamedObject):
     """Table definition token for schematics.
 
     The 'table' token defines tables in schematics.
@@ -317,7 +317,7 @@ class Table(KiCadObject):
 
 
 @dataclass
-class HierarchicalLabel(KiCadObject):
+class HierarchicalLabel(NamedObject):
     """Hierarchical label definition token.
 
     The 'hierarchical_label' token defines hierarchical labels in schematics.
@@ -348,7 +348,7 @@ class HierarchicalLabel(KiCadObject):
 
 
 @dataclass
-class RuleArea(KiCadObject):
+class RuleArea(NamedObject):
     """Rule area definition token.
 
     The 'rule_area' token defines rule areas in schematics.
@@ -366,7 +366,7 @@ class RuleArea(KiCadObject):
 
 
 @dataclass
-class NetclassFlag(KiCadObject):
+class NetclassFlag(NamedObject):
     """Netclass flag definition token.
 
     The 'netclass_flag' token defines netclass flags in schematics.
@@ -394,8 +394,8 @@ class NetclassFlag(KiCadObject):
     at: Optional[At] = field(
         default=None, metadata={"description": "Position", "required": False}
     )
-    fields_autoplaced: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fields_autoplaced"),
+    fields_autoplaced: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are auto-placed", "required": False},
     )
     effects: Optional[Effects] = field(
@@ -411,7 +411,7 @@ class NetclassFlag(KiCadObject):
 
 
 @dataclass
-class Bus(KiCadObject):
+class Bus(NamedObject):
     """Bus definition token.
 
     The 'bus' token defines buses in the schematic in the format::
@@ -442,7 +442,7 @@ class Bus(KiCadObject):
 
 
 @dataclass
-class BusEntry(KiCadObject):
+class BusEntry(NamedObject):
     """Bus entry definition token.
 
     The 'bus_entry' token defines a bus entry in the schematic in the format::
@@ -478,7 +478,7 @@ class BusEntry(KiCadObject):
 
 
 @dataclass
-class GlobalLabel(KiCadObject):
+class GlobalLabel(NamedObject):
     """Global label definition token.
 
     The 'global_label' token defines a label visible across all schematics in the format::
@@ -506,12 +506,12 @@ class GlobalLabel(KiCadObject):
     __token_name__: ClassVar[str] = "global_label"
 
     text: str = field(default="", metadata={"description": "Global label text"})
-    shape: KiCadStr = field(
-        default_factory=lambda: KiCadStr("shape", "bidirectional"),
+    shape: NamedString = field(
+        default_factory=lambda: NamedString("shape", "bidirectional"),
         metadata={"description": "Way the global label is drawn", "required": False},
     )
-    fields_autoplaced: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fields_autoplaced"),
+    fields_autoplaced: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fields_autoplaced"),
         metadata={
             "description": "Whether properties are placed automatically",
             "required": False,
@@ -537,7 +537,7 @@ class GlobalLabel(KiCadObject):
             Property(
                 key="Intersheetrefs",
                 value="${INTERSHEET_REFS}",
-                effects=Effects(font=Font(), hide=OptionalFlag("hide")),
+                effects=Effects(font=Font(), hide=TokenFlag("hide")),
             )
         ],
         metadata={"description": "Properties of the global label", "required": False},
@@ -545,7 +545,7 @@ class GlobalLabel(KiCadObject):
 
 
 @dataclass
-class Junction(KiCadObject):
+class Junction(NamedObject):
     """Junction definition token.
 
     The 'junction' token defines a junction in the schematic in the format::
@@ -569,8 +569,8 @@ class Junction(KiCadObject):
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
     )
-    diameter: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("diameter", 0.0),
+    diameter: NamedFloat = field(
+        default_factory=lambda: NamedFloat("diameter", 0.0),
         metadata={"description": "Junction diameter"},
     )
     color: Optional[Color] = field(
@@ -582,7 +582,7 @@ class Junction(KiCadObject):
 
 
 @dataclass
-class Label(KiCadObject):
+class Label(NamedObject):
     """Local label definition token.
 
     The 'label' token defines a local label in the format::
@@ -609,8 +609,8 @@ class Label(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    fields_autoplaced: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fields_autoplaced"),
+    fields_autoplaced: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     effects: Optional[Effects] = field(
@@ -622,7 +622,7 @@ class Label(KiCadObject):
 
 
 @dataclass
-class NoConnect(KiCadObject):
+class NoConnect(NamedObject):
     """No connect definition token.
 
     The 'no_connect' token defines a no-connect symbol in the format::
@@ -648,7 +648,7 @@ class NoConnect(KiCadObject):
 
 
 @dataclass
-class Path(KiCadObject):
+class Path(NamedObject):
     """Path definition token.
 
     The 'path' token defines a hierarchical path in the format::
@@ -667,22 +667,22 @@ class Path(KiCadObject):
     __token_name__: ClassVar[str] = "path"
 
     value: str = field(default="", metadata={"description": "Path value"})
-    reference: KiCadStr = field(
-        default_factory=lambda: KiCadStr("reference", ""),
+    reference: NamedString = field(
+        default_factory=lambda: NamedString("reference", ""),
         metadata={"description": "Component reference", "required": False},
     )
-    unit: KiCadInt = field(
-        default_factory=lambda: KiCadInt("unit", 0),
+    unit: NamedInt = field(
+        default_factory=lambda: NamedInt("unit", 0),
         metadata={"description": "Unit number", "required": False},
     )
-    page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", ""),
+    page: NamedString = field(
+        default_factory=lambda: NamedString("page", ""),
         metadata={"description": "Page number", "required": False},
     )
 
 
 @dataclass
-class Project(KiCadObject):
+class Project(NamedObject):
     """Project definition token.
 
     The 'project' token defines a project instance in the format::
@@ -708,7 +708,7 @@ class Project(KiCadObject):
 
 
 @dataclass
-class SheetPin(KiCadObject):
+class SheetPin(NamedObject):
     """Sheet pin definition token.
 
     The 'pin' token defines a hierarchical sheet pin in the format::
@@ -741,7 +741,7 @@ class SheetPin(KiCadObject):
 
 
 @dataclass
-class SheetLocalInstances(KiCadObject):
+class SheetLocalInstances(NamedObject):
     """Sheet local instances definition token.
 
     The 'instances' token defines local sheet instances in the format::
@@ -764,7 +764,7 @@ class SheetLocalInstances(KiCadObject):
 
 
 @dataclass
-class Sheet(KiCadObject):
+class Sheet(NamedObject):
     """Hierarchical sheet definition token.
 
     The 'sheet' token defines a hierarchical sheet in the format::
@@ -807,8 +807,8 @@ class Sheet(KiCadObject):
     size: Size = field(
         default_factory=lambda: Size(), metadata={"description": "Sheet size"}
     )
-    fields_autoplaced: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fields_autoplaced"),
+    fields_autoplaced: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are autoplaced", "required": False},
     )
     stroke: Optional[Stroke] = field(
@@ -827,23 +827,23 @@ class Sheet(KiCadObject):
         default_factory=list,
         metadata={"description": "List of sheet pins", "required": False},
     )
-    exclude_from_sim: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+    exclude_from_sim: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_sim"),
         metadata={
             "description": "Whether sheet is excluded from simulation",
             "required": False,
         },
     )
-    in_bom: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("in_bom"),
+    in_bom: TokenFlag = field(
+        default_factory=lambda: TokenFlag("in_bom"),
         metadata={"description": "Whether sheet appears in BOM", "required": False},
     )
-    on_board: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("on_board"),
+    on_board: TokenFlag = field(
+        default_factory=lambda: TokenFlag("on_board"),
         metadata={"description": "Whether sheet is exported to PCB", "required": False},
     )
-    dnp: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dnp"),
+    dnp: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dnp"),
         metadata={"description": "Do not populate flag", "required": False},
     )
     rectangles: Optional[List[Rectangle]] = field(
@@ -860,7 +860,7 @@ class Sheet(KiCadObject):
 
 
 @dataclass
-class Wire(KiCadObject):
+class Wire(NamedObject):
     """Wire definition token.
 
     The 'wire' token defines wires in the schematic in the format::
@@ -892,7 +892,7 @@ class Wire(KiCadObject):
 
 
 @dataclass
-class SheetInstance(KiCadObject):
+class SheetInstance(NamedObject):
     """Sheet instance definition token.
 
     The 'path' token defines a sheet instance in the format::
@@ -909,14 +909,14 @@ class SheetInstance(KiCadObject):
     __token_name__: ClassVar[str] = "path"
 
     path: str = field(default="", metadata={"description": "Hierarchical path string"})
-    page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", ""),
+    page: NamedString = field(
+        default_factory=lambda: NamedString("page", ""),
         metadata={"description": "Page object"},
     )
 
 
 @dataclass
-class SheetInstances(KiCadObject):
+class SheetInstances(NamedObject):
     """Sheet instances container definition token.
 
     The 'sheet_instances' token defines sheet instances in the format::
@@ -940,7 +940,7 @@ class SheetInstances(KiCadObject):
 
 
 @dataclass
-class PinRef(KiCadObject):
+class PinRef(NamedObject):
     """Pin reference definition token for schematic symbols.
 
     The 'pin' token in schematic symbols references a pin by number in the format::
@@ -963,7 +963,7 @@ class PinRef(KiCadObject):
 
 
 @dataclass
-class SymbolInstances(KiCadObject):
+class SymbolInstances(NamedObject):
     """Symbol instances definition token.
 
     The 'instances' token defines symbol instance data in the format::
@@ -989,7 +989,7 @@ class SymbolInstances(KiCadObject):
 
 
 @dataclass
-class SchematicSymbol(KiCadObject):
+class SchematicSymbol(NamedObject):
     """Schematic symbol instance definition token.
 
     References a symbol definition via lib_id and adds instance-specific properties.
@@ -1034,8 +1034,8 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Library name", "required": False},
     )
-    lib_id: KiCadStr = field(
-        default_factory=lambda: KiCadStr("lib_id", ""),
+    lib_id: NamedString = field(
+        default_factory=lambda: NamedString("lib_id", ""),
         metadata={
             "description": "Library identifier referencing symbol definition",
             "required": False,
@@ -1045,35 +1045,35 @@ class SchematicSymbol(KiCadObject):
         default=None,
         metadata={"description": "Position and rotation", "required": False},
     )
-    mirror: KiCadStr = field(
-        default_factory=lambda: KiCadStr("mirror", "x"),
+    mirror: NamedString = field(
+        default_factory=lambda: NamedString("mirror", "x"),
         metadata={"description": "Mirror transformation", "required": False},
     )
-    unit: KiCadInt = field(
-        default_factory=lambda: KiCadInt("unit", 0),
+    unit: NamedInt = field(
+        default_factory=lambda: NamedInt("unit", 0),
         metadata={"description": "Unit number", "required": False},
     )
-    exclude_from_sim: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+    exclude_from_sim: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_sim"),
         metadata={
             "description": "Whether to exclude from simulation",
             "required": False,
         },
     )
-    in_bom: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("in_bom"),
+    in_bom: TokenFlag = field(
+        default_factory=lambda: TokenFlag("in_bom"),
         metadata={"description": "Whether to include in BOM", "required": False},
     )
-    on_board: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("on_board"),
+    on_board: TokenFlag = field(
+        default_factory=lambda: TokenFlag("on_board"),
         metadata={"description": "Whether to place on board", "required": False},
     )
-    dnp: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dnp"),
+    dnp: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dnp"),
         metadata={"description": "Do not populate flag", "required": False},
     )
-    fields_autoplaced: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fields_autoplaced"),
+    fields_autoplaced: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fields_autoplaced"),
         metadata={"description": "Whether fields are auto-placed", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -1099,7 +1099,7 @@ class SchematicSymbol(KiCadObject):
 
 
 @dataclass
-class KicadSch(KiCadObject):
+class KicadSch(NamedObject):
     """KiCad schematic file definition.
 
     The 'kicad_sch' token defines a complete schematic file in the format::
@@ -1143,16 +1143,16 @@ class KicadSch(KiCadObject):
 
     __token_name__: ClassVar[str] = "kicad_sch"
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 20240101),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", ""),
+    generator: NamedString = field(
+        default_factory=lambda: NamedString("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", ""),
+    generator_version: NamedString = field(
+        default_factory=lambda: NamedString("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
     uuid: Uuid = field(
@@ -1245,8 +1245,8 @@ class KicadSch(KiCadObject):
         default=None,
         metadata={"description": "Sheet instances", "required": False},
     )
-    embedded_fonts: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("embedded_fonts", token_value="yes"),
+    embedded_fonts: TokenFlag = field(
+        default_factory=lambda: TokenFlag("embedded_fonts", token_value="yes"),
         metadata={"description": "Embedded fonts setting", "required": False},
     )
 

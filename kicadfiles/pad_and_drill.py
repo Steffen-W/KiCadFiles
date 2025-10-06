@@ -5,18 +5,18 @@ from typing import ClassVar, List, Optional, Union
 
 from .advanced_graphics import GrArc, GrCircle, GrCurve, GrLine, GrPoly, GrRect
 from .base_element import (
-    KiCadFloat,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
-    OptionalSimpleFlag,
+    NamedFloat,
+    NamedObject,
+    NamedString,
+    SymbolValue,
+    TokenFlag,
 )
 from .base_types import Anchor, At, Layers, Offset, Size, Uuid
 from .enums import PadShape, PadType, ZoneConnection
 
 
 @dataclass
-class Teardrops(KiCadObject):
+class Teardrops(NamedObject):
     """Teardrops definition token for pads.
 
     The 'teardrops' token defines teardrop settings in the format::
@@ -47,46 +47,46 @@ class Teardrops(KiCadObject):
 
     __token_name__: ClassVar[str] = "teardrops"
 
-    best_length_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("best_length_ratio", 0.0),
+    best_length_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("best_length_ratio", 0.0),
         metadata={"description": "Best length ratio setting"},
     )
-    max_length: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("max_length", 0.0),
+    max_length: NamedFloat = field(
+        default_factory=lambda: NamedFloat("max_length", 0.0),
         metadata={"description": "Maximum length setting"},
     )
-    best_width_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("best_width_ratio", 0.0),
+    best_width_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("best_width_ratio", 0.0),
         metadata={"description": "Best width ratio setting"},
     )
-    max_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("max_width", 0.0),
+    max_width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("max_width", 0.0),
         metadata={"description": "Maximum width setting"},
     )
-    curved_edges: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("curved_edges"),
+    curved_edges: TokenFlag = field(
+        default_factory=lambda: TokenFlag("curved_edges"),
         metadata={"description": "Curved edges setting", "required": False},
     )
-    filter_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("filter_ratio", 0.0),
+    filter_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("filter_ratio", 0.0),
         metadata={"description": "Filter ratio setting"},
     )
-    enabled: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("enabled"),
+    enabled: TokenFlag = field(
+        default_factory=lambda: TokenFlag("enabled"),
         metadata={"description": "Enabled setting", "required": False},
     )
-    allow_two_segments: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("allow_two_segments"),
+    allow_two_segments: TokenFlag = field(
+        default_factory=lambda: TokenFlag("allow_two_segments"),
         metadata={"description": "Allow two segments setting", "required": False},
     )
-    prefer_zone_connections: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("prefer_zone_connections"),
+    prefer_zone_connections: TokenFlag = field(
+        default_factory=lambda: TokenFlag("prefer_zone_connections"),
         metadata={"description": "Prefer zone connections setting", "required": False},
     )
 
 
 @dataclass
-class Chamfer(KiCadObject):
+class Chamfer(NamedObject):
     """Chamfer corner definition token for pads.
 
     The 'chamfer' token defines which corners of a rectangular pad get chamfered in the format::
@@ -107,7 +107,7 @@ class Chamfer(KiCadObject):
 
 
 @dataclass
-class Options(KiCadObject):
+class Options(NamedObject):
     """Custom pad options definition token.
 
     The 'options' token defines options for custom pads in the format::
@@ -127,8 +127,8 @@ class Options(KiCadObject):
 
     __token_name__: ClassVar[str] = "options"
 
-    clearance: KiCadStr = field(
-        default_factory=lambda: KiCadStr("clearance", ""),
+    clearance: NamedString = field(
+        default_factory=lambda: NamedString("clearance", ""),
         metadata={
             "description": "Clearance type for custom pad",
             "required": False,
@@ -141,7 +141,7 @@ class Options(KiCadObject):
 
 
 @dataclass
-class Shape(KiCadObject):
+class Shape(NamedObject):
     """Pad shape definition token.
 
     The 'shape' token defines the shape of a pad in the format::
@@ -162,7 +162,7 @@ class Shape(KiCadObject):
 
 
 @dataclass
-class ZoneConnect(KiCadObject):
+class ZoneConnect(NamedObject):
     """Zone connection definition token.
 
     The 'zone_connect' token defines how a pad connects to filled zones in the format::
@@ -187,7 +187,7 @@ class ZoneConnect(KiCadObject):
 
 
 @dataclass
-class Net(KiCadObject):
+class Net(NamedObject):
     """Net connection definition token.
 
     The 'net' token defines the net connection in the format::
@@ -206,7 +206,7 @@ class Net(KiCadObject):
 
 
 @dataclass
-class Drill(KiCadObject):
+class Drill(NamedObject):
     """Drill definition token for pads.
 
     The 'drill' token defines the drill attributes for a footprint pad in the format::
@@ -227,8 +227,8 @@ class Drill(KiCadObject):
 
     __token_name__: ClassVar[str] = "drill"
 
-    oval: Optional[OptionalSimpleFlag] = field(
-        default_factory=lambda: OptionalSimpleFlag(token="oval"),
+    oval: Optional[SymbolValue] = field(
+        default_factory=lambda: SymbolValue(token="oval"),
         metadata={
             "description": "Whether the drill is oval instead of round",
             "required": False,
@@ -259,7 +259,7 @@ class Drill(KiCadObject):
 
 
 @dataclass
-class Primitives(KiCadObject):
+class Primitives(NamedObject):
     """Custom pad primitives definition token.
 
     The 'primitives' token defines drawing objects for custom pads in the format::
@@ -291,12 +291,12 @@ class Primitives(KiCadObject):
             "required": False,
         },
     )
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width of graphical items", "required": False},
     )
-    fill: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("fill"),
+    fill: TokenFlag = field(
+        default_factory=lambda: TokenFlag("fill"),
         metadata={
             "description": "Whether geometry should be filled",
             "required": False,
@@ -305,7 +305,7 @@ class Primitives(KiCadObject):
 
 
 @dataclass
-class Pad(KiCadObject):
+class Pad(NamedObject):
     """Footprint pad definition token.
 
     The 'pad' token defines a pad in a footprint with comprehensive properties in the format::
@@ -379,27 +379,27 @@ class Pad(KiCadObject):
     property: Optional[str] = field(
         default=None, metadata={"description": "Pad property", "required": False}
     )
-    locked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("locked"),
+    locked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("locked"),
         metadata={"description": "Whether pad is locked", "required": False},
     )
-    remove_unused_layer: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("remove_unused_layer"),
+    remove_unused_layer: TokenFlag = field(
+        default_factory=lambda: TokenFlag("remove_unused_layer"),
         metadata={"description": "Remove unused layers flag", "required": False},
     )
-    remove_unused_layers: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("remove_unused_layers"),
+    remove_unused_layers: TokenFlag = field(
+        default_factory=lambda: TokenFlag("remove_unused_layers"),
         metadata={
             "description": "Remove unused layers flag (newer format)",
             "required": False,
         },
     )
-    keep_end_layers: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("keep_end_layers"),
+    keep_end_layers: TokenFlag = field(
+        default_factory=lambda: TokenFlag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    roundrect_rratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("roundrect_rratio", 0.0),
+    roundrect_rratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("roundrect_rratio", 0.0),
         metadata={"description": "Round rectangle corner ratio", "required": False},
     )
     chamfer_ratio: Optional[float] = field(
@@ -444,8 +444,8 @@ class Pad(KiCadObject):
     thermal_width: Optional[float] = field(
         default=None, metadata={"description": "Thermal width", "required": False}
     )
-    thermal_bridge_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_bridge_width", 0.0),
+    thermal_bridge_width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thermal_bridge_width", 0.0),
         metadata={"description": "Thermal bridge width", "required": False},
     )
     thermal_gap: Optional[float] = field(
@@ -465,7 +465,7 @@ class Pad(KiCadObject):
 
 
 @dataclass
-class Pads(KiCadObject):
+class Pads(NamedObject):
     """Container for multiple pads.
 
     The 'pads' token defines a collection of pads in the format::

@@ -10,7 +10,7 @@ Core Classes
 
 .. autosummary::
 
-   kicadfiles.base_element.KiCadObject
+   kicadfiles.base_element.NamedObject
    kicadfiles.base_element.ParseStrictness
 
 File Format Classes

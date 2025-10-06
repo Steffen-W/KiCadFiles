@@ -4,12 +4,12 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional
 
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    TokenFlag,
 )
 from .base_types import (
     AtXY,
@@ -24,7 +24,7 @@ from .base_types import (
 
 
 @dataclass
-class Comment(KiCadObject):
+class Comment(NamedObject):
     """Comment definition token.
 
     The 'comment' token defines document comments in the format::
@@ -45,7 +45,7 @@ class Comment(KiCadObject):
 
 
 @dataclass
-class Data(KiCadObject):
+class Data(NamedObject):
     """Data definition token.
 
     The 'data' token defines hexadecimal byte data in the format::
@@ -67,7 +67,7 @@ class Data(KiCadObject):
 
 
 @dataclass
-class Paper(KiCadObject):
+class Paper(NamedObject):
     """Paper settings definition token.
 
     The 'paper' token defines paper size and orientation in the format::
@@ -94,8 +94,8 @@ class Paper(KiCadObject):
     height: Optional[float] = field(
         default=None, metadata={"description": "Custom paper height", "required": False}
     )
-    portrait: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("portrait"),
+    portrait: TokenFlag = field(
+        default_factory=lambda: TokenFlag("portrait"),
         metadata={
             "description": "Whether paper is in portrait mode",
             "required": False,
@@ -104,7 +104,7 @@ class Paper(KiCadObject):
 
 
 @dataclass
-class TitleBlock(KiCadObject):
+class TitleBlock(NamedObject):
     """Title block definition token.
 
     The 'title_block' token defines the document title block in the format::
@@ -127,20 +127,20 @@ class TitleBlock(KiCadObject):
 
     __token_name__: ClassVar[str] = "title_block"
 
-    title: KiCadStr = field(
-        default_factory=lambda: KiCadStr("title", ""),
+    title: NamedString = field(
+        default_factory=lambda: NamedString("title", ""),
         metadata={"description": "Document title", "required": False},
     )
-    date: KiCadStr = field(
-        default_factory=lambda: KiCadStr("date", ""),
+    date: NamedString = field(
+        default_factory=lambda: NamedString("date", ""),
         metadata={"description": "Document date", "required": False},
     )
-    rev: KiCadStr = field(
-        default_factory=lambda: KiCadStr("rev", ""),
+    rev: NamedString = field(
+        default_factory=lambda: NamedString("rev", ""),
         metadata={"description": "Document revision", "required": False},
     )
-    company: KiCadStr = field(
-        default_factory=lambda: KiCadStr("company", ""),
+    company: NamedString = field(
+        default_factory=lambda: NamedString("company", ""),
         metadata={"description": "Company name", "required": False},
     )
     comments: Optional[List[Comment]] = field(
@@ -150,7 +150,7 @@ class TitleBlock(KiCadObject):
 
 
 @dataclass
-class Tbtext(KiCadObject):
+class Tbtext(NamedObject):
     """Title block text definition token.
 
     The 'tbtext' token defines text elements in the title block in the format::
@@ -180,8 +180,8 @@ class Tbtext(KiCadObject):
     __token_name__: ClassVar[str] = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr("name", ""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString("name", ""),
         metadata={"description": "Text element name"},
     )
     pos: Pos = field(
@@ -190,19 +190,19 @@ class Tbtext(KiCadObject):
     font: Optional[Font] = field(
         default=None, metadata={"description": "Font settings", "required": False}
     )
-    repeat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("repeat", 0),
+    repeat: NamedInt = field(
+        default_factory=lambda: NamedInt("repeat", 0),
         metadata={
             "description": "Repeat count for incremental text",
             "required": False,
         },
     )
-    incrx: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incrx", 0.0),
+    incrx: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incrx", 0.0),
         metadata={"description": "Repeat distance on X axis", "required": False},
     )
-    incry: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incry", 0.0),
+    incry: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incry", 0.0),
         metadata={"description": "Repeat distance on Y axis", "required": False},
     )
     comment: Optional[str] = field(
@@ -212,7 +212,7 @@ class Tbtext(KiCadObject):
 
 
 @dataclass
-class Textsize(KiCadObject):
+class Textsize(NamedObject):
     """Text size definition token.
 
     The 'textsize' token defines text size in the format::
@@ -232,7 +232,7 @@ class Textsize(KiCadObject):
 
 
 @dataclass
-class Members(KiCadObject):
+class Members(NamedObject):
     """Group members definition token.
 
     The 'members' token defines the members of a group in the format::
@@ -251,7 +251,7 @@ class Members(KiCadObject):
 
 
 @dataclass
-class Group(KiCadObject):
+class Group(NamedObject):
     """Group definition token.
 
     The 'group' token defines a group of objects in the format::
@@ -282,7 +282,7 @@ class Group(KiCadObject):
 
 
 @dataclass
-class WksTextsize(KiCadObject):
+class WksTextsize(NamedObject):
     """Worksheet text size definition token.
 
     Args:
@@ -303,7 +303,7 @@ class WksTextsize(KiCadObject):
 
 
 @dataclass
-class WksSetup(KiCadObject):
+class WksSetup(NamedObject):
     """Worksheet setup definition token.
 
     Args:
@@ -322,34 +322,34 @@ class WksSetup(KiCadObject):
         default=None,
         metadata={"description": "Text size", "required": False},
     )
-    linewidth: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("linewidth", 0.0),
+    linewidth: NamedFloat = field(
+        default_factory=lambda: NamedFloat("linewidth", 0.0),
         metadata={"description": "Line width", "required": False},
     )
-    textlinewidth: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("textlinewidth", 0.0),
+    textlinewidth: NamedFloat = field(
+        default_factory=lambda: NamedFloat("textlinewidth", 0.0),
         metadata={"description": "Text line width", "required": False},
     )
-    left_margin: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("left_margin", 0.0),
+    left_margin: NamedFloat = field(
+        default_factory=lambda: NamedFloat("left_margin", 0.0),
         metadata={"description": "Left margin", "required": False},
     )
-    right_margin: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("right_margin", 0.0),
+    right_margin: NamedFloat = field(
+        default_factory=lambda: NamedFloat("right_margin", 0.0),
         metadata={"description": "Right margin", "required": False},
     )
-    top_margin: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("top_margin", 0.0),
+    top_margin: NamedFloat = field(
+        default_factory=lambda: NamedFloat("top_margin", 0.0),
         metadata={"description": "Top margin", "required": False},
     )
-    bottom_margin: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("bottom_margin", 0.0),
+    bottom_margin: NamedFloat = field(
+        default_factory=lambda: NamedFloat("bottom_margin", 0.0),
         metadata={"description": "Bottom margin", "required": False},
     )
 
 
 @dataclass
-class WksRect(KiCadObject):
+class WksRect(NamedObject):
     """Worksheet rectangle definition token.
 
     Args:
@@ -374,30 +374,30 @@ class WksRect(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    comment: KiCadStr = field(
-        default_factory=lambda: KiCadStr("comment", ""),
+    comment: NamedString = field(
+        default_factory=lambda: NamedString("comment", ""),
         metadata={"description": "Comment", "required": False},
     )
-    repeat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("repeat", 0),
+    repeat: NamedInt = field(
+        default_factory=lambda: NamedInt("repeat", 0),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incrx", 0.0),
+    incrx: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incrx", 0.0),
         metadata={"description": "X increment", "required": False},
     )
-    incry: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incry", 0.0),
+    incry: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incry", 0.0),
         metadata={"description": "Y increment", "required": False},
     )
-    linewidth: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("linewidth", 0.0),
+    linewidth: NamedFloat = field(
+        default_factory=lambda: NamedFloat("linewidth", 0.0),
         metadata={"description": "Line width", "required": False},
     )
 
 
 @dataclass
-class WksLine(KiCadObject):
+class WksLine(NamedObject):
     """Worksheet line definition token.
 
     Args:
@@ -420,22 +420,22 @@ class WksLine(KiCadObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End position"}
     )
-    repeat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("repeat", 0),
+    repeat: NamedInt = field(
+        default_factory=lambda: NamedInt("repeat", 0),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incrx", 0.0),
+    incrx: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incrx", 0.0),
         metadata={"description": "X increment", "required": False},
     )
-    incry: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incry", 0.0),
+    incry: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incry", 0.0),
         metadata={"description": "Y increment", "required": False},
     )
 
 
 @dataclass
-class WksTbText(KiCadObject):
+class WksTbText(NamedObject):
     """Worksheet text block definition token.
 
     Args:
@@ -453,8 +453,8 @@ class WksTbText(KiCadObject):
     __token_name__: ClassVar[str] = "tbtext"
 
     text: str = field(default="", metadata={"description": "Text content"})
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr("name", ""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString("name", ""),
         metadata={"description": "Text name", "required": False},
     )
     pos: Pos = field(
@@ -466,26 +466,26 @@ class WksTbText(KiCadObject):
     justify: Optional[Justify] = field(
         default=None, metadata={"description": "Text justification", "required": False}
     )
-    repeat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("repeat", 0),
+    repeat: NamedInt = field(
+        default_factory=lambda: NamedInt("repeat", 0),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incrx", 0.0),
+    incrx: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incrx", 0.0),
         metadata={"description": "X increment", "required": False},
     )
-    incry: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incry", 0.0),
+    incry: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incry", 0.0),
         metadata={"description": "Y increment", "required": False},
     )
-    comment: KiCadStr = field(
-        default_factory=lambda: KiCadStr("comment", ""),
+    comment: NamedString = field(
+        default_factory=lambda: NamedString("comment", ""),
         metadata={"description": "Comment", "required": False},
     )
 
 
 @dataclass
-class KicadWks(KiCadObject):
+class KicadWks(NamedObject):
     """KiCad worksheet definition token.
 
     The 'kicad_wks' token defines worksheet format information in the format::
@@ -512,20 +512,20 @@ class KicadWks(KiCadObject):
     __token_name__: ClassVar[str] = "kicad_wks"
     __legacy_token_names__ = ["page_layout"]
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 0),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 0),
         metadata={"description": "Format version", "required": False},
     )
-    generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", ""),
+    generator: NamedString = field(
+        default_factory=lambda: NamedString("generator", ""),
         metadata={"description": "Generator name", "required": False},
     )
-    generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", ""),
+    generator_version: NamedString = field(
+        default_factory=lambda: NamedString("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
-    page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", ""),
+    page: NamedString = field(
+        default_factory=lambda: NamedString("page", ""),
         metadata={"description": "Page settings", "required": False},
     )
     title_block: Optional[TitleBlock] = field(
@@ -581,7 +581,7 @@ class KicadWks(KiCadObject):
 
 # Image related elements
 @dataclass
-class Bitmap(KiCadObject):
+class Bitmap(NamedObject):
     """Bitmap image definition token.
 
     The 'bitmap' token defines a bitmap image in the format::
@@ -610,27 +610,27 @@ class Bitmap(KiCadObject):
 
     __token_name__: ClassVar[str] = "bitmap"
 
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr("name", ""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString("name", ""),
         metadata={"description": "Image name"},
     )
     pos: Pos = field(
         default_factory=lambda: Pos(), metadata={"description": "Position coordinates"}
     )
-    scale: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("factor", 0.0),
+    scale: NamedFloat = field(
+        default_factory=lambda: NamedFloat("factor", 0.0),
         metadata={"description": "Scale factor"},
     )
-    repeat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("repeat", 0),
+    repeat: NamedInt = field(
+        default_factory=lambda: NamedInt("repeat", 0),
         metadata={"description": "Repeat count", "required": False},
     )
-    incrx: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incrx", 0.0),
+    incrx: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incrx", 0.0),
         metadata={"description": "X increment distance", "required": False},
     )
-    incry: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("incry", 0.0),
+    incry: NamedFloat = field(
+        default_factory=lambda: NamedFloat("incry", 0.0),
         metadata={"description": "Y increment distance", "required": False},
     )
     comment: Optional[str] = field(
@@ -642,7 +642,7 @@ class Bitmap(KiCadObject):
 
 
 @dataclass
-class Image(KiCadObject):
+class Image(NamedObject):
     """Image definition token.
 
     The 'image' token defines an image object in PCB files in the format::
@@ -662,8 +662,8 @@ class Image(KiCadObject):
     at: AtXY = field(
         default_factory=lambda: AtXY(), metadata={"description": "Position"}
     )
-    scale: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("scale", 1.0),
+    scale: NamedFloat = field(
+        default_factory=lambda: NamedFloat("scale", 1.0),
         metadata={"description": "Scale factor", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -672,14 +672,14 @@ class Image(KiCadObject):
     data: Optional[Data] = field(
         default=None, metadata={"description": "Image data", "required": False}
     )
-    locked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("locked"),
+    locked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("locked"),
         metadata={"description": "Whether image is locked", "required": False},
     )
 
 
 @dataclass
-class Pngdata(KiCadObject):
+class Pngdata(NamedObject):
     """PNG data definition token.
 
     The 'pngdata' token defines PNG image data in the format::

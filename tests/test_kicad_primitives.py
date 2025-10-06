@@ -5,56 +5,56 @@ from dataclasses import dataclass, field
 from typing import ClassVar, Optional
 
 from kicadfiles.base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
 )
 
 
 @dataclass
-class SamplePrimitiveObject(KiCadObject):
+class SamplePrimitiveObject(NamedObject):
     """Sample object using KiCad primitives for testing."""
 
     __token_name__: ClassVar[str] = "test_primitive"
 
     # Required primitives (metadata defines required/optional behavior)
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="name", value=""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString(token="name", value=""),
         metadata={"description": "Component name", "required": True},
     )
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(token="width", value=0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat(token="width", value=0.0),
         metadata={"description": "Component width", "required": True},
     )
-    count: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="count", value=0),
+    count: NamedInt = field(
+        default_factory=lambda: NamedInt(token="count", value=0),
         metadata={"description": "Component count", "required": True},
     )
 
     # Optional primitives (metadata is the source of truth)
-    description: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="description", value=""),
+    description: NamedString = field(
+        default_factory=lambda: NamedString(token="description", value=""),
         metadata={"description": "Component description", "required": False},
     )
-    height: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat(token="height", value=0.0),
+    height: NamedFloat = field(
+        default_factory=lambda: NamedFloat(token="height", value=0.0),
         metadata={"description": "Component height", "required": False},
     )
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="version", value=1),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt(token="version", value=1),
         metadata={"description": "Component version", "required": False},
     )
 
 
-class TestKiCadPrimitives:
+class TestNamedValues:
     """Test suite for KiCad primitive classes."""
 
     def test_primitive_basic(self):
         """Test basic primitive functionality."""
         # Basic construction (required is now a read-only property)
-        name = KiCadStr(token="name", value="test_component")
+        name = NamedString(token="name", value="test_component")
         assert name.value == "test_component"
         assert name.required is True  # Default value
         assert name.token == "name"
@@ -64,7 +64,7 @@ class TestKiCadPrimitives:
         assert sexpr_result == ["name", "test_component"]
 
         # Equality
-        name2 = KiCadStr(token="name", value="test_component")
+        name2 = NamedString(token="name", value="test_component")
         assert name == name2
 
     def test_sample_primitive_object_roundtrip(self):
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # Run basic tests
-    test = TestKiCadPrimitives()
+    test = TestNamedValues()
 
     print("=== Testing KiCad Primitives ===")
     test.test_primitive_basic()

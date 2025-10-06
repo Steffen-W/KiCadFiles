@@ -30,7 +30,7 @@ from typing import (
 from .sexpdata import Symbol
 from .sexpr_parser import SExpr, SExprParser, str_to_sexpr
 
-T = TypeVar("T", bound="KiCadObject")
+T = TypeVar("T", bound="NamedObject")
 
 
 # =============================================================================
@@ -238,8 +238,8 @@ class SExpressionBase(ABC):
 
 
 @dataclass(eq=False)
-class KiCadPrimitive(SExpressionBase):
-    """Base class for KiCad primitive wrapper types (str, int, float)."""
+class NamedValue(SExpressionBase):
+    """Base class for named primitive wrapper types (str, int, float)."""
 
     base_type: ClassVar[type] = object
 
@@ -271,11 +271,11 @@ class KiCadPrimitive(SExpressionBase):
         """Boolean conversion based on value."""
         return bool(getattr(self, "value", None))
 
-    def __call__(self, new_value: Any) -> "KiCadPrimitive":
+    def __call__(self, new_value: Any) -> "NamedValue":
         """Allow calling the primitive to update its value.
 
         This enables convenient syntax like: pcb.version(20240101)
-        instead of: pcb.version = KiCadInt("version", 20240101)
+        instead of: pcb.version = NamedInt("version", 20240101)
 
         Args:
             new_value: New value to set
@@ -292,10 +292,10 @@ class KiCadPrimitive(SExpressionBase):
         sexpr: Union[str, SExpr],
         strictness: ParseStrictness = ParseStrictness.STRICT,
         cursor: Optional[ParseCursor] = None,
-    ) -> Optional["KiCadPrimitive"]:
+    ) -> Optional["NamedValue"]:
         """Parse primitive from S-expression (named or positional)."""
         if cursor is None:
-            raise ValueError("KiCadPrimitive requires cursor for parsing")
+            raise ValueError("NamedValue requires cursor for parsing")
 
         value = None
         token = ""
@@ -312,7 +312,7 @@ class KiCadPrimitive(SExpressionBase):
 
         try:
             converted = cls._convert_value(value)
-            instance: "KiCadPrimitive" = cls(token=token, value=converted)
+            instance: "NamedValue" = cls(token=token, value=converted)
             return instance
         except (ValueError, TypeError):
             return None
@@ -332,7 +332,7 @@ class KiCadPrimitive(SExpressionBase):
 
     def __eq__(self, other: object) -> bool:
         """Equality comparison based on token and value only."""
-        if not isinstance(other, KiCadPrimitive):
+        if not isinstance(other, NamedValue):
             return False
         return (
             self.__class__ == other.__class__
@@ -342,8 +342,8 @@ class KiCadPrimitive(SExpressionBase):
 
 
 @dataclass(eq=False)
-class KiCadStr(KiCadPrimitive):
-    """String wrapper for KiCad values."""
+class NamedString(NamedValue):
+    """String wrapper for named values."""
 
     token: str = ""
     value: str = ""
@@ -351,8 +351,8 @@ class KiCadStr(KiCadPrimitive):
 
 
 @dataclass(eq=False)
-class KiCadInt(KiCadPrimitive):
-    """Integer wrapper for KiCad values."""
+class NamedInt(NamedValue):
+    """Integer wrapper for named values."""
 
     token: str = ""
     value: int = 0
@@ -360,8 +360,8 @@ class KiCadInt(KiCadPrimitive):
 
 
 @dataclass(eq=False)
-class KiCadFloat(KiCadPrimitive):
-    """Float wrapper for KiCad values."""
+class NamedFloat(NamedValue):
+    """Float wrapper for named values."""
 
     token: str = ""
     value: float = 0.0
@@ -380,7 +380,7 @@ class UnquotedToken(str):
 
 
 @dataclass(eq=False)
-class OptionalFlagBase(SExpressionBase):
+class TokenBase(SExpressionBase):
     """Base class for optional flags with instance-level tokens."""
 
     token: str = ""
@@ -392,7 +392,7 @@ class OptionalFlagBase(SExpressionBase):
 
 
 @dataclass(eq=False)
-class OptionalFlag(OptionalFlagBase):
+class TokenFlag(TokenBase):
     """Optional flag with optional value.
 
     Formats:
@@ -413,11 +413,11 @@ class OptionalFlag(OptionalFlagBase):
             return self.token_value.lower() in ("yes", "true", "1")
         return True  # Presence = True
 
-    def __call__(self, new_value: Optional[str] = None) -> "OptionalFlag":
+    def __call__(self, new_value: Optional[str] = None) -> "TokenFlag":
         """Allow calling the flag to update its value.
 
         This enables convenient syntax like: pcb.legacy_teardrops("no")
-        instead of: pcb.legacy_teardrops = OptionalFlag("legacy_teardrops", "no")
+        instead of: pcb.legacy_teardrops = TokenFlag("legacy_teardrops", "no")
 
         Args:
             new_value: New token value to set
@@ -430,24 +430,24 @@ class OptionalFlag(OptionalFlagBase):
 
     @classmethod
     def from_sexpr(
-        cls: Type["OptionalFlag"],
+        cls: Type["TokenFlag"],
         sexpr: Union[str, SExpr],
         strictness: ParseStrictness = ParseStrictness.STRICT,
         cursor: Optional[ParseCursor] = None,
-    ) -> Optional["OptionalFlag"]:
+    ) -> Optional["TokenFlag"]:
         """Parse from S-expression.
 
-        OptionalFlag supports only simple flags:
+        TokenFlag supports only simple flags:
         - (token) or (token value) where value is NOT a nested list
 
         Invalid: (fill (type none)) -> Use proper Fill class instead
         """
         if cursor is None:
-            raise ValueError("OptionalFlag requires cursor for parsing")
+            raise ValueError("TokenFlag requires cursor for parsing")
 
         # Standalone symbol: (token)
         if isinstance(sexpr, (str, Symbol)):
-            instance: OptionalFlag = cls(token=str(sexpr), token_value=None)
+            instance: TokenFlag = cls(token=str(sexpr), token_value=None)
             return instance
 
         # List format: (token) or (token value)
@@ -456,17 +456,17 @@ class OptionalFlag(OptionalFlagBase):
 
             if len(sexpr) > 2:
                 cursor.log_issue(
-                    f"OptionalFlag '{token_name}' has {len(sexpr)} elements, max 2 allowed"
+                    f"TokenFlag '{token_name}' has {len(sexpr)} elements, max 2 allowed"
                 )
 
             if len(sexpr) == 2 and isinstance(sexpr[1], list):
                 cursor.log_issue(
-                    f"OptionalFlag '{token_name}' has nested list - use proper class instead"
+                    f"TokenFlag '{token_name}' has nested list - use proper class instead"
                 )
 
             # Extract value
             token_value = str(sexpr[1]) if len(sexpr) == 2 else None
-            instance2: OptionalFlag = cls(token=token_name, token_value=token_value)
+            instance2: TokenFlag = cls(token=token_name, token_value=token_value)
             return instance2
 
         return None
@@ -478,13 +478,13 @@ class OptionalFlag(OptionalFlagBase):
         return [self.token]
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, OptionalFlag):
+        if not isinstance(other, TokenFlag):
             return False
         return self.token == other.token and self.token_value == other.token_value
 
 
 @dataclass(eq=False)
-class OptionalSimpleFlag(OptionalFlagBase):
+class SymbolValue(TokenBase):
     """Simple flag for optional symbols.
 
     Represents standalone tokens like 'oval', 'locked' without values.
@@ -504,21 +504,21 @@ class OptionalSimpleFlag(OptionalFlagBase):
         sexpr: Union[str, SExpr],
         strictness: ParseStrictness = ParseStrictness.STRICT,
         cursor: Optional[ParseCursor] = None,
-    ) -> Optional["OptionalSimpleFlag"]:
+    ) -> Optional["SymbolValue"]:
         """Parse from S-expression."""
         if cursor is None:
-            raise ValueError("OptionalSimpleFlag requires cursor for parsing")
+            raise ValueError("SymbolValue requires cursor for parsing")
 
         # Handle both direct symbols and lists with single symbol (from find_token)
         if isinstance(sexpr, (str, Symbol)) and not isinstance(sexpr, list):
-            instance: "OptionalSimpleFlag" = cls(token=str(sexpr))
+            instance: "SymbolValue" = cls(token=str(sexpr))
             return instance
         elif (
             isinstance(sexpr, list)
             and len(sexpr) == 1
             and isinstance(sexpr[0], (str, Symbol))
         ):
-            instance2: "OptionalSimpleFlag" = cls(token=str(sexpr[0]))
+            instance2: "SymbolValue" = cls(token=str(sexpr[0]))
             return instance2
 
         return None
@@ -528,13 +528,13 @@ class OptionalSimpleFlag(OptionalFlagBase):
         return UnquotedToken(self.token)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, OptionalSimpleFlag):
+        if not isinstance(other, SymbolValue):
             return False
         return self.token == other.token
 
 
 # =============================================================================
-# KiCadObject - Main Parser
+# NamedObject - Main Parser
 # =============================================================================
 
 
@@ -574,8 +574,8 @@ class FieldInfo:
 
 
 @dataclass
-class KiCadObject(SExpressionBase):
-    """Base class for KiCad S-expression objects.
+class NamedObject(SExpressionBase):
+    """Base class for named S-expression objects.
 
     Subclasses should define __token_name__ as ClassVar[str].
     """
@@ -626,11 +626,11 @@ class KiCadObject(SExpressionBase):
 
         for field_info in field_infos:
             value = cls._parse_field(field_info, cursor)
-            # For OptionalSimpleFlag, always set the value (even if None) to prevent
+            # For SymbolValue, always set the value (even if None) to prevent
             # default_factory from being called when the token is not present
             if value is not None:
                 parsed_values[field_info.name] = value
-            elif field_info.inner_type.__name__ == "OptionalSimpleFlag":
+            elif field_info.inner_type.__name__ == "SymbolValue":
                 parsed_values[field_info.name] = None
 
         return cls(**parsed_values)
@@ -792,7 +792,7 @@ class KiCadObject(SExpressionBase):
                 return None
 
         # Set _required attribute from field metadata for primitives
-        if result is not None and isinstance(result, KiCadPrimitive):
+        if result is not None and isinstance(result, NamedValue):
             object.__setattr__(result, "_required", not field_info.is_optional)
 
         return result
@@ -819,7 +819,7 @@ class KiCadObject(SExpressionBase):
 
             if not (
                 field_info.field_type == FieldType.SEXPR_BASE
-                and field_info.inner_type.__name__ == "OptionalSimpleFlag"
+                and field_info.inner_type.__name__ == "SymbolValue"
             ):
                 position_index += 1
 
@@ -880,12 +880,10 @@ class KiCadObject(SExpressionBase):
 
         try:
             if isinstance(inner_type, type) and issubclass(inner_type, SExpressionBase):
-                # For KiCadPrimitive, OptionalFlag, and OptionalSimpleFlag subclasses,
+                # For NamedValue, TokenFlag, and SymbolValue subclasses,
                 # each instance has its own token, so we need to extract it from the default_factory
                 token_name = None
-                if issubclass(
-                    inner_type, (KiCadPrimitive, OptionalFlag, OptionalSimpleFlag)
-                ):
+                if issubclass(inner_type, (NamedValue, TokenFlag, SymbolValue)):
                     if dataclass_field and dataclass_field.default_factory:
                         try:
                             default_instance = dataclass_field.default_factory()
@@ -1010,11 +1008,11 @@ class KiCadObject(SExpressionBase):
 
 
 __all__ = [
-    "KiCadStr",
-    "KiCadInt",
-    "KiCadFloat",
-    "KiCadObject",
-    "OptionalFlag",
-    "OptionalSimpleFlag",
+    "NamedString",
+    "NamedInt",
+    "NamedFloat",
+    "NamedObject",
+    "TokenFlag",
+    "SymbolValue",
     "ParseStrictness",
 ]

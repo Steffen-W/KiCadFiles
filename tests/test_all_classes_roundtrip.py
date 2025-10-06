@@ -4,20 +4,20 @@
 import inspect
 
 import kicadfiles
-from kicadfiles.base_element import KiCadObject, ParseStrictness
+from kicadfiles.base_element import NamedObject, ParseStrictness
 
 
 def get_all_kicad_classes():
-    """Get all KiCadObject classes from kicadfiles."""
+    """Get all NamedObject classes from kicadfiles."""
     classes = []
 
     # Get all exported classes from __all__
     for name in kicadfiles.__all__:
         obj = getattr(kicadfiles, name)
 
-        # Check if it's a class and inherits from KiCadObject
+        # Check if it's a class and inherits from NamedObject
         if (
-            inspect.isclass(obj) and issubclass(obj, KiCadObject) and obj != KiCadObject
+            inspect.isclass(obj) and issubclass(obj, NamedObject) and obj != NamedObject
         ):  # Exclude base class
             classes.append(obj)
 
@@ -158,10 +158,10 @@ def test_all_classes():
 def test_specific_classes():
     """Test specific classes that are not covered by automatic discovery."""
     print("\n=== TESTING SPECIFIC IMPORTANT CLASSES ===")
-    from kicadfiles.base_element import KiCadFloat, KiCadInt, KiCadStr
+    from kicadfiles.base_element import NamedFloat, NamedInt, NamedString
 
     # Only test classes not covered by get_all_kicad_classes()
-    important_classes = [KiCadFloat, KiCadInt, KiCadStr]
+    important_classes = [NamedFloat, NamedInt, NamedString]
 
     for cls in important_classes:
         run_class_round_trip(cls)

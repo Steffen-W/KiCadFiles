@@ -26,7 +26,7 @@ T = TypeVar("T", bound="JsonObject")
 class JsonObject(ABC):
     """Base class for JSON-based KiCad objects.
 
-    This class provides similar functionality to KiCadObject but for JSON format files
+    This class provides similar functionality to NamedObject but for JSON format files
     like .kicad_pro project files. It automatically handles serialization/deserialization
     based on dataclass field definitions.
 

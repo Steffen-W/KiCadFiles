@@ -3,13 +3,13 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, List, Optional
 
-from .base_element import KiCadInt, KiCadObject, KiCadStr, ParseStrictness
+from .base_element import NamedInt, NamedObject, NamedString, ParseStrictness
 from .enums import ConstraintType, SeverityLevel
 from .sexpr_parser import sexpr_to_str
 
 
 @dataclass
-class DesignRuleConstraint(KiCadObject):
+class DesignRuleConstraint(NamedObject):
     """Design rule constraint definition token.
 
     The 'constraint' token defines a constraint with optional min/opt/max values in the format::
@@ -30,16 +30,16 @@ class DesignRuleConstraint(KiCadObject):
     constraint_type: ConstraintType = field(
         default=ConstraintType.CLEARANCE, metadata={"description": "Type of constraint"}
     )
-    min_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("min", "0.0"),
+    min_constraint: NamedString = field(
+        default_factory=lambda: NamedString("min", "0.0"),
         metadata={"description": "Minimum value constraint", "required": False},
     )
-    opt_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("opt", "0.0"),
+    opt_constraint: NamedString = field(
+        default_factory=lambda: NamedString("opt", "0.0"),
         metadata={"description": "Optimal value constraint", "required": False},
     )
-    max_constraint: KiCadStr = field(
-        default_factory=lambda: KiCadStr("max", "0.0"),
+    max_constraint: NamedString = field(
+        default_factory=lambda: NamedString("max", "0.0"),
         metadata={"description": "Maximum value constraint", "required": False},
     )
     disallow_item: Optional[str] = field(
@@ -49,7 +49,7 @@ class DesignRuleConstraint(KiCadObject):
 
 
 @dataclass
-class DesignRuleSeverity(KiCadObject):
+class DesignRuleSeverity(NamedObject):
     """Design rule severity level token.
 
     The 'severity' token defines the severity level for rule violations in the format::
@@ -68,7 +68,7 @@ class DesignRuleSeverity(KiCadObject):
 
 
 @dataclass
-class DesignRule(KiCadObject):
+class DesignRule(NamedObject):
     """Design rule definition token.
 
     The 'rule' token defines a complete design rule in the format::
@@ -97,16 +97,16 @@ class DesignRule(KiCadObject):
     severity: Optional[DesignRuleSeverity] = field(
         default=None, metadata={"description": "Severity level", "required": False}
     )
-    layer: KiCadStr = field(
-        default_factory=lambda: KiCadStr("layer", ""),
+    layer: NamedString = field(
+        default_factory=lambda: NamedString("layer", ""),
         metadata={"description": "Layer specification", "required": False},
     )
-    condition: KiCadStr = field(
-        default_factory=lambda: KiCadStr("condition", ""),
+    condition: NamedString = field(
+        default_factory=lambda: NamedString("condition", ""),
         metadata={"description": "Conditional expression", "required": False},
     )
-    priority: KiCadInt = field(
-        default_factory=lambda: KiCadInt("priority", 0),
+    priority: NamedInt = field(
+        default_factory=lambda: NamedInt("priority", 0),
         metadata={"description": "Rule priority", "required": False},
     )
     constraints: List[DesignRuleConstraint] = field(
@@ -116,7 +116,7 @@ class DesignRule(KiCadObject):
 
 
 @dataclass
-class KiCadDesignRules(KiCadObject):
+class KiCadDesignRules(NamedObject):
     """KiCad design rules file definition.
 
     The design rules file contains version information and a list of rules in the format::
@@ -136,8 +136,8 @@ class KiCadDesignRules(KiCadObject):
         "kicad_dru"  # Using this as placeholder, but file format is different
     )
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 1),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 1),
         metadata={"description": "File format version"},
     )
     rules: Optional[List[DesignRule]] = field(

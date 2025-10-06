@@ -96,7 +96,7 @@ new_pcb.save_to_file("new_board.kicad_pcb")
 
 ### Core Classes
 
-- **KiCadObject**: Base class for all KiCad objects
+- **NamedObject**: Base class for all KiCad objects
 - **ParseStrictness**: Enum controlling error handling (STRICT, FAILSAFE, SILENT)
 
 ### Main File Format Classes

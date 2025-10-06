@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Optional
 
-from .base_element import KiCadFloat, KiCadObject
+from .base_element import NamedFloat, NamedObject
 from .base_types import (
     Center,
     End,
@@ -17,7 +17,7 @@ from .base_types import (
 
 
 @dataclass
-class Arc(KiCadObject):
+class Arc(NamedObject):
     """Arc definition token.
 
     The 'arc' token defines a graphical arc in a symbol definition in the format::
@@ -68,7 +68,7 @@ class Arc(KiCadObject):
 
 
 @dataclass
-class Bezier(KiCadObject):
+class Bezier(NamedObject):
     """Bezier curve definition token.
 
     The 'bezier' token defines a graphic Cubic Bezier curve in the format::
@@ -104,8 +104,8 @@ class Bezier(KiCadObject):
         default=None,
         metadata={"description": "Fill definition for filling", "required": False},
     )
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width of the curve", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -118,7 +118,7 @@ class Bezier(KiCadObject):
 
 
 @dataclass
-class Circle(KiCadObject):
+class Circle(NamedObject):
     """Circle definition token.
 
     The 'circle' token defines a graphical circle in a symbol definition in the format::
@@ -144,8 +144,8 @@ class Circle(KiCadObject):
         default_factory=lambda: Center(),
         metadata={"description": "Center point of the circle"},
     )
-    radius: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("radius", 0.0),
+    radius: NamedFloat = field(
+        default_factory=lambda: NamedFloat("radius", 0.0),
         metadata={"description": "Radius length of the circle"},
     )
     stroke: Stroke = field(
@@ -163,7 +163,7 @@ class Circle(KiCadObject):
 
 
 @dataclass
-class Line(KiCadObject):
+class Line(NamedObject):
     """Line definition token.
 
     The 'line' token defines a basic line geometry in the format::
@@ -192,7 +192,7 @@ class Line(KiCadObject):
 
 
 @dataclass
-class Polygon(KiCadObject):
+class Polygon(NamedObject):
     """Polygon definition token.
 
     The 'polygon' token defines a polygon with multiple points in the format::
@@ -216,7 +216,7 @@ class Polygon(KiCadObject):
 
 
 @dataclass
-class Polyline(KiCadObject):
+class Polyline(NamedObject):
     """Polyline definition token.
 
     The 'polyline' token defines a connected series of line segments in the format::
@@ -255,7 +255,7 @@ class Polyline(KiCadObject):
 
 
 @dataclass
-class Rect(KiCadObject):
+class Rect(NamedObject):
     """Rectangle definition token.
 
     The 'rect' token defines a basic rectangle geometry in the format::
@@ -280,7 +280,7 @@ class Rect(KiCadObject):
 
 
 @dataclass
-class Rectangle(KiCadObject):
+class Rectangle(NamedObject):
     """Rectangle definition token (symbol form).
 
     The 'rectangle' token defines a graphical rectangle in a symbol definition in the format::

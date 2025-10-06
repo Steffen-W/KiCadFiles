@@ -10,14 +10,14 @@
 
 ```
 SExpressionBase (ABC)
-├── KiCadPrimitive (ABC)
-│   ├── KiCadStr
-│   ├── KiCadInt
-│   └── KiCadFloat
-├── OptionalFlagBase
-│   ├── OptionalFlag
-│   └── OptionalSimpleFlag
-└── KiCadObject (ABC)
+├── NamedValue (ABC)
+│   ├── NamedString
+│   ├── NamedInt
+│   └── NamedFloat
+├── TokenBase
+│   ├── TokenFlag
+│   └── SymbolValue
+└── NamedObject (ABC)
     └── [All KiCad file formats]
 ```
 
@@ -46,7 +46,7 @@ class SExpressionBase(ABC):
 
 ---
 
-### 2. KiCadPrimitive
+### 2. NamedValue
 
 **Purpose**: Wrapper for primitive KiCad values (strings, integers, floats) with optional token names.
 
@@ -54,7 +54,7 @@ class SExpressionBase(ABC):
 
 ```python
 @dataclass(eq=False)
-class KiCadPrimitive(SExpressionBase):
+class NamedValue(SExpressionBase):
     token: str = ""           # Token name (can be set per instance)
     value: Any = None         # The actual value
     base_type: ClassVar[type] # Type of value (str/int/float)
@@ -65,41 +65,41 @@ class KiCadPrimitive(SExpressionBase):
 **Named Format**: `(token_name value)`
 ```python
 # S-expression: (layer "F.Cu")
-layer = KiCadStr.from_sexpr(['layer', 'F.Cu'])
-# → KiCadStr(token='layer', value='F.Cu')
+layer = NamedString.from_sexpr(['layer', 'F.Cu'])
+# → NamedString(token='layer', value='F.Cu')
 ```
 
 **Positional Format**: `value`
 ```python
 # S-expression: 1.27
-size = KiCadFloat.from_sexpr(1.27)
-# → KiCadFloat(token='', value=1.27)
+size = NamedFloat.from_sexpr(1.27)
+# → NamedFloat(token='', value=1.27)
 ```
 
 #### Subclasses
 
 ```python
 # String values
-KiCadStr(token: str, value: str)
-# Example: KiCadStr('layer', 'F.Cu')
+NamedString(token: str, value: str)
+# Example: NamedString('layer', 'F.Cu')
 
 # Integer values
-KiCadInt(token: str, value: int)
-# Example: KiCadInt('width', 2)
+NamedInt(token: str, value: int)
+# Example: NamedInt('width', 2)
 
 # Float values
-KiCadFloat(token: str, value: float)
-# Example: KiCadFloat('size', 1.27)
+NamedFloat(token: str, value: float)
+# Example: NamedFloat('size', 1.27)
 ```
 
 #### Usage
 
 ```python
 # Create manually
-layer = KiCadStr(token='layer', value='F.Cu')
+layer = NamedString(token='layer', value='F.Cu')
 
 # Parse from S-expression
-layer = KiCadStr.from_sexpr(['layer', 'F.Cu'])
+layer = NamedString.from_sexpr(['layer', 'F.Cu'])
 
 # Serialize to S-expression
 sexpr = layer.to_sexpr()  # → ['layer', 'F.Cu']
@@ -111,7 +111,7 @@ if layer:  # True if value is not empty
 
 ---
 
-### 3. OptionalFlag
+### 3. TokenFlag
 
 **Purpose**: Represents optional flags with optional values.
 
@@ -119,7 +119,7 @@ if layer:  # True if value is not empty
 
 ```python
 @dataclass(eq=False)
-class OptionalFlag(OptionalFlagBase):
+class TokenFlag(TokenBase):
     token: str                    # Flag name
     token_value: Optional[str]    # Optional value
 ```
@@ -129,26 +129,26 @@ class OptionalFlag(OptionalFlagBase):
 **Flag only**: `(flag)`
 ```python
 # S-expression: (locked)
-flag = OptionalFlag.from_sexpr(['locked'])
-# → OptionalFlag(token='locked', token_value=None)
+flag = TokenFlag.from_sexpr(['locked'])
+# → TokenFlag(token='locked', token_value=None)
 ```
 
 **Flag with value**: `(flag value)`
 ```python
 # S-expression: (hide yes)
-flag = OptionalFlag.from_sexpr(['hide', 'yes'])
-# → OptionalFlag(token='hide', token_value='yes')
+flag = TokenFlag.from_sexpr(['hide', 'yes'])
+# → TokenFlag(token='hide', token_value='yes')
 ```
 
 #### Important Constraints
 
-`OptionalFlag` supports **only simple flags** with at most 2 elements:
+`TokenFlag` supports **only simple flags** with at most 2 elements:
 - ✅ `(token)` - 1 element
 - ✅ `(token value)` - 2 elements with simple value
 - ❌ `(token value1 value2)` - More than 2 elements → ERROR
 - ❌ `(token (nested list))` - Nested list → ERROR
 
-Nested S-expressions like `(fill (type none))` are **NOT** OptionalFlags and must use their own classes (e.g., `Fill`).
+Nested S-expressions like `(fill (type none))` are **NOT** TokenFlags and must use their own classes (e.g., `Fill`).
 
 #### Validation
 
@@ -156,12 +156,12 @@ In **STRICT mode**, invalid structures are rejected:
 
 ```python
 # ERROR: Too many elements
-OptionalFlag.from_sexpr(['at', '10', '20', '90'])
-# → ValueError: OptionalFlag 'at' has 4 elements, max 2 allowed
+TokenFlag.from_sexpr(['at', '10', '20', '90'])
+# → ValueError: TokenFlag 'at' has 4 elements, max 2 allowed
 
 # ERROR: Nested list
-OptionalFlag.from_sexpr(['fill', ['type', 'none']])
-# → ValueError: OptionalFlag 'fill' has nested list - use proper class instead
+TokenFlag.from_sexpr(['fill', ['type', 'none']])
+# → ValueError: TokenFlag 'fill' has nested list - use proper class instead
 ```
 
 In **FAILSAFE mode**, warnings are logged and parsing continues.
@@ -170,12 +170,12 @@ In **FAILSAFE mode**, warnings are logged and parsing continues.
 
 ```python
 # Create manually
-locked = OptionalFlag(token='locked', token_value=None)
-hide = OptionalFlag(token='hide', token_value='yes')
+locked = TokenFlag(token='locked', token_value=None)
+hide = TokenFlag(token='hide', token_value='yes')
 
 # Parse from S-expression
-locked = OptionalFlag.from_sexpr(['locked'])
-hide = OptionalFlag.from_sexpr(['hide', 'yes'])
+locked = TokenFlag.from_sexpr(['locked'])
+hide = TokenFlag.from_sexpr(['hide', 'yes'])
 
 # Serialize to S-expression
 locked.to_sexpr()  # → ['locked']
@@ -188,7 +188,7 @@ if hide:  # True if token_value in ('yes', 'true', '1') OR presence
 
 ---
 
-### 4. OptionalSimpleFlag
+### 4. SymbolValue
 
 **Purpose**: Simple symbol flags without values (e.g., `oval`, `locked`).
 
@@ -196,7 +196,7 @@ if hide:  # True if token_value in ('yes', 'true', '1') OR presence
 
 ```python
 @dataclass(eq=False)
-class OptionalSimpleFlag(OptionalFlagBase):
+class SymbolValue(TokenBase):
     token: str  # Symbol name
 ```
 
@@ -205,13 +205,13 @@ class OptionalSimpleFlag(OptionalFlagBase):
 **Symbol only**: `symbol`
 ```python
 # S-expression: oval
-flag = OptionalSimpleFlag.from_sexpr('oval')
-# → OptionalSimpleFlag(token='oval')
+flag = SymbolValue.from_sexpr('oval')
+# → SymbolValue(token='oval')
 ```
 
-#### Difference from OptionalFlag
+#### Difference from TokenFlag
 
-| Property | OptionalFlag | OptionalSimpleFlag |
+| Property | TokenFlag | SymbolValue |
 |----------|--------------|-------------------|
 | Format | `(token)` or `(token value)` | `symbol` (no parentheses!) |
 | Value | Optional | Never |
@@ -221,10 +221,10 @@ flag = OptionalSimpleFlag.from_sexpr('oval')
 
 ```python
 # Create manually
-oval = OptionalSimpleFlag(token='oval')
+oval = SymbolValue(token='oval')
 
 # Parse from S-expression
-oval = OptionalSimpleFlag.from_sexpr('oval')
+oval = SymbolValue.from_sexpr('oval')
 
 # Serialize to S-expression
 oval.to_sexpr()  # → 'oval'
@@ -236,7 +236,7 @@ if oval:  # Always True if instance exists
 
 ---
 
-### 5. KiCadObject
+### 5. NamedObject
 
 **Purpose**: Base class for all complex KiCad objects (PCBs, schematics, symbols, etc.).
 
@@ -244,7 +244,7 @@ if oval:  # Always True if instance exists
 
 ```python
 @dataclass
-class KiCadObject(SExpressionBase):
+class NamedObject(SExpressionBase):
     __token_name__: ClassVar[str] = ""  # Class-level token name
 
     # All fields are defined via dataclass fields
@@ -252,9 +252,9 @@ class KiCadObject(SExpressionBase):
 
 #### Parsing Mechanism
 
-KiCadObject implements a generic parser that:
+NamedObject implements a generic parser that:
 
-1. **Classifies fields** (KiCadPrimitive, KiCadObject, List, OptionalFlag, etc.)
+1. **Classifies fields** (NamedValue, NamedObject, List, TokenFlag, etc.)
 2. **Delegates** to subclasses via `from_sexpr()`
 3. **Handles errors** based on strictness level
 4. **Detects unused tokens** for validation
@@ -264,12 +264,12 @@ KiCadObject implements a generic parser that:
 ```python
 class FieldType(Enum):
     PRIMITIVE = "primitive"                    # int, str, float, bool, Enum
-    KICAD_PRIMITIVE = "kicad_primitive"        # KiCadStr, KiCadInt, KiCadFloat
+    KICAD_PRIMITIVE = "kicad_primitive"        # NamedString, NamedInt, NamedFloat
     OPTIONAL_KICAD_PRIMITIVE = "optional_kicad_primitive"
-    KICAD_OBJECT = "kicad_object"              # Nested KiCadObject
+    KICAD_OBJECT = "kicad_object"              # Nested NamedObject
     OPTIONAL_KICAD_OBJECT = "optional_kicad_object"
-    OPTIONAL_FLAG = "optional_flag"             # OptionalFlag
-    OPTIONAL_SIMPLE_FLAG = "optional_simple_flag"  # OptionalSimpleFlag
+    OPTIONAL_FLAG = "optional_flag"             # TokenFlag
+    OPTIONAL_SIMPLE_FLAG = "optional_simple_flag"  # SymbolValue
     LIST = "list"                              # List[...]
 ```
 
@@ -277,21 +277,21 @@ class FieldType(Enum):
 
 ```python
 @dataclass
-class MyKiCadObject(KiCadObject):
+class MyNamedObject(NamedObject):
     __token_name__: ClassVar[str] = "my_object"
 
     # Required fields
-    name: KiCadStr = field(default_factory=lambda: KiCadStr("name", ""))
+    name: NamedString = field(default_factory=lambda: NamedString("name", ""))
 
     # Optional fields
-    locked: Optional[OptionalFlag] = None
-    layer: Optional[KiCadStr] = None
+    locked: Optional[TokenFlag] = None
+    layer: Optional[NamedString] = None
 
     # Lists
     points: List[Point] = field(default_factory=list)
 
 # Parse
-obj = MyKiCadObject.from_sexpr(sexpr, ParseStrictness.STRICT)
+obj = MyNamedObject.from_sexpr(sexpr, ParseStrictness.STRICT)
 
 # Serialize
 sexpr = obj.to_sexpr()
@@ -387,23 +387,23 @@ class SExprParser:
 
 ```python
 @dataclass
-class MyClass(KiCadObject):
+class MyClass(NamedObject):
     # ✅ CORRECT: Optional with None default
-    locked: Optional[OptionalFlag] = None
-    layer: Optional[KiCadStr] = None
+    locked: Optional[TokenFlag] = None
+    layer: Optional[NamedString] = None
 
     # ❌ WRONG: Non-optional but None default
-    name: KiCadStr = None  # → Parse error if not found
+    name: NamedString = None  # → Parse error if not found
 
     # ✅ CORRECT: Required field with default factory
-    name: KiCadStr = field(default_factory=lambda: KiCadStr("name", ""))
+    name: NamedString = field(default_factory=lambda: NamedString("name", ""))
 ```
 
 ### 2. Initialize Lists
 
 ```python
 @dataclass
-class MyClass(KiCadObject):
+class MyClass(NamedObject):
     # ✅ CORRECT: default_factory for lists
     points: List[Point] = field(default_factory=list)
 
@@ -414,12 +414,12 @@ class MyClass(KiCadObject):
 ### 3. Use Nested Structures
 
 ```python
-# ❌ WRONG: OptionalFlag for complex structure
-fill: OptionalFlag  # (fill (type none)) → Nested!
+# ❌ WRONG: TokenFlag for complex structure
+fill: TokenFlag  # (fill (type none)) → Nested!
 
 # ✅ CORRECT: Own class for complex structure
 @dataclass
-class Fill(KiCadObject):
+class Fill(NamedObject):
     __token_name__: ClassVar[str] = "fill"
     type: Type = field(default_factory=lambda: Type("none"))
 
@@ -430,12 +430,12 @@ fill: Optional[Fill] = None
 
 ```python
 @dataclass
-class MyClass(KiCadObject):
+class MyClass(NamedObject):
     __token_name__: ClassVar[str] = "my_class"  # Class level
 
     # Field-level token names
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr("name", "")
+    name: NamedString = field(
+        default_factory=lambda: NamedString("name", "")
     )
 ```
 
@@ -447,13 +447,13 @@ class MyClass(KiCadObject):
 
 1. **`None` fields are skipped**:
    ```python
-   locked: Optional[OptionalFlag] = None
+   locked: Optional[TokenFlag] = None
    # to_sexpr() → locked is NOT serialized
    ```
 
 2. **Instances are always serialized** (even if "empty"):
    ```python
-   locked: OptionalFlag = OptionalFlag("locked", None)
+   locked: TokenFlag = TokenFlag("locked", None)
    # to_sexpr() → ["locked"] is serialized
    ```
 
@@ -465,7 +465,7 @@ class MyClass(KiCadObject):
 
 4. **Delegation to subclasses**:
    ```python
-   # KiCadObject delegates to to_sexpr() of all fields
+   # NamedObject delegates to to_sexpr() of all fields
    for field in fields:
        if isinstance(value, SExpressionBase):
            result.append(value.to_sexpr())
@@ -477,20 +477,20 @@ class MyClass(KiCadObject):
 
 ### Validation
 
-`OptionalFlag.from_sexpr()` validates structure:
+`TokenFlag.from_sexpr()` validates structure:
 
 ```python
 # STRICT mode: Throw error
 try:
-    flag = OptionalFlag.from_sexpr(['at', '10', '20', '90'],
+    flag = TokenFlag.from_sexpr(['at', '10', '20', '90'],
                                    ParseStrictness.STRICT, cursor)
 except ValueError as e:
-    print(e)  # OptionalFlag 'at' has 4 elements, max 2 allowed
+    print(e)  # TokenFlag 'at' has 4 elements, max 2 allowed
 
 # FAILSAFE mode: Log warning
-flag = OptionalFlag.from_sexpr(['at', '10', '20', '90'],
+flag = TokenFlag.from_sexpr(['at', '10', '20', '90'],
                                ParseStrictness.FAILSAFE, cursor)
-# WARNING: OptionalFlag 'at' has 4 elements, max 2 allowed
+# WARNING: TokenFlag 'at' has 4 elements, max 2 allowed
 ```
 
 ### Unused Tokens
@@ -513,10 +513,10 @@ The current implementation maintains **backward compatibility**:
 
 ```python
 # ✅ Works: token as instance variable
-layer = KiCadStr(token='layer', value='F.Cu')
+layer = NamedString(token='layer', value='F.Cu')
 
 # ✅ Works: __token_name__ as ClassVar
-class MyStr(KiCadStr):
+class MyStr(NamedString):
     __token_name__: ClassVar[str] = "my_token"
 ```
 
@@ -525,7 +525,7 @@ class MyStr(KiCadStr):
 Possible future refactorings (see `docs/refactoring/`):
 
 1. ~~Remove `__found__` attribute~~ (already removed)
-2. Consistent naming (OptionalFlag → KiCadFlag?)
+2. Consistent naming (TokenFlag → KiCadFlag?)
 3. Further parser optimizations
 4. Performance improvements
 
@@ -539,30 +539,30 @@ Possible future refactorings (see `docs/refactoring/`):
 from dataclasses import dataclass, field
 from typing import ClassVar, List, Optional
 from kicadfiles.base_element import (
-    KiCadObject, KiCadStr, KiCadInt, KiCadFloat,
-    OptionalFlag, ParseStrictness
+    NamedObject, NamedString, NamedInt, NamedFloat,
+    TokenFlag, ParseStrictness
 )
 
 @dataclass
-class CustomPad(KiCadObject):
+class CustomPad(NamedObject):
     """Custom pad definition."""
 
     __token_name__: ClassVar[str] = "custom_pad"
 
     # Required fields
-    number: KiCadStr = field(
-        default_factory=lambda: KiCadStr("number", "1")
+    number: NamedString = field(
+        default_factory=lambda: NamedString("number", "1")
     )
 
     # Optional primitives
-    layer: Optional[KiCadStr] = None
+    layer: Optional[NamedString] = None
 
     # Optional flags
-    locked: Optional[OptionalFlag] = None
+    locked: Optional[TokenFlag] = None
 
     # Numeric values
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 1.0)
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 1.0)
     )
 
     # Lists
@@ -573,7 +573,7 @@ pad = CustomPad.from_sexpr(sexpr, ParseStrictness.STRICT)
 print(f"Pad #{pad.number.value} on layer {pad.layer.value if pad.layer else 'any'}")
 
 # Modify
-pad.locked = OptionalFlag("locked", None)
+pad.locked = TokenFlag("locked", None)
 pad.width.value = 2.0
 
 # Serialize

@@ -5,7 +5,7 @@ S-expression tokens. Each class corresponds exactly to one S-expression token
 and follows a consistent structure for parsing and serialization.
 
 The classes are organized into logical modules based on dependencies:
-- base_element: Base KiCadObject class with simplified strictness modes
+- base_element: Base NamedObject class with simplified strictness modes
 - enums: Common enumeration types for type safety
 - base_types: Fundamental types with no dependencies (37 classes)
 - text_and_documents: Text and document elements (35 classes)
@@ -71,13 +71,13 @@ from .advanced_graphics import (
 
 # Base element
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
-    OptionalSimpleFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    SymbolValue,
+    TokenFlag,
 )
 
 # Base types
@@ -299,13 +299,13 @@ __all__ = [
     # Grid helpers
     "GRID",
     # Base
-    "KiCadFloat",
-    "KiCadInt",
-    "KiCadObject",
-    "KiCadStr",
+    "NamedFloat",
+    "NamedInt",
+    "NamedObject",
+    "NamedString",
     "ParseStrictness",
-    "OptionalFlag",
-    "OptionalSimpleFlag",
+    "TokenFlag",
+    "SymbolValue",
     # Enums
     "ClearanceType",
     "FillType",

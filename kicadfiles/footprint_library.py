@@ -5,19 +5,19 @@ from typing import ClassVar, List, Optional, Union
 
 from .advanced_graphics import FpArc, FpCircle, FpCurve, FpLine, FpPoly, FpRect, FpText
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    TokenFlag,
 )
 from .base_types import At, Layer, Property, Uuid, Xyz
 from .pad_and_drill import Pad
 
 
 @dataclass
-class FileData(KiCadObject):
+class FileData(NamedObject):
     """Data definition token for embedded files.
 
     The 'data' token defines base64 encoded file data in the format::
@@ -39,7 +39,7 @@ class FileData(KiCadObject):
 
 
 @dataclass
-class EmbeddedFile(KiCadObject):
+class EmbeddedFile(NamedObject):
     """Embedded file definition token.
 
     The 'file' token defines an embedded file in the format::
@@ -60,26 +60,26 @@ class EmbeddedFile(KiCadObject):
 
     __token_name__: ClassVar[str] = "file"
 
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr("name", ""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString("name", ""),
         metadata={"description": "File name token"},
     )
-    type: KiCadStr = field(
-        default_factory=lambda: KiCadStr("type", ""),
+    type: NamedString = field(
+        default_factory=lambda: NamedString("type", ""),
         metadata={"description": "File type token"},
     )
     data: Optional[FileData] = field(
         default=None,
         metadata={"description": "Base64 encoded file data token", "required": False},
     )
-    checksum: KiCadStr = field(
-        default_factory=lambda: KiCadStr("checksum", ""),
+    checksum: NamedString = field(
+        default_factory=lambda: NamedString("checksum", ""),
         metadata={"description": "File checksum token", "required": False},
     )
 
 
 @dataclass
-class EmbeddedFiles(KiCadObject):
+class EmbeddedFiles(NamedObject):
     """Embedded files container definition token.
 
     The 'embedded_files' token defines a container for embedded files in the format::
@@ -101,7 +101,7 @@ class EmbeddedFiles(KiCadObject):
 
 
 @dataclass
-class Attr(KiCadObject):
+class Attr(NamedObject):
     """Footprint attributes definition token.
 
     The 'attr' token defines footprint attributes in the format::
@@ -126,29 +126,29 @@ class Attr(KiCadObject):
     type: str = field(
         default="", metadata={"description": "Footprint type (smd | through_hole)"}
     )
-    board_only: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("board_only"),
+    board_only: TokenFlag = field(
+        default_factory=lambda: TokenFlag("board_only"),
         metadata={
             "description": "Whether footprint is only defined in board",
             "required": False,
         },
     )
-    exclude_from_pos_files: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_pos_files"),
+    exclude_from_pos_files: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_pos_files"),
         metadata={
             "description": "Whether to exclude from position files",
             "required": False,
         },
     )
-    exclude_from_bom: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_bom"),
+    exclude_from_bom: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_bom"),
         metadata={
             "description": "Whether to exclude from BOM files",
             "required": False,
         },
     )
-    allow_soldermask_bridges: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("allow_soldermask_bridges"),
+    allow_soldermask_bridges: TokenFlag = field(
+        default_factory=lambda: TokenFlag("allow_soldermask_bridges"),
         metadata={
             "description": "Whether to allow soldermask bridges",
             "required": False,
@@ -157,7 +157,7 @@ class Attr(KiCadObject):
 
 
 @dataclass
-class NetTiePadGroups(KiCadObject):
+class NetTiePadGroups(NamedObject):
     """Net tie pad groups definition token.
 
     The 'net_tie_pad_groups' token defines groups of pads that are connected in the format::
@@ -176,7 +176,7 @@ class NetTiePadGroups(KiCadObject):
 
 
 @dataclass
-class ModelAt(KiCadObject):
+class ModelAt(NamedObject):
     """3D model position definition token.
 
     The 'at' token for 3D models in the format:
@@ -195,7 +195,7 @@ class ModelAt(KiCadObject):
 
 
 @dataclass
-class ModelScale(KiCadObject):
+class ModelScale(NamedObject):
     """3D model scale definition token.
 
     The 'scale' token for 3D models in the format:
@@ -214,7 +214,7 @@ class ModelScale(KiCadObject):
 
 
 @dataclass
-class ModelRotate(KiCadObject):
+class ModelRotate(NamedObject):
     """3D model rotation definition token.
 
     The 'rotate' token for 3D models in the format:
@@ -233,7 +233,7 @@ class ModelRotate(KiCadObject):
 
 
 @dataclass
-class ModelOffset(KiCadObject):
+class ModelOffset(NamedObject):
     """3D model offset definition token.
 
     The 'offset' token for 3D models in the format:
@@ -252,7 +252,7 @@ class ModelOffset(KiCadObject):
 
 
 @dataclass
-class Model(KiCadObject):
+class Model(NamedObject):
     """3D model definition token for footprints.
 
     The 'model' token defines a 3D model associated with a footprint in the format::
@@ -303,14 +303,14 @@ class Model(KiCadObject):
         default=None,
         metadata={"description": "Model offset coordinates", "required": False},
     )
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Whether the 3D model is hidden", "required": False},
     )
 
 
 @dataclass
-class Footprint(KiCadObject):
+class Footprint(NamedObject):
     """Footprint definition token that defines a complete footprint.
 
     The 'footprint' token defines a footprint with all its elements in the format::
@@ -390,27 +390,27 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Link to footprint library", "required": False},
     )
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 0),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 0),
         metadata={"description": "File format version", "required": False},
     )
-    generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", ""),
+    generator: NamedString = field(
+        default_factory=lambda: NamedString("generator", ""),
         metadata={"description": "Generator application", "required": False},
     )
-    generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", ""),
+    generator_version: NamedString = field(
+        default_factory=lambda: NamedString("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
-    locked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("locked"),
+    locked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("locked"),
         metadata={
             "description": "Whether the footprint cannot be edited",
             "required": False,
         },
     )
-    placed: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("placed"),
+    placed: TokenFlag = field(
+        default_factory=lambda: TokenFlag("placed"),
         metadata={
             "description": "Whether the footprint has been placed",
             "required": False,
@@ -420,8 +420,8 @@ class Footprint(KiCadObject):
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the footprint is placed on"},
     )
-    tedit: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tedit", "0"),
+    tedit: NamedString = field(
+        default_factory=lambda: NamedString("tedit", "0"),
         metadata={"description": "Last edit timestamp", "required": False},
     )
     uuid: Optional[Uuid] = field(
@@ -438,12 +438,12 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    descr: KiCadStr = field(
-        default_factory=lambda: KiCadStr("descr", ""),
+    descr: NamedString = field(
+        default_factory=lambda: NamedString("descr", ""),
         metadata={"description": "Description of the footprint", "required": False},
     )
-    tags: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tags", ""),
+    tags: NamedString = field(
+        default_factory=lambda: NamedString("tags", ""),
         metadata={"description": "Search tags for the footprint", "required": False},
     )
     properties: Optional[List[Property]] = field(
@@ -457,12 +457,12 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    sheetname: KiCadStr = field(
-        default_factory=lambda: KiCadStr("sheetname", ""),
+    sheetname: NamedString = field(
+        default_factory=lambda: NamedString("sheetname", ""),
         metadata={"description": "Schematic sheet name", "required": False},
     )
-    sheetfile: KiCadStr = field(
-        default_factory=lambda: KiCadStr("sheetfile", ""),
+    sheetfile: NamedString = field(
+        default_factory=lambda: NamedString("sheetfile", ""),
         metadata={"description": "Schematic sheet file", "required": False},
     )
     attr: Optional[Attr] = field(
@@ -491,8 +491,8 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "Solder paste distance from pads", "required": False},
     )
-    solder_paste_margin_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("solder_paste_margin_ratio", 0.0),
+    solder_paste_margin_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("solder_paste_margin_ratio", 0.0),
         metadata={"description": "Solder paste margin ratio", "required": False},
     )
     solder_paste_ratio: Optional[float] = field(
@@ -502,8 +502,8 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    clearance: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("clearance", 0.0),
+    clearance: NamedFloat = field(
+        default_factory=lambda: NamedFloat("clearance", 0.0),
         metadata={
             "description": "Clearance to board copper objects",
             "required": False,
@@ -513,12 +513,12 @@ class Footprint(KiCadObject):
         default=None,
         metadata={"description": "How pads connect to filled zones", "required": False},
     )
-    thermal_width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_width", 0.0),
+    thermal_width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thermal_width", 0.0),
         metadata={"description": "Thermal relief spoke width", "required": False},
     )
-    thermal_gap: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thermal_gap", 0.0),
+    thermal_gap: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thermal_gap", 0.0),
         metadata={
             "description": "Distance from pad to zone for thermal relief",
             "required": False,
@@ -548,8 +548,8 @@ class Footprint(KiCadObject):
             "required": False,
         },
     )
-    embedded_fonts: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("embedded_fonts"),
+    embedded_fonts: TokenFlag = field(
+        default_factory=lambda: TokenFlag("embedded_fonts"),
         metadata={"description": "Embedded fonts settings", "required": False},
     )
     embedded_files: Optional[EmbeddedFiles] = field(
@@ -586,7 +586,7 @@ class Footprint(KiCadObject):
 
 
 @dataclass
-class Footprints(KiCadObject):
+class Footprints(NamedObject):
     """Footprints container token.
 
     The 'footprints' token defines a container for multiple footprints in the format::

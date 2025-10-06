@@ -3,13 +3,13 @@
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional
 
-from .base_element import KiCadFloat, KiCadObject, KiCadStr, OptionalFlag, UnquotedToken
+from .base_element import NamedFloat, NamedObject, NamedString, TokenFlag, UnquotedToken
 from .enums import PadShape, StrokeType
 from .sexpr_parser import SExpr
 
 
 @dataclass
-class Anchor(KiCadObject):
+class Anchor(NamedObject):
     """Anchor pad shape definition for custom pads.
 
     The 'anchor' token defines the anchor pad shape of a custom pad in the format::
@@ -29,7 +29,7 @@ class Anchor(KiCadObject):
 
 
 @dataclass
-class Xy(KiCadObject):
+class Xy(NamedObject):
     """2D coordinate definition token.
 
     The 'xy' token defines a 2D coordinate point in the format:
@@ -47,7 +47,7 @@ class Xy(KiCadObject):
 
 
 @dataclass
-class Xyz(KiCadObject):
+class Xyz(NamedObject):
     """3D coordinate definition token.
 
     The 'xyz' token defines 3D coordinates in the format:
@@ -67,7 +67,7 @@ class Xyz(KiCadObject):
 
 
 @dataclass
-class Pts(KiCadObject):
+class Pts(NamedObject):
     """Coordinate point list definition token.
 
     The 'pts' token defines a list of coordinate points in the format:
@@ -105,7 +105,7 @@ class Pts(KiCadObject):
 
 
 @dataclass
-class AtXY(KiCadObject):
+class AtXY(NamedObject):
     """Position identifier token for elements that only use X and Y coordinates.
 
     The 'at' token defines positional coordinates in the format:
@@ -144,7 +144,7 @@ class AtXY(KiCadObject):
 
 
 @dataclass
-class At(KiCadObject):
+class At(NamedObject):
     """Position identifier token that defines positional coordinates and rotation of an object.
 
     The 'at' token defines the positional coordinates in the format:
@@ -176,7 +176,7 @@ class At(KiCadObject):
 
 
 @dataclass
-class Center(KiCadObject):
+class Center(NamedObject):
     """Center point definition token.
 
     The 'center' token defines a center point in the format::
@@ -199,7 +199,7 @@ class Center(KiCadObject):
 
 
 @dataclass
-class Color(KiCadObject):
+class Color(NamedObject):
     """Color definition token.
 
     The 'color' token defines color values in the format::
@@ -222,7 +222,7 @@ class Color(KiCadObject):
 
 
 @dataclass
-class End(KiCadObject):
+class End(NamedObject):
     """End point definition token.
 
     The 'end' token defines an end point in the format::
@@ -249,7 +249,7 @@ class End(KiCadObject):
 
 
 @dataclass
-class Mid(KiCadObject):
+class Mid(NamedObject):
     """Mid point definition token.
 
     The 'mid' token defines a mid point in the format::
@@ -272,7 +272,7 @@ class Mid(KiCadObject):
 
 
 @dataclass
-class Type(KiCadObject):
+class Type(NamedObject):
     """Type definition token.
 
     The 'type' token defines a type value in the format:
@@ -292,7 +292,7 @@ class Type(KiCadObject):
 
 
 @dataclass
-class Fill(KiCadObject):
+class Fill(NamedObject):
     """Fill definition token.
 
     The 'fill' token defines how schematic and symbol library graphical items are filled in the format:
@@ -321,7 +321,7 @@ class Fill(KiCadObject):
 
 
 @dataclass
-class Layer(KiCadObject):
+class Layer(NamedObject):
     """Layer definition token.
 
     The 'layer' token defines layer information in the format::
@@ -378,7 +378,7 @@ class Layer(KiCadObject):
 
 
 @dataclass
-class Offset(KiCadObject):
+class Offset(NamedObject):
     """Offset definition token.
 
     The 'offset' token defines an offset position in the format:
@@ -400,7 +400,7 @@ class Offset(KiCadObject):
 
 
 @dataclass
-class Pos(KiCadObject):
+class Pos(NamedObject):
     """Position definition token.
 
     The 'pos' token defines a position in the format:
@@ -426,7 +426,7 @@ class Pos(KiCadObject):
 
 
 @dataclass
-class Size(KiCadObject):
+class Size(NamedObject):
     """Size definition token.
 
     The 'size' token defines width and height dimensions in the format:
@@ -444,7 +444,7 @@ class Size(KiCadObject):
 
 
 @dataclass
-class Start(KiCadObject):
+class Start(NamedObject):
     """Start point definition token.
 
     The 'start' token defines a start point in the format:
@@ -470,7 +470,7 @@ class Start(KiCadObject):
 
 
 @dataclass
-class Stroke(KiCadObject):
+class Stroke(NamedObject):
     """Stroke definition token.
 
     The 'stroke' token defines how the outlines of graphical objects are drawn in the format:
@@ -490,8 +490,8 @@ class Stroke(KiCadObject):
 
     __token_name__: ClassVar[str] = "stroke"
 
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width specification"},
     )
     type: Type = field(
@@ -505,7 +505,7 @@ class Stroke(KiCadObject):
 
 
 @dataclass
-class Uuid(KiCadObject):
+class Uuid(NamedObject):
     """UUID identifier token.
 
     The 'uuid' token defines a universally unique identifier in the format:
@@ -543,7 +543,7 @@ class Uuid(KiCadObject):
 
 
 @dataclass
-class Font(KiCadObject):
+class Font(NamedObject):
     """Font definition token.
 
     The 'font' token defines font properties in the format:
@@ -560,24 +560,24 @@ class Font(KiCadObject):
 
     __token_name__: ClassVar[str] = "font"
 
-    face: KiCadStr = field(
-        default_factory=lambda: KiCadStr("face", ""),
+    face: NamedString = field(
+        default_factory=lambda: NamedString("face", ""),
         metadata={"description": "Font face specification", "required": False},
     )
     size: Optional[Size] = field(
         default_factory=lambda: Size(1.27, 1.27),
         metadata={"description": "Font size", "required": False},
     )
-    thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thickness", 0.0),
+    thickness: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thickness", 0.0),
         metadata={"description": "Font thickness", "required": False},
     )
-    bold: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("bold"),
+    bold: TokenFlag = field(
+        default_factory=lambda: TokenFlag("bold"),
         metadata={"description": "Bold flag", "required": False},
     )
-    italic: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("italic"),
+    italic: TokenFlag = field(
+        default_factory=lambda: TokenFlag("italic"),
         metadata={"description": "Italic flag", "required": False},
     )
     color: Optional[Color] = field(
@@ -587,7 +587,7 @@ class Font(KiCadObject):
 
 
 @dataclass
-class Justify(KiCadObject):
+class Justify(NamedObject):
     """Text justification definition token.
 
     The 'justify' token defines text alignment and mirroring in the format::
@@ -606,15 +606,15 @@ class Justify(KiCadObject):
     __token_name__: ClassVar[str] = "justify"
 
     # Horizontal justification flags
-    left: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("left"),
+    left: TokenFlag = field(
+        default_factory=lambda: TokenFlag("left"),
         metadata={
             "description": "Left horizontal justification flag",
             "required": False,
         },
     )
-    right: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("right"),
+    right: TokenFlag = field(
+        default_factory=lambda: TokenFlag("right"),
         metadata={
             "description": "Right horizontal justification flag",
             "required": False,
@@ -622,12 +622,12 @@ class Justify(KiCadObject):
     )
 
     # Vertical justification flags
-    top: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("top"),
+    top: TokenFlag = field(
+        default_factory=lambda: TokenFlag("top"),
         metadata={"description": "Top vertical justification flag", "required": False},
     )
-    bottom: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("bottom"),
+    bottom: TokenFlag = field(
+        default_factory=lambda: TokenFlag("bottom"),
         metadata={
             "description": "Bottom vertical justification flag",
             "required": False,
@@ -635,8 +635,8 @@ class Justify(KiCadObject):
     )
 
     # Center can be horizontal or vertical - ambiguous in S-expression
-    center: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("center"),
+    center: TokenFlag = field(
+        default_factory=lambda: TokenFlag("center"),
         metadata={
             "description": "Center justification flag (horizontal or vertical)",
             "required": False,
@@ -644,14 +644,14 @@ class Justify(KiCadObject):
     )
 
     # Mirror flag
-    mirror: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("mirror"),
+    mirror: TokenFlag = field(
+        default_factory=lambda: TokenFlag("mirror"),
         metadata={"description": "Mirror text flag", "required": False},
     )
 
 
 @dataclass
-class Effects(KiCadObject):
+class Effects(NamedObject):
     """Text effects definition token.
 
     The 'effects' token defines text formatting effects in the format::
@@ -678,18 +678,18 @@ class Effects(KiCadObject):
         default=None,
         metadata={"description": "Text justification", "required": False},
     )
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Whether text is hidden", "required": False},
     )
-    href: KiCadStr = field(
-        default_factory=lambda: KiCadStr("href", ""),
+    href: NamedString = field(
+        default_factory=lambda: NamedString("href", ""),
         metadata={"description": "Hyperlink reference", "required": False},
     )
 
 
 @dataclass
-class Text(KiCadObject):
+class Text(NamedObject):
     """Text content definition token.
 
     The 'text' token defines text content in the format:
@@ -716,8 +716,8 @@ class Text(KiCadObject):
     effects: Optional[Effects] = field(
         default=None, metadata={"description": "Text effects", "required": False}
     )
-    exclude_from_sim: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+    exclude_from_sim: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_sim"),
         metadata={
             "description": "Whether to exclude from simulation",
             "required": False,
@@ -730,7 +730,7 @@ class Text(KiCadObject):
 
 
 @dataclass
-class Property(KiCadObject):
+class Property(NamedObject):
     """Property definition token.
 
     The 'property' token defines properties in two formats:
@@ -765,8 +765,8 @@ class Property(KiCadObject):
         default="", metadata={"description": "Property key name (must be unique)"}
     )
     value: str = field(default="", metadata={"description": "Property value"})
-    id: KiCadStr = field(
-        default_factory=lambda: KiCadStr("id", ""),
+    id: NamedString = field(
+        default_factory=lambda: NamedString("id", ""),
         metadata={"description": "Property ID", "required": False},
     )
     at: Optional[At] = field(
@@ -776,8 +776,8 @@ class Property(KiCadObject):
     effects: Optional[Effects] = field(
         default=None, metadata={"description": "Text effects", "required": False}
     )
-    unlocked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("unlocked"),
+    unlocked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("unlocked"),
         metadata={"description": "Whether property is unlocked", "required": False},
     )
     layer: Optional[Layer] = field(
@@ -786,8 +786,8 @@ class Property(KiCadObject):
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
     )
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Hide property flag", "required": False},
     )
 
@@ -841,7 +841,7 @@ class LayerDefinition:
 
 
 @dataclass
-class BoardLayers(KiCadObject):
+class BoardLayers(NamedObject):
     """Board layer definitions for kicad_pcb files.
 
     Stores layer definitions as raw lists::
@@ -872,7 +872,7 @@ class BoardLayers(KiCadObject):
 
 
 @dataclass
-class Layers(KiCadObject):
+class Layers(NamedObject):
     """Layer list definition token.
 
     The 'layers' token defines a list of layer names in the format::

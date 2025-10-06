@@ -12,16 +12,16 @@ import copy
 
 from kicadfiles import (
     At,
-    KiCadInt,
     KicadSch,
-    KiCadStr,
     KicadSymbolLib,
     LibSymbols,
+    NamedInt,
+    NamedString,
     Property,
     Symbol,
     Uuid,
 )
-from kicadfiles.base_element import OptionalFlag
+from kicadfiles.base_element import TokenFlag
 from kicadfiles.schematic_system import PinRef, SchematicSymbol
 
 
@@ -78,9 +78,9 @@ def create_schematic_with_symbols() -> None:
     from kicadfiles.schematic_system import Paper
 
     schematic = KicadSch(
-        version=KiCadInt("version", 20250114),
-        generator=KiCadStr("generator", "kicadfiles"),
-        generator_version=KiCadStr("generator_version", "1.0"),
+        version=NamedInt("version", 20250114),
+        generator=NamedString("generator", "kicadfiles"),
+        generator_version=NamedString("generator_version", "1.0"),
         uuid=Uuid.create(),
         paper=Paper(size="A4"),
     )
@@ -188,14 +188,14 @@ def create_symbol_instance(
         SchematicSymbol object
     """
     instance = SchematicSymbol(
-        lib_id=KiCadStr("lib_id", lib_id),
+        lib_id=NamedString("lib_id", lib_id),
         at=At(x=position[0], y=position[1], angle=angle),
-        unit=KiCadInt("unit", 1),
-        exclude_from_sim=OptionalFlag("exclude_from_sim", "no"),
-        in_bom=OptionalFlag("in_bom", "yes"),
-        on_board=OptionalFlag("on_board", "yes"),
-        dnp=OptionalFlag("dnp", "no"),
-        fields_autoplaced=OptionalFlag("fields_autoplaced", "yes"),
+        unit=NamedInt("unit", 1),
+        exclude_from_sim=TokenFlag("exclude_from_sim", "no"),
+        in_bom=TokenFlag("in_bom", "yes"),
+        on_board=TokenFlag("on_board", "yes"),
+        dnp=TokenFlag("dnp", "no"),
+        fields_autoplaced=TokenFlag("fields_autoplaced", "yes"),
         uuid=Uuid.create(),
     )
 

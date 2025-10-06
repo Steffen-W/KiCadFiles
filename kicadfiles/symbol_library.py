@@ -4,12 +4,12 @@ from dataclasses import dataclass, field
 from typing import Any, ClassVar, List, Optional, Union
 
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    TokenFlag,
 )
 from .base_types import At, Effects, Property, Text
 from .enums import PinElectricalType, PinGraphicStyle
@@ -17,7 +17,7 @@ from .primitive_graphics import Arc, Bezier, Circle, Line, Polygon, Polyline, Re
 
 
 @dataclass
-class Instances(KiCadObject):
+class Instances(NamedObject):
     """Symbol instances definition token.
 
     The 'instances' token defines symbol instances in a schematic in the format::
@@ -40,7 +40,7 @@ class Instances(KiCadObject):
 
 
 @dataclass
-class PinName(KiCadObject):
+class PinName(NamedObject):
     """Pin name definition token.
 
     The 'name' token defines a pin name with text effects in the format::
@@ -61,7 +61,7 @@ class PinName(KiCadObject):
 
 
 @dataclass
-class Number(KiCadObject):
+class Number(NamedObject):
     """Pin number definition token.
 
     The 'number' token defines a pin number with text effects in the format::
@@ -82,7 +82,7 @@ class Number(KiCadObject):
 
 
 @dataclass
-class Pin(KiCadObject):
+class Pin(NamedObject):
     """Symbol pin definition token.
 
     The 'pin' token defines a symbol pin in the format::
@@ -118,8 +118,8 @@ class Pin(KiCadObject):
     at: At = field(
         default_factory=lambda: At(), metadata={"description": "Position and rotation"}
     )
-    length: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("length", 2.54),
+    length: NamedFloat = field(
+        default_factory=lambda: NamedFloat("length", 2.54),
         metadata={"description": "Pin length"},
     )
     name: Optional[PinName] = field(
@@ -128,14 +128,14 @@ class Pin(KiCadObject):
     number: Optional[Number] = field(
         default=None, metadata={"description": "Pin number", "required": False}
     )
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Whether pin is hidden", "required": False},
     )
 
 
 @dataclass
-class PinNames(KiCadObject):
+class PinNames(NamedObject):
     """Pin names attributes definition token.
 
     The 'pin_names' token defines attributes for all pin names of a symbol in the format::
@@ -152,14 +152,14 @@ class PinNames(KiCadObject):
     offset: Optional[float] = field(
         default=None, metadata={"description": "Pin name offset", "required": False}
     )
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Whether pin names are hidden", "required": False},
     )
 
 
 @dataclass
-class PinNumbers(KiCadObject):
+class PinNumbers(NamedObject):
     """Pin numbers visibility definition token.
 
     The 'pin_numbers' token defines visibility of pin numbers for a symbol in the format::
@@ -172,14 +172,14 @@ class PinNumbers(KiCadObject):
 
     __token_name__: ClassVar[str] = "pin_numbers"
 
-    hide: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hide"),
+    hide: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hide"),
         metadata={"description": "Whether pin numbers are hidden", "required": False},
     )
 
 
 @dataclass
-class Pintype(KiCadObject):
+class Pintype(NamedObject):
     """Pin type definition token.
 
     The 'pintype' token defines the electrical type for a pin in the format::
@@ -202,7 +202,7 @@ class Pintype(KiCadObject):
 
 
 @dataclass
-class Symbol(KiCadObject):
+class Symbol(NamedObject):
     """Symbol definition token.
 
     The 'symbol' token defines a complete schematic symbol in the format::
@@ -258,26 +258,26 @@ class Symbol(KiCadObject):
         default=None,
         metadata={"description": "Pin names attributes", "required": False},
     )
-    in_bom: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("in_bom"),
+    in_bom: TokenFlag = field(
+        default_factory=lambda: TokenFlag("in_bom"),
         metadata={"description": "Whether symbol appears in BOM", "required": False},
     )
-    on_board: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("on_board"),
+    on_board: TokenFlag = field(
+        default_factory=lambda: TokenFlag("on_board"),
         metadata={
             "description": "Whether symbol is exported to PCB (yes/no)",
             "required": False,
         },
     )
-    exclude_from_sim: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("exclude_from_sim"),
+    exclude_from_sim: TokenFlag = field(
+        default_factory=lambda: TokenFlag("exclude_from_sim"),
         metadata={
             "description": "Whether symbol is excluded from simulation",
             "required": False,
         },
     )
-    power: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("power"),
+    power: TokenFlag = field(
+        default_factory=lambda: TokenFlag("power"),
         metadata={
             "description": "Whether symbol is a power symbol",
             "required": False,
@@ -309,8 +309,8 @@ class Symbol(KiCadObject):
         default=None,
         metadata={"description": "Display name for subunits", "required": False},
     )
-    embedded_fonts: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("embedded_fonts"),
+    embedded_fonts: TokenFlag = field(
+        default_factory=lambda: TokenFlag("embedded_fonts"),
         metadata={
             "description": "Whether embedded fonts are used",
             "required": False,
@@ -319,7 +319,7 @@ class Symbol(KiCadObject):
 
 
 @dataclass
-class LibSymbols(KiCadObject):
+class LibSymbols(NamedObject):
     """Library symbols container token.
 
     The 'lib_symbols' token defines a symbol library containing all symbols used in the schematic in the format::
@@ -340,7 +340,7 @@ class LibSymbols(KiCadObject):
 
 
 @dataclass
-class KicadSymbolLib(KiCadObject):
+class KicadSymbolLib(NamedObject):
     """KiCad symbol library file definition.
 
     The 'kicad_symbol_lib' token defines a complete symbol library file in the format::
@@ -360,16 +360,16 @@ class KicadSymbolLib(KiCadObject):
 
     __token_name__: ClassVar[str] = "kicad_symbol_lib"
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 20240101),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", ""),
+    generator: NamedString = field(
+        default_factory=lambda: NamedString("generator", ""),
         metadata={"description": "Generator application name"},
     )
-    generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", ""),
+    generator_version: NamedString = field(
+        default_factory=lambda: NamedString("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
     symbols: Optional[List[Symbol]] = field(

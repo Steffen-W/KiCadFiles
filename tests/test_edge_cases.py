@@ -9,9 +9,9 @@ from kicadfiles import (
     Effects,
     Font,
     FpLibTable,
-    KiCadFloat,
     Layer,
     LibraryEntry,
+    NamedFloat,
     ParseStrictness,
     Size,
     Stroke,
@@ -35,8 +35,8 @@ def test_eq_edge_cases():
     assert at1 != at3
     print("✅ Test 2: Different primitive values are not equal")
 
-    # Test 3: Different types (not KiCadObject) - explicitly call __eq__
-    # Note: __eq__ returns NotImplemented for non-KiCadObjects, which is correct
+    # Test 3: Different types (not NamedObject) - explicitly call __eq__
+    # Note: __eq__ returns NotImplemented for non-NamedObjects, which is correct
     # The != operator handles this properly
     assert at1 != "not_a_kicad_object"
     assert at1 != 42
@@ -48,19 +48,19 @@ def test_eq_edge_cases():
     eq_result = at1.__eq__("not_a_kicad_object")
     print(f"    __eq__ with string returns: {eq_result}")
     # Accept either False or NotImplemented as both are valid Python behavior
-    print("✅ Test 3: KiCadObject != non-KiCadObject")
+    print("✅ Test 3: NamedObject != non-NamedObject")
 
-    # Test 4: Different KiCadObject classes - explicitly call __eq__
+    # Test 4: Different NamedObject classes - explicitly call __eq__
     layer = Layer(name="F.Cu")
     # Note: dataclass __eq__ returns NotImplemented for different classes
     # assert at1.__eq__(layer) == False  # This returns NotImplemented due to dataclass
     assert at1 != layer  # This works because != handles NotImplemented properly
-    print("✅ Test 4: Different KiCadObject classes are not equal")
+    print("✅ Test 4: Different NamedObject classes are not equal")
 
     # Test 5: Objects with None vs non-None fields - explicitly call __eq__
     font1 = Font(size=Size(width=1.0, height=1.0))
     font2 = Font(
-        size=Size(width=1.0, height=1.0), thickness=KiCadFloat("thickness", 0.1)
+        size=Size(width=1.0, height=1.0), thickness=NamedFloat("thickness", 0.1)
     )  # has optional thickness
     assert font1.__eq__(font2) == False
     assert font1 != font2
@@ -73,7 +73,7 @@ def test_eq_edge_cases():
     assert font3 == font4
     print("✅ Test 6: Both None optional fields are equal")
 
-    # Test 7: Test with nested KiCadObjects - explicitly call __eq__
+    # Test 7: Test with nested NamedObjects - explicitly call __eq__
     effects1 = Effects(font=Font(size=Size(width=1.0, height=1.0)))
     effects2 = Effects(font=Font(size=Size(width=1.0, height=1.0)))
     effects3 = Effects(font=Font(size=Size(width=2.0, height=1.0)))  # Different nested
@@ -82,7 +82,7 @@ def test_eq_edge_cases():
     assert effects1.__eq__(effects3) == False
     assert effects1 == effects2
     assert effects1 != effects3
-    print("✅ Test 7: Nested KiCadObject comparison")
+    print("✅ Test 7: Nested NamedObject comparison")
 
     # Test 8: Edge case with type checking using Size (simpler than At)
     size1 = Size(width=10.0, height=20.0)
@@ -226,16 +226,16 @@ def test_complex_nested_equality():
     print("\n=== TESTING COMPLEX NESTED EQUALITY ===")
 
     # Create complex nested structures
-    stroke1 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
-    stroke2 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
-    stroke3 = Stroke(width=KiCadFloat("width", 0.20), type="solid")  # Different width
+    stroke1 = Stroke(width=NamedFloat("width", 0.15), type="solid")
+    stroke2 = Stroke(width=NamedFloat("width", 0.15), type="solid")
+    stroke3 = Stroke(width=NamedFloat("width", 0.20), type="solid")  # Different width
 
     assert stroke1 == stroke2
     assert stroke1 != stroke3
     print("✅ Complex nested object equality works")
 
     # Test with None nested objects
-    stroke4 = Stroke(width=KiCadFloat("width", 0.15), type="solid")
+    stroke4 = Stroke(width=NamedFloat("width", 0.15), type="solid")
     # Assuming Stroke has optional color field
     assert stroke1 == stroke4  # Both should have None for optional fields
     print("✅ Objects with None optional nested fields are equal")

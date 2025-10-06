@@ -60,6 +60,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed base classes for better clarity and consistency:
+  - `KiCadPrimitive` → `NamedValue`
+  - `KiCadObject` → `NamedObject`
+  - `KiCadStr` → `NamedString`
+  - `KiCadInt` → `NamedInt`
+  - `KiCadFloat` → `NamedFloat`
+  - `OptionalFlag` → `TokenFlag`
+  - `OptionalSimpleFlag` → `SymbolValue`
+  - `OptionalFlagBase` → `TokenBase`
+
 ### Planned
 
 - Extended test suite

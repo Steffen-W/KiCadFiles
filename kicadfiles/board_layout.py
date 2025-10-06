@@ -5,12 +5,12 @@ from typing import Any, ClassVar, List, Optional, Union
 
 from .advanced_graphics import GrArc, GrLine, GrPoly, GrText
 from .base_element import (
-    KiCadFloat,
-    KiCadInt,
-    KiCadObject,
-    KiCadStr,
-    OptionalFlag,
+    NamedFloat,
+    NamedInt,
+    NamedObject,
+    NamedString,
     ParseStrictness,
+    TokenFlag,
 )
 from .base_types import (
     At,
@@ -30,7 +30,7 @@ from .zone_system import Zone
 
 
 @dataclass
-class Nets(KiCadObject):
+class Nets(NamedObject):
     """Nets section definition token.
 
     The 'nets' token defines nets for the board in the format::
@@ -53,7 +53,7 @@ class Nets(KiCadObject):
 
 
 @dataclass
-class PrivateLayers(KiCadObject):
+class PrivateLayers(NamedObject):
     """Private layers definition token.
 
     The 'private_layers' token defines layers private to specific elements in the format::
@@ -72,7 +72,7 @@ class PrivateLayers(KiCadObject):
 
 
 @dataclass
-class Segment(KiCadObject):
+class Segment(NamedObject):
     """Track segment definition token.
 
     The 'segment' token defines a track segment in the format::
@@ -108,27 +108,27 @@ class Segment(KiCadObject):
         default_factory=lambda: End(),
         metadata={"description": "Coordinates of the end of the line"},
     )
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width"},
     )
     layer: Layer = field(
         default_factory=lambda: Layer(),
         metadata={"description": "Layer the track segment resides on"},
     )
-    locked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("locked"),
+    locked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
         },
     )
-    net: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="net", value=0),
+    net: NamedInt = field(
+        default_factory=lambda: NamedInt(token="net", value=0),
         metadata={"description": "Net ordinal number from net section"},
     )
-    tstamp: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tstamp", ""),
+    tstamp: NamedString = field(
+        default_factory=lambda: NamedString("tstamp", ""),
         metadata={
             "description": "Unique identifier of the line object",
             "required": False,
@@ -140,7 +140,7 @@ class Segment(KiCadObject):
 
 
 @dataclass
-class Tenting(KiCadObject):
+class Tenting(NamedObject):
     """Tenting configuration for front/back sides.
 
     Args:
@@ -155,7 +155,7 @@ class Tenting(KiCadObject):
 
 
 @dataclass
-class PcbPlotParams(KiCadObject):
+class PcbPlotParams(NamedObject):
     """PCB plot parameters - stores all plotting settings.
 
     Args:
@@ -201,172 +201,172 @@ class PcbPlotParams(KiCadObject):
 
     __token_name__: ClassVar[str] = "pcbplotparams"
 
-    layerselection: KiCadStr = field(
-        default_factory=lambda: KiCadStr(
+    layerselection: NamedString = field(
+        default_factory=lambda: NamedString(
             "layerselection", "0x00000000_00000000_55555555_5755f5ff"
         ),
         metadata={"description": "Layer selection hex mask", "required": False},
     )
-    plot_on_all_layers_selection: KiCadStr = field(
-        default_factory=lambda: KiCadStr(
+    plot_on_all_layers_selection: NamedString = field(
+        default_factory=lambda: NamedString(
             "plot_on_all_layers_selection", "0x00000000_00000000_00000000_00000000"
         ),
         metadata={"description": "Plot on all layers selection", "required": False},
     )
-    disableapertmacros: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("disableapertmacros", "no"),
+    disableapertmacros: TokenFlag = field(
+        default_factory=lambda: TokenFlag("disableapertmacros", "no"),
         metadata={"description": "Disable aperture macros", "required": False},
     )
-    usegerberextensions: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("usegerberextensions", "no"),
+    usegerberextensions: TokenFlag = field(
+        default_factory=lambda: TokenFlag("usegerberextensions", "no"),
         metadata={"description": "Use gerber extensions", "required": False},
     )
-    usegerberattributes: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("usegerberattributes", "yes"),
+    usegerberattributes: TokenFlag = field(
+        default_factory=lambda: TokenFlag("usegerberattributes", "yes"),
         metadata={"description": "Use gerber attributes", "required": False},
     )
-    usegerberadvancedattributes: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("usegerberadvancedattributes", "yes"),
+    usegerberadvancedattributes: TokenFlag = field(
+        default_factory=lambda: TokenFlag("usegerberadvancedattributes", "yes"),
         metadata={"description": "Use gerber advanced attributes", "required": False},
     )
-    creategerberjobfile: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("creategerberjobfile", "yes"),
+    creategerberjobfile: TokenFlag = field(
+        default_factory=lambda: TokenFlag("creategerberjobfile", "yes"),
         metadata={"description": "Create gerber job file", "required": False},
     )
-    dashed_line_dash_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("dashed_line_dash_ratio", 12.0),
+    dashed_line_dash_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("dashed_line_dash_ratio", 12.0),
         metadata={"description": "Dashed line dash ratio", "required": False},
     )
-    dashed_line_gap_ratio: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("dashed_line_gap_ratio", 3.0),
+    dashed_line_gap_ratio: NamedFloat = field(
+        default_factory=lambda: NamedFloat("dashed_line_gap_ratio", 3.0),
         metadata={"description": "Dashed line gap ratio", "required": False},
     )
-    svgprecision: KiCadInt = field(
-        default_factory=lambda: KiCadInt("svgprecision", 4),
+    svgprecision: NamedInt = field(
+        default_factory=lambda: NamedInt("svgprecision", 4),
         metadata={"description": "SVG precision", "required": False},
     )
-    plotframeref: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("plotframeref", "no"),
+    plotframeref: TokenFlag = field(
+        default_factory=lambda: TokenFlag("plotframeref", "no"),
         metadata={"description": "Plot frame reference", "required": False},
     )
-    mode: KiCadInt = field(
-        default_factory=lambda: KiCadInt("mode", 1),
+    mode: NamedInt = field(
+        default_factory=lambda: NamedInt("mode", 1),
         metadata={"description": "Plot mode", "required": False},
     )
-    useauxorigin: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("useauxorigin", "no"),
+    useauxorigin: TokenFlag = field(
+        default_factory=lambda: TokenFlag("useauxorigin", "no"),
         metadata={"description": "Use auxiliary origin", "required": False},
     )
-    hpglpennumber: KiCadInt = field(
-        default_factory=lambda: KiCadInt("hpglpennumber", 1),
+    hpglpennumber: NamedInt = field(
+        default_factory=lambda: NamedInt("hpglpennumber", 1),
         metadata={"description": "HPGL pen number", "required": False},
     )
-    hpglpenspeed: KiCadInt = field(
-        default_factory=lambda: KiCadInt("hpglpenspeed", 20),
+    hpglpenspeed: NamedInt = field(
+        default_factory=lambda: NamedInt("hpglpenspeed", 20),
         metadata={"description": "HPGL pen speed", "required": False},
     )
-    hpglpendiameter: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("hpglpendiameter", 15.0),
+    hpglpendiameter: NamedFloat = field(
+        default_factory=lambda: NamedFloat("hpglpendiameter", 15.0),
         metadata={"description": "HPGL pen diameter", "required": False},
     )
-    pdf_front_fp_property_popups: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("pdf_front_fp_property_popups", "yes"),
+    pdf_front_fp_property_popups: TokenFlag = field(
+        default_factory=lambda: TokenFlag("pdf_front_fp_property_popups", "yes"),
         metadata={
             "description": "PDF front footprint property popups",
             "required": False,
         },
     )
-    pdf_back_fp_property_popups: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("pdf_back_fp_property_popups", "yes"),
+    pdf_back_fp_property_popups: TokenFlag = field(
+        default_factory=lambda: TokenFlag("pdf_back_fp_property_popups", "yes"),
         metadata={
             "description": "PDF back footprint property popups",
             "required": False,
         },
     )
-    pdf_metadata: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("pdf_metadata", "yes"),
+    pdf_metadata: TokenFlag = field(
+        default_factory=lambda: TokenFlag("pdf_metadata", "yes"),
         metadata={"description": "PDF metadata", "required": False},
     )
-    pdf_single_document: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("pdf_single_document", "no"),
+    pdf_single_document: TokenFlag = field(
+        default_factory=lambda: TokenFlag("pdf_single_document", "no"),
         metadata={"description": "PDF single document", "required": False},
     )
-    dxfpolygonmode: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dxfpolygonmode", "yes"),
+    dxfpolygonmode: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dxfpolygonmode", "yes"),
         metadata={"description": "DXF polygon mode", "required": False},
     )
-    dxfimperialunits: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dxfimperialunits", "yes"),
+    dxfimperialunits: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dxfimperialunits", "yes"),
         metadata={"description": "DXF imperial units", "required": False},
     )
-    dxfusepcbnewfont: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dxfusepcbnewfont", "yes"),
+    dxfusepcbnewfont: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dxfusepcbnewfont", "yes"),
         metadata={"description": "DXF use pcbnew font", "required": False},
     )
-    psnegative: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("psnegative", "no"),
+    psnegative: TokenFlag = field(
+        default_factory=lambda: TokenFlag("psnegative", "no"),
         metadata={"description": "PS negative", "required": False},
     )
-    psa4output: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("psa4output", "no"),
+    psa4output: TokenFlag = field(
+        default_factory=lambda: TokenFlag("psa4output", "no"),
         metadata={"description": "PS A4 output", "required": False},
     )
-    plot_black_and_white: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("plot_black_and_white", "yes"),
+    plot_black_and_white: TokenFlag = field(
+        default_factory=lambda: TokenFlag("plot_black_and_white", "yes"),
         metadata={"description": "Plot black and white", "required": False},
     )
-    plotinvisibletext: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("plotinvisibletext", "no"),
+    plotinvisibletext: TokenFlag = field(
+        default_factory=lambda: TokenFlag("plotinvisibletext", "no"),
         metadata={"description": "Plot invisible text", "required": False},
     )
-    sketchpadsonfab: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("sketchpadsonfab", "no"),
+    sketchpadsonfab: TokenFlag = field(
+        default_factory=lambda: TokenFlag("sketchpadsonfab", "no"),
         metadata={"description": "Sketch pads on fab", "required": False},
     )
-    plotpadnumbers: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("plotpadnumbers", "no"),
+    plotpadnumbers: TokenFlag = field(
+        default_factory=lambda: TokenFlag("plotpadnumbers", "no"),
         metadata={"description": "Plot pad numbers", "required": False},
     )
-    hidednponfab: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("hidednponfab", "no"),
+    hidednponfab: TokenFlag = field(
+        default_factory=lambda: TokenFlag("hidednponfab", "no"),
         metadata={"description": "Hide DNP on fab", "required": False},
     )
-    sketchdnponfab: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("sketchdnponfab", "yes"),
+    sketchdnponfab: TokenFlag = field(
+        default_factory=lambda: TokenFlag("sketchdnponfab", "yes"),
         metadata={"description": "Sketch DNP on fab", "required": False},
     )
-    crossoutdnponfab: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("crossoutdnponfab", "yes"),
+    crossoutdnponfab: TokenFlag = field(
+        default_factory=lambda: TokenFlag("crossoutdnponfab", "yes"),
         metadata={"description": "Cross out DNP on fab", "required": False},
     )
-    subtractmaskfromsilk: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("subtractmaskfromsilk", "no"),
+    subtractmaskfromsilk: TokenFlag = field(
+        default_factory=lambda: TokenFlag("subtractmaskfromsilk", "no"),
         metadata={"description": "Subtract mask from silk", "required": False},
     )
-    outputformat: KiCadInt = field(
-        default_factory=lambda: KiCadInt("outputformat", 1),
+    outputformat: NamedInt = field(
+        default_factory=lambda: NamedInt("outputformat", 1),
         metadata={"description": "Output format", "required": False},
     )
-    mirror: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("mirror", "no"),
+    mirror: TokenFlag = field(
+        default_factory=lambda: TokenFlag("mirror", "no"),
         metadata={"description": "Mirror", "required": False},
     )
-    drillshape: KiCadInt = field(
-        default_factory=lambda: KiCadInt("drillshape", 1),
+    drillshape: NamedInt = field(
+        default_factory=lambda: NamedInt("drillshape", 1),
         metadata={"description": "Drill shape", "required": False},
     )
-    scaleselection: KiCadInt = field(
-        default_factory=lambda: KiCadInt("scaleselection", 1),
+    scaleselection: NamedInt = field(
+        default_factory=lambda: NamedInt("scaleselection", 1),
         metadata={"description": "Scale selection", "required": False},
     )
-    outputdirectory: KiCadStr = field(
-        default_factory=lambda: KiCadStr("outputdirectory", ""),
+    outputdirectory: NamedString = field(
+        default_factory=lambda: NamedString("outputdirectory", ""),
         metadata={"description": "Output directory", "required": False},
     )
 
 
 @dataclass
-class StackupLayer(KiCadObject):
+class StackupLayer(NamedObject):
     """A single layer in the stackup configuration.
 
     Args:
@@ -382,34 +382,34 @@ class StackupLayer(KiCadObject):
     __token_name__: ClassVar[str] = "layer"
 
     name: str = field(default="", metadata={"description": "Layer name"})
-    type: KiCadStr = field(
-        default_factory=lambda: KiCadStr("type", ""),
+    type: NamedString = field(
+        default_factory=lambda: NamedString("type", ""),
         metadata={"description": "Layer type", "required": False},
     )
-    color: KiCadStr = field(
-        default_factory=lambda: KiCadStr("color", ""),
+    color: NamedString = field(
+        default_factory=lambda: NamedString("color", ""),
         metadata={"description": "Layer color", "required": False},
     )
-    thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thickness", 0.0),
+    thickness: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thickness", 0.0),
         metadata={"description": "Layer thickness", "required": False},
     )
-    material: KiCadStr = field(
-        default_factory=lambda: KiCadStr("material", ""),
+    material: NamedString = field(
+        default_factory=lambda: NamedString("material", ""),
         metadata={"description": "Material name", "required": False},
     )
-    epsilon_r: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("epsilon_r", 0.0),
+    epsilon_r: NamedFloat = field(
+        default_factory=lambda: NamedFloat("epsilon_r", 0.0),
         metadata={"description": "Relative permittivity", "required": False},
     )
-    loss_tangent: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("loss_tangent", 0.0),
+    loss_tangent: NamedFloat = field(
+        default_factory=lambda: NamedFloat("loss_tangent", 0.0),
         metadata={"description": "Loss tangent", "required": False},
     )
 
 
 @dataclass
-class Stackup(KiCadObject):
+class Stackup(NamedObject):
     """PCB stackup configuration.
 
     Args:
@@ -424,18 +424,18 @@ class Stackup(KiCadObject):
         default_factory=list,
         metadata={"description": "List of stackup layers"},
     )
-    copper_finish: KiCadStr = field(
-        default_factory=lambda: KiCadStr("copper_finish", ""),
+    copper_finish: NamedString = field(
+        default_factory=lambda: NamedString("copper_finish", ""),
         metadata={"description": "Copper finish specification", "required": False},
     )
-    dielectric_constraints: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("dielectric_constraints", "no"),
+    dielectric_constraints: TokenFlag = field(
+        default_factory=lambda: TokenFlag("dielectric_constraints", "no"),
         metadata={"description": "Dielectric constraints flag", "required": False},
     )
 
 
 @dataclass
-class Setup(KiCadObject):
+class Setup(NamedObject):
     """Board setup definition token.
 
     The 'setup' token stores current settings and options used by the board in the format::
@@ -465,12 +465,12 @@ class Setup(KiCadObject):
         default=None,
         metadata={"description": "Stackup configuration", "required": False},
     )
-    pad_to_mask_clearance: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("pad_to_mask_clearance", 0.0),
+    pad_to_mask_clearance: NamedFloat = field(
+        default_factory=lambda: NamedFloat("pad_to_mask_clearance", 0.0),
         metadata={"description": "Pad to mask clearance", "required": False},
     )
-    allow_soldermask_bridges_in_footprints: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag(
+    allow_soldermask_bridges_in_footprints: TokenFlag = field(
+        default_factory=lambda: TokenFlag(
             "allow_soldermask_bridges_in_footprints", "no"
         ),
         metadata={
@@ -489,7 +489,7 @@ class Setup(KiCadObject):
 
 
 @dataclass
-class General(KiCadObject):
+class General(NamedObject):
     """General board settings definition token.
 
     The 'general' token defines general board settings in the format::
@@ -506,12 +506,12 @@ class General(KiCadObject):
 
     __token_name__: ClassVar[str] = "general"
 
-    thickness: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("thickness", 1.6),
+    thickness: NamedFloat = field(
+        default_factory=lambda: NamedFloat("thickness", 1.6),
         metadata={"description": "Board thickness"},
     )
-    legacy_teardrops: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("legacy_teardrops"),
+    legacy_teardrops: TokenFlag = field(
+        default_factory=lambda: TokenFlag("legacy_teardrops"),
         metadata={
             "description": "Whether to use legacy teardrops",
             "required": False,
@@ -520,7 +520,7 @@ class General(KiCadObject):
 
 
 @dataclass
-class Tracks(KiCadObject):
+class Tracks(NamedObject):
     """Tracks container definition token.
 
     The 'tracks' token defines a container for track segments in the format::
@@ -542,7 +542,7 @@ class Tracks(KiCadObject):
 
 
 @dataclass
-class Via(KiCadObject):
+class Via(NamedObject):
     """Via definition token.
 
     The 'via' token defines a track via in the format::
@@ -582,8 +582,8 @@ class Via(KiCadObject):
         default=None,
         metadata={"description": "Via type (blind | micro)", "required": False},
     )
-    locked: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("locked"),
+    locked: TokenFlag = field(
+        default_factory=lambda: TokenFlag("locked"),
         metadata={
             "description": "Whether the line cannot be edited",
             "required": False,
@@ -593,39 +593,39 @@ class Via(KiCadObject):
         default_factory=lambda: At(),
         metadata={"description": "Coordinates of the center of the via"},
     )
-    size: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("size", 0.0),
+    size: NamedFloat = field(
+        default_factory=lambda: NamedFloat("size", 0.0),
         metadata={"description": "Diameter of the via annular ring"},
     )
-    drill: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("drill", 0.0),
+    drill: NamedFloat = field(
+        default_factory=lambda: NamedFloat("drill", 0.0),
         metadata={"description": "Drill diameter of the via"},
     )
     layers: Layers = field(
         default_factory=lambda: Layers(),
         metadata={"description": "Layer set the via connects"},
     )
-    remove_unused_layers: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("remove_unused_layers"),
+    remove_unused_layers: TokenFlag = field(
+        default_factory=lambda: TokenFlag("remove_unused_layers"),
         metadata={"description": "Remove unused layers flag", "required": False},
     )
-    keep_end_layers: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("keep_end_layers"),
+    keep_end_layers: TokenFlag = field(
+        default_factory=lambda: TokenFlag("keep_end_layers"),
         metadata={"description": "Keep end layers flag", "required": False},
     )
-    free: OptionalFlag = field(
-        default_factory=lambda: OptionalFlag("free"),
+    free: TokenFlag = field(
+        default_factory=lambda: TokenFlag("free"),
         metadata={
             "description": "Whether via is free to move outside assigned net",
             "required": False,
         },
     )
-    net: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="net", value=0),
+    net: NamedInt = field(
+        default_factory=lambda: NamedInt(token="net", value=0),
         metadata={"description": "Net ordinal number from net section"},
     )
-    tstamp: KiCadStr = field(
-        default_factory=lambda: KiCadStr("tstamp", ""),
+    tstamp: NamedString = field(
+        default_factory=lambda: NamedString("tstamp", ""),
         metadata={
             "description": "Unique identifier of the line object",
             "required": False,
@@ -637,7 +637,7 @@ class Via(KiCadObject):
 
 
 @dataclass
-class Vias(KiCadObject):
+class Vias(NamedObject):
     """Vias container definition token.
 
     The 'vias' token defines a container for vias in the format::
@@ -659,7 +659,7 @@ class Vias(KiCadObject):
 
 
 @dataclass
-class BoardArc(KiCadObject):
+class BoardArc(NamedObject):
     """Board arc track segment definition.
 
     The 'arc' token defines an arc-shaped track segment in the format::
@@ -698,16 +698,16 @@ class BoardArc(KiCadObject):
         default_factory=lambda: End(),
         metadata={"description": "End point of the arc"},
     )
-    width: KiCadFloat = field(
-        default_factory=lambda: KiCadFloat("width", 0.0),
+    width: NamedFloat = field(
+        default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Track width"},
     )
-    layer: KiCadStr = field(
-        default_factory=lambda: KiCadStr("layer", ""),
+    layer: NamedString = field(
+        default_factory=lambda: NamedString("layer", ""),
         metadata={"description": "Layer name"},
     )
-    net: KiCadInt = field(
-        default_factory=lambda: KiCadInt("net", 0),
+    net: NamedInt = field(
+        default_factory=lambda: NamedInt("net", 0),
         metadata={"description": "Net number"},
     )
     uuid: Optional[Uuid] = field(
@@ -717,7 +717,7 @@ class BoardArc(KiCadObject):
 
 
 @dataclass
-class KicadPcb(KiCadObject):
+class KicadPcb(NamedObject):
     """KiCad PCB board file definition.
 
     The 'kicad_pcb' token defines a complete PCB board file in the format::
@@ -763,16 +763,16 @@ class KicadPcb(KiCadObject):
     __token_name__: ClassVar[str] = "kicad_pcb"
 
     # Required header fields
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt("version", 20240101),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt("version", 20240101),
         metadata={"description": "File format version"},
     )
-    generator: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator", ""),
+    generator: NamedString = field(
+        default_factory=lambda: NamedString("generator", ""),
         metadata={"description": "Generator application"},
     )
-    generator_version: KiCadStr = field(
-        default_factory=lambda: KiCadStr("generator_version", ""),
+    generator_version: NamedString = field(
+        default_factory=lambda: NamedString("generator_version", ""),
         metadata={"description": "Generator version", "required": False},
     )
 
@@ -782,12 +782,12 @@ class KicadPcb(KiCadObject):
         metadata={"description": "General board settings", "required": False},
     )
 
-    page: KiCadStr = field(
-        default_factory=lambda: KiCadStr("page", ""),
+    page: NamedString = field(
+        default_factory=lambda: NamedString("page", ""),
         metadata={"description": "Page settings", "required": False},
     )
-    paper: KiCadStr = field(
-        default_factory=lambda: KiCadStr("paper", "A4"),
+    paper: NamedString = field(
+        default_factory=lambda: NamedString("paper", "A4"),
         metadata={"description": "Paper size specification", "required": False},
     )
     layers: Optional[BoardLayers] = field(
@@ -796,8 +796,8 @@ class KicadPcb(KiCadObject):
     setup: Optional[Setup] = field(
         default=None, metadata={"description": "Board setup", "required": False}
     )
-    embedded_fonts: KiCadStr = field(
-        default_factory=lambda: KiCadStr("embedded_fonts", ""),
+    embedded_fonts: NamedString = field(
+        default_factory=lambda: NamedString("embedded_fonts", ""),
         metadata={
             "description": "Whether fonts are embedded (yes/no)",
             "required": False,

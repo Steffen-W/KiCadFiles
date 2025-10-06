@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Script to analyze KiCadObject classes and their variables with types."""
+"""Script to analyze NamedObject classes and their variables with types."""
 
 import ast
 import importlib.util
@@ -31,10 +31,10 @@ def extract_class_info_from_ast(file_path: Path) -> Dict[str, Dict]:
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
-                # Check if class inherits from KiCadObject
+                # Check if class inherits from NamedObject
                 inherits_from_kicad = False
                 for base in node.bases:
-                    if isinstance(base, ast.Name) and base.id == "KiCadObject":
+                    if isinstance(base, ast.Name) and base.id == "NamedObject":
                         inherits_from_kicad = True
                         break
 
@@ -100,11 +100,11 @@ def extract_class_info_from_import(file_path: Path) -> Dict[str, Dict]:
         for name in dir(module):
             obj = getattr(module, name)
 
-            # Check if it's a class that inherits from KiCadObject
+            # Check if it's a class that inherits from NamedObject
             if (
                 isinstance(obj, type)
                 and hasattr(obj, "__bases__")
-                and any(base.__name__ == "KiCadObject" for base in obj.__mro__)
+                and any(base.__name__ == "NamedObject" for base in obj.__mro__)
             ):
 
                 variables = {}
@@ -145,7 +145,7 @@ def extract_class_info_from_import(file_path: Path) -> Dict[str, Dict]:
 
 
 def analyze_kicad_classes(directory: str = ".") -> Dict[str, Dict]:
-    """Analyze all KiCadObject classes and their variables."""
+    """Analyze all NamedObject classes and their variables."""
     files = find_kicad_files(directory)
     all_classes = {}
 
@@ -193,7 +193,7 @@ def print_class_analysis(
                 print(f"    {var_name}: {var_type}")
 
     print(f"\n" + "=" * 80)
-    print(f"SUMMARY: Found {len(classes)} KiCadObject classes")
+    print(f"SUMMARY: Found {len(classes)} NamedObject classes")
     print(f"Classes with exactly 1 variable: {len(single_var_classes)}")
 
     if single_var_classes:
@@ -207,7 +207,7 @@ def main():
     """Main function to run the analysis."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Analyze KiCadObject classes")
+    parser = argparse.ArgumentParser(description="Analyze NamedObject classes")
     parser.add_argument(
         "--directory", "-d", default=".", help="Directory containing kicadfiles folder"
     )

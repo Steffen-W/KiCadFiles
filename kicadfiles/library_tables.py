@@ -17,11 +17,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import ClassVar, List
 
-from .base_element import KiCadInt, KiCadObject, KiCadStr, ParseStrictness
+from .base_element import NamedInt, NamedObject, NamedString, ParseStrictness
 
 
 @dataclass
-class LibraryEntry(KiCadObject):
+class LibraryEntry(NamedObject):
     """A single library entry in a library table.
 
     Represents a (lib ...) entry with name, type, uri, options, and description.
@@ -36,30 +36,30 @@ class LibraryEntry(KiCadObject):
 
     __token_name__: ClassVar[str] = "lib"
 
-    name: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="name", value=""),
+    name: NamedString = field(
+        default_factory=lambda: NamedString(token="name", value=""),
         metadata={"description": "Library name/identifier"},
     )
-    type: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="type", value=""),
+    type: NamedString = field(
+        default_factory=lambda: NamedString(token="type", value=""),
         metadata={"description": "Library type (e.g., 'KiCad')"},
     )
-    uri: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="uri", value=""),
+    uri: NamedString = field(
+        default_factory=lambda: NamedString(token="uri", value=""),
         metadata={"description": "Path to library"},
     )
-    options: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="options", value=""),
+    options: NamedString = field(
+        default_factory=lambda: NamedString(token="options", value=""),
         metadata={"description": "Additional options"},
     )
-    descr: KiCadStr = field(
-        default_factory=lambda: KiCadStr(token="descr", value=""),
+    descr: NamedString = field(
+        default_factory=lambda: NamedString(token="descr", value=""),
         metadata={"description": "Human readable description"},
     )
 
 
 @dataclass
-class FpLibTable(KiCadObject):
+class FpLibTable(NamedObject):
     """Footprint library table (fp-lib-table file).
 
     Contains version information and a list of footprint library entries.
@@ -71,8 +71,8 @@ class FpLibTable(KiCadObject):
 
     __token_name__: ClassVar[str] = "fp_lib_table"
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="version", value=7),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt(token="version", value=7),
         metadata={"description": "Table format version"},
     )
     libraries: List[LibraryEntry] = field(
@@ -108,7 +108,7 @@ class FpLibTable(KiCadObject):
 
 
 @dataclass
-class SymLibTable(KiCadObject):
+class SymLibTable(NamedObject):
     """Symbol library table (sym-lib-table file).
 
     Contains version information and a list of symbol library entries.
@@ -120,8 +120,8 @@ class SymLibTable(KiCadObject):
 
     __token_name__: ClassVar[str] = "sym_lib_table"
 
-    version: KiCadInt = field(
-        default_factory=lambda: KiCadInt(token="version", value=7),
+    version: NamedInt = field(
+        default_factory=lambda: NamedInt(token="version", value=7),
         metadata={"description": "Table format version"},
     )
     libraries: List[LibraryEntry] = field(

@@ -35,8 +35,8 @@ units_format           -> advanced_graphics.UnitsFormat
 ```python
 field_info             -> base_element.FieldInfo
 field_type             -> base_element.FieldType
-kicad_object           -> base_element.KiCadObject
-optional_flag          -> base_element.OptionalFlag
+kicad_object           -> base_element.NamedObject
+optional_flag          -> base_element.TokenFlag
 parse_cursor           -> base_element.ParseCursor
 parse_strictness       -> base_element.ParseStrictness
 token_preference       -> base_element.TokenPreference
@@ -394,7 +394,7 @@ Each S-expression token gets a corresponding class with the pattern:
 1. **Dependency-Based Structure**: Classes organized by dependencies to eliminate TYPE_CHECKING
 2. **Nested Elements**: When tokens contain other tokens, they reference classes from appropriate modules
 3. **File Organization**: Tokens grouped by functional area and dependency level
-4. **Inheritance**: All classes inherit from a base `KiCadObject` class
+4. **Inheritance**: All classes inherit from a base `NamedObject` class
 
 ## Class Implementation Specification
 
@@ -404,12 +404,12 @@ Each S-expression token gets a corresponding class with the pattern:
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .base_element import KiCadObject
+from .base_element import NamedObject
 from .enums import SomeEnum  # Import required enums
 from . import other_module   # Import other modules as needed
 
 @dataclass
-class ClassName(KiCadObject):
+class ClassName(NamedObject):
     """S-expression token description.
 
     The 'token_name' token defines... in the format::
@@ -454,7 +454,7 @@ class ClassName(KiCadObject):
 
 ```python
 @dataclass
-class Example(KiCadObject):
+class Example(NamedObject):
     """Token with field order conflict - follows documentation order.
 
     Note:
@@ -479,11 +479,11 @@ class Example(KiCadObject):
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .base_element import KiCadObject
+from .base_element import NamedObject
 from .enums import StrokeType
 
 @dataclass
-class Stroke(KiCadObject):
+class Stroke(NamedObject):
     """Stroke definition token.
 
     The 'stroke' token defines how the outlines of graphical objects are drawn in the format::

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced script to automatically add Args sections to KiCadObject class docstrings
+Enhanced script to automatically add Args sections to NamedObject class docstrings
 based on dataclass field metadata with correct field order and (optional) markers.
 """
 
@@ -26,10 +26,10 @@ class DocstringFixer(ast.NodeVisitor):
         )  # (start_line, end_line, new_content)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        # Check if class inherits from KiCadObject
+        # Check if class inherits from NamedObject
         inherits_from_kicad = False
         for base in node.bases:
-            if isinstance(base, ast.Name) and base.id == "KiCadObject":
+            if isinstance(base, ast.Name) and base.id == "NamedObject":
                 inherits_from_kicad = True
                 break
 
