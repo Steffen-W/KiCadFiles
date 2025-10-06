@@ -59,3 +59,14 @@ Low-level S-expression data structures and utilities.
 
 .. automodule:: kicadfiles.sexpdata
    :members:
+
+Helper Utilities
+-----------------
+
+kicadfiles.templates module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Helper class for creating empty/minimal KiCad files with sensible defaults.
+
+.. automodule:: kicadfiles.templates
+   :members:

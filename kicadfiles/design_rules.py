@@ -94,8 +94,9 @@ class DesignRule(NamedObject):
     __token_name__: ClassVar[str] = "rule"
 
     name: str = field(default="", metadata={"description": "Rule name"})
-    severity: Optional[DesignRuleSeverity] = field(
-        default=None, metadata={"description": "Severity level", "required": False}
+    severity: DesignRuleSeverity = field(
+        default_factory=lambda: DesignRuleSeverity(),
+        metadata={"description": "Severity level", "required": False},
     )
     layer: NamedString = field(
         default_factory=lambda: NamedString("layer", ""),

@@ -289,7 +289,7 @@ class KicadProject(JsonObject):
     text_variables: Dict[str, str] = field(default_factory=dict)
 
     # Extended fields not in standard file - all optional
-    erc: Optional[ERCSettings] = field(default=None)
+    erc: Optional[ERCSettings] = field(default_factory=lambda: ERCSettings())
 
     @classmethod
     def from_file(

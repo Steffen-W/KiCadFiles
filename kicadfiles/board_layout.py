@@ -461,8 +461,8 @@ class Setup(NamedObject):
 
     __token_name__: ClassVar[str] = "setup"
 
-    stackup: Optional["Stackup"] = field(
-        default=None,
+    stackup: "Stackup" = field(
+        default_factory=lambda: Stackup(),
         metadata={"description": "Stackup configuration", "required": False},
     )
     pad_to_mask_clearance: NamedFloat = field(
@@ -478,12 +478,12 @@ class Setup(NamedObject):
             "required": False,
         },
     )
-    tenting: Optional[Tenting] = field(
-        default=None,
+    tenting: Tenting = field(
+        default_factory=lambda: Tenting(),
         metadata={"description": "Tenting configuration", "required": False},
     )
-    pcbplotparams: Optional[PcbPlotParams] = field(
-        default=None,
+    pcbplotparams: PcbPlotParams = field(
+        default_factory=lambda: PcbPlotParams(),
         metadata={"description": "PCB plot parameters", "required": False},
     )
 
@@ -778,7 +778,7 @@ class KicadPcb(NamedObject):
 
     # Optional sections
     general: Optional[General] = field(
-        default=None,
+        default_factory=lambda: General(),
         metadata={"description": "General board settings", "required": False},
     )
 
@@ -791,10 +791,12 @@ class KicadPcb(NamedObject):
         metadata={"description": "Paper size specification", "required": False},
     )
     layers: Optional[BoardLayers] = field(
-        default=None, metadata={"description": "Layer definitions", "required": False}
+        default_factory=lambda: BoardLayers(),
+        metadata={"description": "Layer definitions", "required": False},
     )
     setup: Optional[Setup] = field(
-        default=None, metadata={"description": "Board setup", "required": False}
+        default_factory=lambda: Setup(),
+        metadata={"description": "Board setup", "required": False},
     )
     embedded_fonts: NamedString = field(
         default_factory=lambda: NamedString("embedded_fonts", ""),

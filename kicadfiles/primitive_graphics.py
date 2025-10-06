@@ -47,7 +47,7 @@ class Arc(NamedObject):
         metadata={"description": "Start point of the arc"},
     )
     mid: Optional[Mid] = field(
-        default=None,
+        default_factory=lambda: Mid(),
         metadata={"description": "Mid point of the arc", "required": False},
     )
     end: End = field(
@@ -97,11 +97,11 @@ class Bezier(NamedObject):
         },
     )
     stroke: Optional[Stroke] = field(
-        default=None,
+        default_factory=lambda: Stroke(),
         metadata={"description": "Stroke definition for outline", "required": False},
     )
     fill: Optional[Fill] = field(
-        default=None,
+        default_factory=lambda: Fill(),
         metadata={"description": "Fill definition for filling", "required": False},
     )
     width: NamedFloat = field(

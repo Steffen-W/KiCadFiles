@@ -62,7 +62,7 @@ project = KicadProject.from_file("project.kicad_pro")
 # project.save_to_file("output.kicad_pro")
 
 # Design rules (.kicad_dru)
-design_rules = KiCAdDesignRules.from_file("rules.kicad_dru")
+design_rules = KiCadDesignRules.from_file("rules.kicad_dru")
 # design_rules.save_to_file("output.kicad_dru")
 
 # Footprint library table
@@ -77,7 +77,7 @@ sym_lib_table = SymLibTable.from_file("sym-lib-table")
 ### Working with PCB Files
 
 ```python
-from kicadfiles import KicadPcb, KiCadTemplates
+from kicadfiles import KicadPcb, KiCadTemplates, NamedFloat
 
 # Load and modify existing PCB
 pcb = KicadPcb.from_file("board.kicad_pcb")
@@ -87,8 +87,8 @@ for footprint in pcb.footprints:
     print(f"Footprint: {footprint.library_link} at ({footprint.at.x}, {footprint.at.y})")
 
 # Create new PCB from template
-new_pcb = KiCAdTemplates.pcb()
-new_pcb.setup.pad_to_mask_clearance(0.05)
+new_pcb = KiCadTemplates.pcb()
+new_pcb.setup.pad_to_mask_clearance = NamedFloat("pad_to_mask_clearance", 0.05)
 new_pcb.save_to_file("new_board.kicad_pcb")
 ```
 

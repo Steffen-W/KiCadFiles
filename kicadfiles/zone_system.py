@@ -415,7 +415,8 @@ class Zone(NamedObject):
         metadata={"description": "Filled areas thickness flag", "required": False},
     )
     keepout: Optional[Keepout] = field(
-        default=None, metadata={"description": "Keepout settings", "required": False}
+        default_factory=lambda: Keepout(),
+        metadata={"description": "Keepout settings", "required": False},
     )
     filled_polygons: Optional[List[FilledPolygon]] = field(
         default_factory=list,

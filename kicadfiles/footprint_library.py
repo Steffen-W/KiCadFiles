@@ -68,8 +68,8 @@ class EmbeddedFile(NamedObject):
         default_factory=lambda: NamedString("type", ""),
         metadata={"description": "File type token"},
     )
-    data: Optional[FileData] = field(
-        default=None,
+    data: FileData = field(
+        default_factory=lambda: FileData(),
         metadata={"description": "Base64 encoded file data token", "required": False},
     )
     checksum: NamedString = field(
@@ -278,29 +278,29 @@ class Model(NamedObject):
     path: str = field(
         default="", metadata={"description": "Path and file name of the 3D model"}
     )
-    at: Optional[ModelAt] = field(
-        default=None,
+    at: ModelAt = field(
+        default_factory=lambda: ModelAt(),
         metadata={
             "description": "3D position coordinates relative to the footprint",
             "required": False,
         },
     )
-    scale: Optional[ModelScale] = field(
-        default=None,
+    scale: ModelScale = field(
+        default_factory=lambda: ModelScale(),
         metadata={
             "description": "Model scale factor for each 3D axis",
             "required": False,
         },
     )
-    rotate: Optional[ModelRotate] = field(
-        default=None,
+    rotate: ModelRotate = field(
+        default_factory=lambda: ModelRotate(),
         metadata={
             "description": "Model rotation for each 3D axis relative to the footprint",
             "required": False,
         },
     )
-    offset: Optional[ModelOffset] = field(
-        default=None,
+    offset: ModelOffset = field(
+        default_factory=lambda: ModelOffset(),
         metadata={"description": "Model offset coordinates", "required": False},
     )
     hide: TokenFlag = field(
@@ -465,8 +465,8 @@ class Footprint(NamedObject):
         default_factory=lambda: NamedString("sheetfile", ""),
         metadata={"description": "Schematic sheet file", "required": False},
     )
-    attr: Optional[Attr] = field(
-        default=None,
+    attr: Attr = field(
+        default_factory=lambda: Attr(),
         metadata={"description": "Footprint attributes", "required": False},
     )
     autoplace_cost90: Optional[int] = field(
@@ -528,8 +528,9 @@ class Footprint(NamedObject):
         default_factory=list,
         metadata={"description": "List of private layers", "required": False},
     )
-    net_tie_pad_groups: Optional[NetTiePadGroups] = field(
-        default=None, metadata={"description": "Net tie pad groups", "required": False}
+    net_tie_pad_groups: NetTiePadGroups = field(
+        default_factory=lambda: NetTiePadGroups(),
+        metadata={"description": "Net tie pad groups", "required": False},
     )
     pads: Optional[List[Pad]] = field(
         default_factory=list,
@@ -552,8 +553,8 @@ class Footprint(NamedObject):
         default_factory=lambda: TokenFlag("embedded_fonts"),
         metadata={"description": "Embedded fonts settings", "required": False},
     )
-    embedded_files: Optional[EmbeddedFiles] = field(
-        default=None,
+    embedded_files: EmbeddedFiles = field(
+        default_factory=lambda: EmbeddedFiles(),
         metadata={"description": "Embedded files container", "required": False},
     )
 

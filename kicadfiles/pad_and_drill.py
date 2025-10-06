@@ -134,8 +134,8 @@ class Options(NamedObject):
             "required": False,
         },
     )
-    anchor: Optional[Anchor] = field(
-        default=None,
+    anchor: Anchor = field(
+        default_factory=lambda: Anchor(),
         metadata={"description": "Anchor pad shape", "required": False},
     )
 
@@ -373,8 +373,9 @@ class Pad(NamedObject):
         default_factory=lambda: Layers(),
         metadata={"description": "Layer list"},
     )
-    drill: Optional[Drill] = field(
-        default=None, metadata={"description": "Drill definition", "required": False}
+    drill: Drill = field(
+        default_factory=lambda: Drill(),
+        metadata={"description": "Drill definition", "required": False},
     )
     property: Optional[str] = field(
         default=None, metadata={"description": "Pad property", "required": False}
@@ -409,8 +410,9 @@ class Pad(NamedObject):
         default_factory=list,
         metadata={"description": "Chamfer corners", "required": False},
     )
-    net: Optional[Net] = field(
-        default=None, metadata={"description": "Net connection", "required": False}
+    net: Net = field(
+        default_factory=lambda: Net(),
+        metadata={"description": "Net connection", "required": False},
     )
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
@@ -451,15 +453,16 @@ class Pad(NamedObject):
     thermal_gap: Optional[float] = field(
         default=None, metadata={"description": "Thermal gap", "required": False}
     )
-    options: Optional[Options] = field(
-        default=None, metadata={"description": "Custom pad options", "required": False}
+    options: Options = field(
+        default_factory=lambda: Options(),
+        metadata={"description": "Custom pad options", "required": False},
     )
-    primitives: Optional[Primitives] = field(
-        default=None,
+    primitives: Primitives = field(
+        default_factory=lambda: Primitives(),
         metadata={"description": "Custom pad primitives", "required": False},
     )
-    teardrops: Optional[Teardrops] = field(
-        default=None,
+    teardrops: Teardrops = field(
+        default_factory=lambda: Teardrops(),
         metadata={"description": "Teardrop settings", "required": False},
     )
 

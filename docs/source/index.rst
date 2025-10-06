@@ -115,9 +115,12 @@ Parsing with Different Strictness Modes
 Working with Complex Objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Method 1: Direct instantiation with all imports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: python
 
-   from kicadfiles import Footprint, Pad, At, AtXY, Size, PadType, PadShape
+   from kicadfiles import Footprint, Pad, At, Size, PadType, PadShape
 
    # Create a footprint with pads
    footprint = Footprint(
@@ -128,18 +131,57 @@ Working with Complex Objects
                number="1",
                type=PadType.SMD,
                shape=PadShape.ROUNDRECT,
-               at=AtXY(x=-0.8, y=0.0),
+               at=At(x=-0.8, y=0.0),
                size=Size(width=0.7, height=0.9)
            ),
            Pad(
                number="2",
                type=PadType.SMD,
                shape=PadShape.ROUNDRECT,
-               at=AtXY(x=0.8, y=0.0),
+               at=At(x=0.8, y=0.0),
                size=Size(width=0.7, height=0.9)
            )
        ]
    )
+
+   # Convert to S-expression
+   sexpr = footprint.to_sexpr_str()
+   print(sexpr)
+
+Method 2: Using default fields (fewer imports)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   from kicadfiles import Footprint, Pad, PadType, PadShape
+
+   # Create a footprint - fields are already initialized with defaults
+   footprint = Footprint()
+   footprint.library_link = "Resistor_SMD:R_0603"
+   footprint.at.x = 50.0
+   footprint.at.y = 30.0
+   footprint.at.angle = 0.0
+
+   # Create pads by modifying default instances
+   pad1 = Pad()
+   pad1.number = "1"
+   pad1.type = PadType.SMD
+   pad1.shape = PadShape.ROUNDRECT
+   pad1.at.x = -0.8
+   pad1.at.y = 0.0
+   pad1.size.width = 0.7
+   pad1.size.height = 0.9
+
+   pad2 = Pad()
+   pad2.number = "2"
+   pad2.type = PadType.SMD
+   pad2.shape = PadShape.ROUNDRECT
+   pad2.at.x = 0.8
+   pad2.at.y = 0.0
+   pad2.size.width = 0.7
+   pad2.size.height = 0.9
+
+   footprint.pads = [pad1, pad2]
 
    # Convert to S-expression
    sexpr = footprint.to_sexpr_str()

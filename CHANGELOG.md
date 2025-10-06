@@ -71,6 +71,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `OptionalFlag` → `TokenFlag`
   - `OptionalSimpleFlag` → `SymbolValue`
   - `OptionalFlagBase` → `TokenBase`
+- Changed `Optional[ComplexType]` fields from `default=None` to `default_factory=lambda: ComplexType()` for proper initialization:
+  - Affected classes: `General`, `BoardLayers`, `Setup`, `Keepout`, `Mid`, `Stroke`, `Fill`, `At`, `Effects`, `Uuid`, `ERCSettings`
+  - Enum types (e.g., `LabelShape`, `ZoneConnection`) remain with `default=None`
+  - Ensures all complex type fields are properly initialized with default instances
 
 ### Planned
 

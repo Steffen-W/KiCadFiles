@@ -56,11 +56,13 @@ class GrArc(NamedObject):
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point coordinates"}
     )
-    stroke: Optional[Stroke] = field(
-        default=None, metadata={"description": "Stroke definition", "required": False}
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
+        metadata={"description": "Stroke definition", "required": False},
     )
-    layer: Optional[Layer] = field(
-        default=None, metadata={"description": "Layer definition", "required": False}
+    layer: Layer = field(
+        default_factory=lambda: Layer(),
+        metadata={"description": "Layer definition", "required": False},
     )
     width: NamedFloat = field(
         default_factory=lambda: NamedFloat("width", 0.0),
@@ -236,22 +238,22 @@ class GrTextBox(NamedObject):
         },
     )
     text: str = field(default="", metadata={"description": "Content of the text box"})
-    start: Optional[Start] = field(
-        default=None,
+    start: Start = field(
+        default_factory=lambda: Start(),
         metadata={
             "description": "Top-left corner of cardinally oriented text box",
             "required": False,
         },
     )
-    end: Optional[End] = field(
-        default=None,
+    end: End = field(
+        default_factory=lambda: End(),
         metadata={
             "description": "Bottom-right corner of cardinally oriented text box",
             "required": False,
         },
     )
-    pts: Optional[Pts] = field(
-        default=None,
+    pts: Pts = field(
+        default_factory=lambda: Pts(),
         metadata={
             "description": "Four corners of non-cardinally oriented text box",
             "required": False,
@@ -273,8 +275,8 @@ class GrTextBox(NamedObject):
     effects: Effects = field(
         default_factory=lambda: Effects(), metadata={"description": "Text effects"}
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition for optional border",
             "required": False,
@@ -454,11 +456,13 @@ class Dimension(NamedObject):
             "required": False,
         },
     )
-    gr_text: Optional[GrText] = field(
-        default=None, metadata={"description": "Dimension text", "required": False}
+    gr_text: GrText = field(
+        default_factory=lambda: GrText(),
+        metadata={"description": "Dimension text", "required": False},
     )
-    format: Optional[Format] = field(
-        default=None, metadata={"description": "Dimension format", "required": False}
+    format: Format = field(
+        default_factory=lambda: Format(),
+        metadata={"description": "Dimension format", "required": False},
     )
     style: NamedString = field(
         default_factory=lambda: NamedString("style", ""),
@@ -505,22 +509,22 @@ class FpArc(NamedObject):
         default_factory=lambda: Start(),
         metadata={"description": "Start point coordinates"},
     )
-    mid: Optional[Mid] = field(
-        default=None,
+    mid: Mid = field(
+        default_factory=lambda: Mid(),
         metadata={"description": "Mid point coordinates", "required": False},
     )
     end: End = field(
         default_factory=lambda: End(), metadata={"description": "End point coordinates"}
     )
-    layer: Optional[Layer] = field(
+    layer: Layer = field(
         default_factory=lambda: Layer(), metadata={"description": "Layer definition"}
     )
     width: NamedFloat = field(
         default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width (prior to version 7)", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition (from version 7)",
             "required": False,
@@ -534,8 +538,9 @@ class FpArc(NamedObject):
         default_factory=lambda: NamedFloat("angle", 0.0),
         metadata={"description": "Arc angle in degrees", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 
@@ -584,11 +589,13 @@ class FpCircle(NamedObject):
         default_factory=lambda: NamedString("tstamp", ""),
         metadata={"description": "Timestamp UUID", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None, metadata={"description": "Stroke definition", "required": False}
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
+        metadata={"description": "Stroke definition", "required": False},
     )
     fill: TokenFlag = field(
         default_factory=lambda: TokenFlag("fill"),
@@ -638,8 +645,9 @@ class FpCurve(NamedObject):
         default_factory=lambda: NamedString("tstamp", ""),
         metadata={"description": "Timestamp UUID", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None, metadata={"description": "Stroke definition", "required": False}
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
+        metadata={"description": "Stroke definition", "required": False},
     )
     locked: TokenFlag = field(
         default_factory=lambda: TokenFlag("locked"),
@@ -691,11 +699,13 @@ class FpLine(NamedObject):
         default_factory=lambda: NamedString("tstamp", ""),
         metadata={"description": "Timestamp UUID", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None, metadata={"description": "Stroke definition", "required": False}
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
+        metadata={"description": "Stroke definition", "required": False},
     )
     locked: TokenFlag = field(
         default_factory=lambda: TokenFlag("locked"),
@@ -732,8 +742,9 @@ class FpPoly(NamedObject):
     pts: Pts = field(
         default_factory=lambda: Pts(), metadata={"description": "Polygon points"}
     )
-    layer: Optional[Layer] = field(
-        default=None, metadata={"description": "Layer definition", "required": False}
+    layer: Layer = field(
+        default_factory=lambda: Layer(),
+        metadata={"description": "Layer definition", "required": False},
     )
     width: NamedFloat = field(
         default_factory=lambda: NamedFloat("width", 0.0),
@@ -743,8 +754,9 @@ class FpPoly(NamedObject):
         default_factory=lambda: NamedString("tstamp", ""),
         metadata={"description": "Timestamp UUID", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None, metadata={"description": "Stroke definition", "required": False}
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
+        metadata={"description": "Stroke definition", "required": False},
     )
     fill: TokenFlag = field(
         default_factory=lambda: TokenFlag("fill"),
@@ -754,8 +766,9 @@ class FpPoly(NamedObject):
         default_factory=lambda: TokenFlag("locked"),
         metadata={"description": "Whether thepolygon is locked", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 
@@ -804,8 +817,8 @@ class FpRect(NamedObject):
         default_factory=lambda: NamedFloat("width", 0.0),
         metadata={"description": "Line width (prior to version 7)", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition (from version 7)",
             "required": False,
@@ -886,8 +899,8 @@ class FpText(NamedObject):
     effects: Effects = field(
         default_factory=lambda: Effects(), metadata={"description": "Text effects"}
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier"}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(), metadata={"description": "Unique identifier"}
     )
 
 
@@ -935,22 +948,22 @@ class FpTextBox(NamedObject):
         },
     )
     text: str = field(default="", metadata={"description": "Content of the text box"})
-    start: Optional[Start] = field(
-        default=None,
+    start: Start = field(
+        default_factory=lambda: Start(),
         metadata={
             "description": "Top-left corner of cardinally oriented text box",
             "required": False,
         },
     )
-    end: Optional[End] = field(
-        default=None,
+    end: End = field(
+        default_factory=lambda: End(),
         metadata={
             "description": "Bottom-right corner of cardinally oriented text box",
             "required": False,
         },
     )
-    pts: Optional[Pts] = field(
-        default=None,
+    pts: Pts = field(
+        default_factory=lambda: Pts(),
         metadata={
             "description": "Four corners of non-cardinally oriented text box",
             "required": False,
@@ -972,8 +985,8 @@ class FpTextBox(NamedObject):
     effects: Effects = field(
         default_factory=lambda: Effects(), metadata={"description": "Text effects"}
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition for optional border",
             "required": False,

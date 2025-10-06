@@ -633,7 +633,10 @@ class NamedObject(SExpressionBase):
             elif field_info.inner_type.__name__ == "SymbolValue":
                 parsed_values[field_info.name] = None
 
-        return cls(**parsed_values)
+        instance = cls(**parsed_values)
+        # Track which fields were actually parsed for roundtrip fidelity
+        object.__setattr__(instance, "_parsed_fields", set(parsed_values.keys()))
+        return instance
 
     @classmethod
     def from_str(
@@ -918,11 +921,18 @@ class NamedObject(SExpressionBase):
     def to_sexpr(self) -> SExpr:
         """Serialize to S-expression."""
         result: SExpr = [self.__token_name__]
+        parsed_fields = getattr(self, "_parsed_fields", None)
+
         for field_info in self._classify_fields():
             value = getattr(self, field_info.name)
 
             if value is None:
                 continue
+
+            # For parsed objects, only include fields that were in the original data
+            if parsed_fields is not None and field_info.name not in parsed_fields:
+                continue
+
             if isinstance(value, SExpressionBase):
                 result.append(value.to_sexpr())
             elif isinstance(value, list):

@@ -55,8 +55,9 @@ class PinName(NamedObject):
     __token_name__: ClassVar[str] = "name"
 
     name: str = field(default="", metadata={"description": "Pin name string"})
-    effects: Optional[Effects] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
+    effects: Effects = field(
+        default_factory=lambda: Effects(),
+        metadata={"description": "Text effects", "required": False},
     )
 
 
@@ -76,8 +77,9 @@ class Number(NamedObject):
     __token_name__: ClassVar[str] = "number"
 
     number: str = field(default="", metadata={"description": "Pin number string"})
-    effects: Optional[Effects] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
+    effects: Effects = field(
+        default_factory=lambda: Effects(),
+        metadata={"description": "Text effects", "required": False},
     )
 
 
@@ -122,11 +124,13 @@ class Pin(NamedObject):
         default_factory=lambda: NamedFloat("length", 2.54),
         metadata={"description": "Pin length"},
     )
-    name: Optional[PinName] = field(
-        default=None, metadata={"description": "Pin name", "required": False}
+    name: PinName = field(
+        default_factory=lambda: PinName(),
+        metadata={"description": "Pin name", "required": False},
     )
-    number: Optional[Number] = field(
-        default=None, metadata={"description": "Pin number", "required": False}
+    number: Number = field(
+        default_factory=lambda: Number(),
+        metadata={"description": "Pin number", "required": False},
     )
     hide: TokenFlag = field(
         default_factory=lambda: TokenFlag("hide"),

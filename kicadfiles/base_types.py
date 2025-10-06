@@ -310,12 +310,12 @@ class Fill(NamedObject):
 
     __token_name__: ClassVar[str] = "fill"
 
-    type: Optional[Type] = field(
-        default=None,
+    type: Type = field(
+        default_factory=lambda: Type(value="none"),
         metadata={"description": "Fill type specification", "required": False},
     )
-    color: Optional[Color] = field(
-        default=None,
+    color: Color = field(
+        default_factory=lambda: Color(),
         metadata={"description": "Fill color specification", "required": False},
     )
 
@@ -498,8 +498,8 @@ class Stroke(NamedObject):
         default_factory=lambda: Type(value=StrokeType.SOLID.value),
         metadata={"description": "Stroke line style specification"},
     )
-    color: Optional[Color] = field(
-        default=None,
+    color: Color = field(
+        default_factory=lambda: Color(),
         metadata={"description": "Line color specification", "required": False},
     )
 
@@ -580,8 +580,8 @@ class Font(NamedObject):
         default_factory=lambda: TokenFlag("italic"),
         metadata={"description": "Italic flag", "required": False},
     )
-    color: Optional[Color] = field(
-        default=None,
+    color: Color = field(
+        default_factory=lambda: Color(),
         metadata={"description": "Font color", "required": False},
     )
 
@@ -671,11 +671,12 @@ class Effects(NamedObject):
 
     __token_name__: ClassVar[str] = "effects"
 
-    font: Optional[Font] = field(
-        default=None, metadata={"description": "Font definition", "required": False}
+    font: Font = field(
+        default_factory=lambda: Font(),
+        metadata={"description": "Font definition", "required": False},
     )
-    justify: Optional[Justify] = field(
-        default=None,
+    justify: Justify = field(
+        default_factory=lambda: Justify(),
         metadata={"description": "Text justification", "required": False},
     )
     hide: TokenFlag = field(
@@ -709,12 +710,13 @@ class Text(NamedObject):
     __token_name__: ClassVar[str] = "text"
 
     content: str = field(default="", metadata={"description": "Text content"})
-    at: Optional[At] = field(
-        default=None,
+    at: At = field(
+        default_factory=lambda: At(),
         metadata={"description": "Position and rotation", "required": False},
     )
-    effects: Optional[Effects] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
+    effects: Effects = field(
+        default_factory=lambda: Effects(),
+        metadata={"description": "Text effects", "required": False},
     )
     exclude_from_sim: TokenFlag = field(
         default_factory=lambda: TokenFlag("exclude_from_sim"),
@@ -723,8 +725,8 @@ class Text(NamedObject):
             "required": False,
         },
     )
-    uuid: Optional[Uuid] = field(
-        default=None,
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
         metadata={"description": "Unique identifier", "required": False},
     )
 
@@ -769,22 +771,25 @@ class Property(NamedObject):
         default_factory=lambda: NamedString("id", ""),
         metadata={"description": "Property ID", "required": False},
     )
-    at: Optional[At] = field(
-        default=None,
+    at: At = field(
+        default_factory=lambda: At(),
         metadata={"description": "Position and rotation", "required": False},
     )
-    effects: Optional[Effects] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
+    effects: Effects = field(
+        default_factory=lambda: Effects(),
+        metadata={"description": "Text effects", "required": False},
     )
     unlocked: TokenFlag = field(
         default_factory=lambda: TokenFlag("unlocked"),
         metadata={"description": "Whether property is unlocked", "required": False},
     )
-    layer: Optional[Layer] = field(
-        default=None, metadata={"description": "Layer assignment", "required": False}
+    layer: Layer = field(
+        default_factory=lambda: Layer(),
+        metadata={"description": "Layer assignment", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
     hide: TokenFlag = field(
         default_factory=lambda: TokenFlag("hide"),

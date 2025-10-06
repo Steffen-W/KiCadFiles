@@ -187,8 +187,9 @@ class Tbtext(NamedObject):
     pos: Pos = field(
         default_factory=lambda: Pos(), metadata={"description": "Position coordinates"}
     )
-    font: Optional[Font] = field(
-        default=None, metadata={"description": "Font settings", "required": False}
+    font: Font = field(
+        default_factory=lambda: Font(),
+        metadata={"description": "Font settings", "required": False},
     )
     repeat: NamedInt = field(
         default_factory=lambda: NamedInt("repeat", 0),
@@ -318,8 +319,8 @@ class WksSetup(NamedObject):
 
     __token_name__: ClassVar[str] = "setup"
 
-    textsize: Optional[WksTextsize] = field(
-        default=None,
+    textsize: WksTextsize = field(
+        default_factory=lambda: WksTextsize(),
         metadata={"description": "Text size", "required": False},
     )
     linewidth: NamedFloat = field(
@@ -460,11 +461,13 @@ class WksTbText(NamedObject):
     pos: Pos = field(
         default_factory=lambda: Pos(), metadata={"description": "Text position"}
     )
-    font: Optional[Font] = field(
-        default=None, metadata={"description": "Font settings", "required": False}
+    font: Font = field(
+        default_factory=lambda: Font(),
+        metadata={"description": "Font settings", "required": False},
     )
-    justify: Optional[Justify] = field(
-        default=None, metadata={"description": "Text justification", "required": False}
+    justify: Justify = field(
+        default_factory=lambda: Justify(),
+        metadata={"description": "Text justification", "required": False},
     )
     repeat: NamedInt = field(
         default_factory=lambda: NamedInt("repeat", 0),
@@ -528,11 +531,13 @@ class KicadWks(NamedObject):
         default_factory=lambda: NamedString("page", ""),
         metadata={"description": "Page settings", "required": False},
     )
-    title_block: Optional[TitleBlock] = field(
-        default=None, metadata={"description": "Title block", "required": False}
+    title_block: TitleBlock = field(
+        default_factory=lambda: TitleBlock(),
+        metadata={"description": "Title block", "required": False},
     )
-    setup: Optional[WksSetup] = field(
-        default=None, metadata={"description": "Worksheet setup", "required": False}
+    setup: WksSetup = field(
+        default_factory=lambda: WksSetup(),
+        metadata={"description": "Worksheet setup", "required": False},
     )
     rect: Optional[List[WksRect]] = field(
         default_factory=list,
@@ -669,8 +674,9 @@ class Image(NamedObject):
     uuid: Optional[Uuid] = field(
         default=None, metadata={"description": "Unique identifier", "required": False}
     )
-    data: Optional[Data] = field(
-        default=None, metadata={"description": "Image data", "required": False}
+    data: Data = field(
+        default_factory=lambda: Data(),
+        metadata={"description": "Image data", "required": False},
     )
     locked: TokenFlag = field(
         default_factory=lambda: TokenFlag("locked"),

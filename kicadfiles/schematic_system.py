@@ -59,8 +59,8 @@ class TableBorder(NamedObject):
         default_factory=lambda: TokenFlag("header"),
         metadata={"description": "Whether header border is shown", "required": False},
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition for border lines",
             "required": False,
@@ -94,8 +94,8 @@ class TableSeparators(NamedObject):
             "required": False,
         },
     )
-    stroke: Optional[Stroke] = field(
-        default=None,
+    stroke: Stroke = field(
+        default_factory=lambda: Stroke(),
         metadata={
             "description": "Stroke definition for separator lines",
             "required": False,
@@ -181,32 +181,32 @@ class TableCell(NamedObject):
             "required": False,
         },
     )
-    at: Optional[At] = field(
-        default=None,
+    at: At = field(
+        default_factory=lambda: At(),
         metadata={"description": "Position and rotation", "required": False},
     )
-    size: Optional[Size] = field(
-        default=None,
+    size: Size = field(
+        default_factory=lambda: Size(),
         metadata={"description": "Cell size", "required": False},
     )
-    margins: Optional[TableMargins] = field(
-        default=None,
+    margins: TableMargins = field(
+        default_factory=lambda: TableMargins(),
         metadata={"description": "Cell margins", "required": False},
     )
-    span: Optional[TableSpan] = field(
-        default=None,
+    span: TableSpan = field(
+        default_factory=lambda: TableSpan(),
         metadata={"description": "Cell span", "required": False},
     )
-    fill: Optional[Fill] = field(
-        default=None,
+    fill: Fill = field(
+        default_factory=lambda: Fill(),
         metadata={"description": "Fill definition", "required": False},
     )
-    effects: Optional[Effects] = field(
-        default=None,
+    effects: Effects = field(
+        default_factory=lambda: Effects(),
         metadata={"description": "Text effects", "required": False},
     )
-    uuid: Optional[Uuid] = field(
-        default=None,
+    uuid: Uuid = field(
+        default_factory=lambda: Uuid(),
         metadata={"description": "Unique identifier", "required": False},
     )
 
@@ -294,24 +294,24 @@ class Table(NamedObject):
         default=None,
         metadata={"description": "Number of columns", "required": False},
     )
-    border: Optional[TableBorder] = field(
-        default=None,
+    border: TableBorder = field(
+        default_factory=lambda: TableBorder(),
         metadata={"description": "Border configuration", "required": False},
     )
-    separators: Optional[TableSeparators] = field(
-        default=None,
+    separators: TableSeparators = field(
+        default_factory=lambda: TableSeparators(),
         metadata={"description": "Separator configuration", "required": False},
     )
-    column_widths: Optional[ColumnWidths] = field(
-        default=None,
+    column_widths: ColumnWidths = field(
+        default_factory=lambda: ColumnWidths(),
         metadata={"description": "Column width values", "required": False},
     )
-    row_heights: Optional[RowHeights] = field(
-        default=None,
+    row_heights: RowHeights = field(
+        default_factory=lambda: RowHeights(),
         metadata={"description": "Row height values", "required": False},
     )
-    cells: Optional[Cells] = field(
-        default=None,
+    cells: Cells = field(
+        default_factory=lambda: Cells(),
         metadata={"description": "Table cells", "required": False},
     )
 
@@ -334,16 +334,20 @@ class HierarchicalLabel(NamedObject):
 
     text: str = field(default="", metadata={"description": "Label text"})
     shape: Optional[LabelShape] = field(
-        default=None, metadata={"description": "Label shape", "required": False}
+        default=None,
+        metadata={"description": "Label shape", "required": False},
     )
     at: Optional[At] = field(
-        default=None, metadata={"description": "Position", "required": False}
+        default_factory=lambda: At(),
+        metadata={"description": "Position", "required": False},
     )
     effects: Optional[Effects] = field(
-        default=None, metadata={"description": "Text effects", "required": False}
+        default_factory=lambda: Effects(),
+        metadata={"description": "Text effects", "required": False},
     )
     uuid: Optional[Uuid] = field(
-        default=None, metadata={"description": "Unique identifier", "required": False}
+        default_factory=lambda: Uuid(),
+        metadata={"description": "Unique identifier", "required": False},
     )
 
 
@@ -701,8 +705,8 @@ class Project(NamedObject):
     __token_name__: ClassVar[str] = "project"
 
     name: str = field(default="", metadata={"description": "Project name"})
-    path: Optional[Path] = field(
-        default=None,
+    path: Path = field(
+        default_factory=lambda: Path(),
         metadata={"description": "Hierarchical path", "required": False},
     )
 
@@ -853,8 +857,8 @@ class Sheet(NamedObject):
             "required": False,
         },
     )
-    instances: Optional[SheetLocalInstances] = field(
-        default=None,
+    instances: SheetLocalInstances = field(
+        default_factory=lambda: SheetLocalInstances(),
         metadata={"description": "Sheet local instances", "required": False},
     )
 
@@ -1092,8 +1096,8 @@ class SchematicSymbol(NamedObject):
         default_factory=list,
         metadata={"description": "List of text elements", "required": False},
     )
-    instances: Optional[SymbolInstances] = field(
-        default=None,
+    instances: SymbolInstances = field(
+        default_factory=lambda: SymbolInstances(),
         metadata={"description": "Symbol instances", "required": False},
     )
 
@@ -1159,16 +1163,16 @@ class KicadSch(NamedObject):
         default_factory=lambda: Uuid(),
         metadata={"description": "Universally unique identifier for the schematic"},
     )
-    paper: Optional[Paper] = field(
-        default=None,
+    paper: Paper = field(
+        default_factory=lambda: Paper(),
         metadata={"description": "Paper settings", "required": False},
     )
-    title_block: Optional[TitleBlock] = field(
-        default=None,
+    title_block: TitleBlock = field(
+        default_factory=lambda: TitleBlock(),
         metadata={"description": "Title block", "required": False},
     )
-    lib_symbols: Optional[LibSymbols] = field(
-        default=None,
+    lib_symbols: LibSymbols = field(
+        default_factory=lambda: LibSymbols(),
         metadata={"description": "Symbol library container", "required": False},
     )
     junctions: Optional[List[Junction]] = field(
@@ -1241,8 +1245,8 @@ class KicadSch(NamedObject):
         default_factory=list,
         metadata={"description": "List of image elements", "required": False},
     )
-    sheet_instances: Optional[SheetInstances] = field(
-        default=None,
+    sheet_instances: SheetInstances = field(
+        default_factory=lambda: SheetInstances(),
         metadata={"description": "Sheet instances", "required": False},
     )
     embedded_fonts: TokenFlag = field(
